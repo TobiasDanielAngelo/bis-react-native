@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+description = ""
+authors = ["Daniel Tobias <tobias.danielangelo@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Django = "^4.1.7"
+djangorestframework = "^3.14.0"
+django-rest-knox = "^4.2.0"
+black = "^23.1.0"
+django-cors-headers = "^3.14.0"
+django-environ = "^0.10.0"
+Pillow = "^9.4.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
