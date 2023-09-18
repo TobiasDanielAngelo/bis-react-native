@@ -15,7 +15,6 @@ const { width } = Dimensions.get("window");
 
 export const SearchInputAutoComplete = (props: {
   disabled: boolean;
-  setLaborPopup: (visible: boolean) => void;
   setLaborItem: (laborItem: number) => void;
 }) => {
   const inputRef = useRef<TextInput>(null);
@@ -29,6 +28,7 @@ export const SearchInputAutoComplete = (props: {
     addItemToCart,
     customer,
     paymentStatus,
+    setPopup,
   } = useContext(POSContext);
 
   const dataMatches = useMemo(
@@ -88,7 +88,7 @@ export const SearchInputAutoComplete = (props: {
               if (!focused && customer !== -1 && paymentStatus === "not paid") {
                 props.setLaborItem(-1);
                 handleFocusedChange(false);
-                props.setLaborPopup(true);
+                setPopup("labor");
               }
             }}
           />
@@ -111,8 +111,6 @@ export const SearchInputAutoComplete = (props: {
           )}
         </View>
       </View>
-
-      <Text>{query}</Text>
 
       <View
         style={[styles.searchResults, { display: focused ? "flex" : "none" }]}

@@ -10,11 +10,12 @@
     "eas login": "eas login",
     "eas update:configure": "eas update:configure",
     "eas build:configure": "eas build:configure",
-    "eas build android": "eas build --platform android --local",
-    "eas whoami": "eas whoami"
+    "eas:build:android": "eas build --profile preview --platform android",
+    "eas whoami": "eas whoami",
+    "doctor": "npx expo-doctor"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.19.3",
+    "@react-native-async-storage/async-storage": "1.18.2",
     "@react-native-community/datetimepicker": "7.2.0",
     "@react-navigation/drawer": "^6.6.3",
     "@react-navigation/native": "^6.1.7",

@@ -75,12 +75,23 @@ export const POSView = observer((props: any) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [laborItem, setLaborItem] = useState(-1);
   const [salesItem, setSalesItem] = useState(-1);
-  const [namePopup, setNamePopup] = useState(false);
-  const [editNamePopup, setEditNamePopup] = useState(false);
-  const [updatePopup, setUpdatePopup] = useState(false);
-  const [payRequestPopup, setPayRequestPopup] = useState(false);
-  const [payValidationPopup, setPayValidationPopup] = useState(false);
-  const [laborPopup, setLaborPopup] = useState(false);
+
+  const [popup, setPopup] = useState<
+    | ""
+    | "name"
+    | "editName"
+    | "update"
+    | "payRequest"
+    | "payValidation"
+    | "labor"
+  >("");
+
+  // const [namePopup, setNamePopup] = useState(false);
+  // const [editNamePopup, setEditNamePopup] = useState(false);
+  // const [updatePopup, setUpdatePopup] = useState(false);
+  // const [payRequestPopup, setPayRequestPopup] = useState(false);
+  // const [payValidationPopup, setPayValidationPopup] = useState(false);
+  // const [laborPopup, setLaborPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dataList, setDataList] = useState<Item[]>([]);
   const [autoUpdate, setAutoUpdate] = useState(false);
@@ -652,70 +663,48 @@ export const POSView = observer((props: any) => {
           salesItems: salesItems,
           laborItems: laborItems,
           paymentStatus: payment,
+          popup: popup,
+          setPopup: setPopup,
         }}
       >
         {loading ? (
           <LoadingScreen />
         ) : (
           <>
-            <NewCustomerOverlay
-              handleNameSubmit={handleNameSubmit}
-              visible={namePopup}
-              setVisible={setNamePopup}
-            />
+            <NewCustomerOverlay handleNameSubmit={handleNameSubmit} />
             <AddLaborItemOverlay
-              visible={laborPopup}
-              setVisible={setLaborPopup}
               handleAddLaborSubmit={handleAddLaborSubmit}
               handleEditLaborSubmit={handleEditLaborSubmit}
               handleDelete={handleLaborDelete}
             />
-            <EditCustomerOverlay
-              handleUpdateSubmit={handleUpdateNameSubmit}
-              visible={editNamePopup}
-              setVisible={setEditNamePopup}
-            />
+            <EditCustomerOverlay handleUpdateSubmit={handleUpdateNameSubmit} />
             <UpdateItemOverlay
               handleDelete={handleDelete}
               handleUpdateSubmit={handleUpdateSubmit}
-              visible={updatePopup}
-              setVisible={setUpdatePopup}
             />
             <PaymentRequestOverlay
-              visible={payRequestPopup}
-              setVisible={setPayRequestPopup}
               handlePaymentSubmit={handlePaymentSubmit}
               total={currentTotal}
             />
             <PaymentValidationOverlay
-              visible={payValidationPopup}
-              setVisible={setPayValidationPopup}
               handleGiven={handleGiven}
               handlePaymentValidatedSubmit={handlePaymentValidatedSubmit}
             />
-            <CustomerQueueBar setNamePopup={setNamePopup} />
+            <CustomerQueueBar />
             <SearchInputAutoComplete
               disabled={customer === -1 || payment !== "not paid"}
               setLaborItem={setLaborItem}
-              setLaborPopup={setLaborPopup}
             />
             <View style={{ marginTop: 75 }} />
             <ScrollView style={styles.customerItems}>
-              <CustomerLaborItems
-                setLaborItem={setLaborItem}
-                setLaborPopup={setLaborPopup}
-              />
+              <CustomerLaborItems setLaborItem={setLaborItem} />
               <CustomerSalesItems
                 setSalesItem={setSalesItem}
-                setUpdatePopup={setUpdatePopup}
                 toggleClaimed={toggleClaimed}
               />
             </ScrollView>
 
             <StatusPOSBar
-              setEditNamePopup={setEditNamePopup}
-              setPayRequestPopup={setPayRequestPopup}
-              setPayValidationPopup={setPayValidationPopup}
               closeTransaction={closeTransaction}
               togglePayment={togglePayment}
               togglePrint={togglePrint}

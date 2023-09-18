@@ -11,13 +11,23 @@ export const laborDueToMechanic = (laborType: string, amount: number) => {
   return amount;
 };
 
-export const PaymentValidationOverlay = (props: any) => {
-  const { salesItems, laborItems, customer, customers, items } =
-    useContext(POSContext);
+export const PaymentValidationOverlay = (props: {
+  handleGiven: (description: string, collected: number) => void;
+  handlePaymentValidatedSubmit: () => void;
+}) => {
+  const {
+    salesItems,
+    laborItems,
+    customer,
+    customers,
+    items,
+    popup,
+    setPopup,
+  } = useContext(POSContext);
 
-  const handleCheck = useCallback(async () => {
-    await props.handlePaymentValidatedSubmit();
-    props.setVisible(false);
+  const handleCheck = useCallback(() => {
+    props.handlePaymentValidatedSubmit();
+    setPopup("");
   }, [customer]);
 
   const salesDue = salesItems
@@ -43,7 +53,7 @@ export const PaymentValidationOverlay = (props: any) => {
     .reduce((a, b) => a + b, 0);
   return (
     <>
-      <Overlay isVisible={props.visible}>
+      <Overlay isVisible={popup === "payValidation"}>
         <View style={styles.msgBox}>
           <View
             style={{
@@ -57,7 +67,7 @@ export const PaymentValidationOverlay = (props: any) => {
               name={"close"}
               size={30}
               color={"#aaa"}
-              onPress={() => props.setVisible(false)}
+              onPress={() => setPopup("")}
             />
           </View>
 
@@ -318,7 +328,7 @@ export const PaymentValidationOverlay = (props: any) => {
               name={"close"}
               size={40}
               color={"#aaa"}
-              onPress={() => props.setVisible(false)}
+              onPress={() => setPopup("")}
             />
           </View>
         </View>

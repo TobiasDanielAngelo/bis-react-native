@@ -59,6 +59,7 @@ export const RefundView = (props: any) => {
             | "validating",
           amountPaid: parseFloat(descDetails[4]) as number,
           discountSales: parseFloat(descDetails[5]) as number,
+          amountPaidGCash: parseFloat(descDetails[6]) as number,
           toPrint: descDetails[2] === "Print",
           isClosed: descDetails[3] === "Close",
           dateTransacted: s.datetime_transacted,

@@ -27,8 +27,13 @@ const formatDate = (date: Date) => {
   );
 };
 
-export const StatusPOSBar = (props: any) => {
-  const { focused, customer, customers, paymentStatus, salesItems } =
+export const StatusPOSBar = (props: {
+  closeTransaction: any;
+  togglePayment: any;
+  togglePrint: any;
+  currentTotal: number;
+}) => {
+  const { focused, customer, customers, paymentStatus, salesItems, setPopup } =
     useContext(POSContext);
 
   const { currentUser } = useContext(MainContext);
@@ -69,11 +74,7 @@ export const StatusPOSBar = (props: any) => {
         {customer === -1 ? (
           <></>
         ) : (
-          <Icon
-            name="edit"
-            size={25}
-            onPress={() => props.setEditNamePopup(true)}
-          />
+          <Icon name="edit" size={25} onPress={() => setPopup("editName")} />
         )}
         <Text style={styles.paymentStatusText}>
           {customer !== -1 && paymentStatus.toUpperCase()}
@@ -109,7 +110,7 @@ export const StatusPOSBar = (props: any) => {
               size={40}
               style={styles.payBtn}
               color="white"
-              onPress={() => props.setPayRequestPopup(true)}
+              onPress={() => setPopup("payRequest")}
             />
           ) : paymentStatus === "validating" ? (
             <Icon
@@ -153,8 +154,7 @@ export const StatusPOSBar = (props: any) => {
               paymentStatus === "paid"
                 ? () => {}
                 : () => {
-                    props.setPayValidationPopup(true);
-                    // props.togglePayment("paid");
+                    setPopup("payValidation");
                   }
             }
             onLongPress={

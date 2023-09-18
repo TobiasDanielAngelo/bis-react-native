@@ -3,8 +3,11 @@ import { useContext } from "react";
 import { SalesPOSItem } from "./SalesPOSItem";
 import { POSContext } from "../../interfaces/interfaces";
 
-export const CustomerSalesItems = (props: any) => {
-  const { customer, salesItems, items, paymentStatus, focused } =
+export const CustomerSalesItems = (props: {
+  setSalesItem: (salesItem: number) => void;
+  toggleClaimed: (itemId: number, claimed: boolean) => void;
+}) => {
+  const { customer, salesItems, items, paymentStatus, focused, setPopup } =
     useContext(POSContext);
 
   return (
@@ -30,7 +33,7 @@ export const CustomerSalesItems = (props: any) => {
               <TouchableOpacity
                 onPress={() => {
                   if (paymentStatus === "not paid") {
-                    props.setUpdatePopup(true);
+                    setPopup("update");
                     props.setSalesItem(s?.id ?? -1);
                   }
                 }}

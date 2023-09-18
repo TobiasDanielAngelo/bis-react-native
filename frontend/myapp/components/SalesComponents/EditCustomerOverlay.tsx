@@ -1,27 +1,26 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useContext } from "react";
 import { Text, View, StyleSheet, TextInput } from "react-native";
 import { Icon, Overlay } from "react-native-elements";
+import { POSContext } from "../../interfaces/interfaces";
 
 export const EditCustomerOverlay = (props: {
   handleUpdateSubmit: (name: string) => void;
-  visible: boolean;
-  setVisible: (v: boolean) => void;
 }) => {
   const [name, setName] = useState("");
-
+  const { popup, setPopup } = useContext(POSContext);
   const handleChange = useCallback((text: any) => {
     setName(text);
   }, []);
 
   useEffect(() => {
     setName("");
-  }, [props.visible]);
+  }, [popup]);
 
   return (
     <>
       <Overlay
-        isVisible={props.visible}
-        onBackdropPress={() => props.setVisible(false)}
+        isVisible={popup === "editName"}
+        onBackdropPress={() => setPopup("")}
       >
         <View style={styles.msgBox}>
           <View
@@ -35,7 +34,7 @@ export const EditCustomerOverlay = (props: {
               name={"close"}
               size={30}
               color={"#aaa"}
-              onPress={() => props.setVisible(false)}
+              onPress={() => setPopup("")}
             />
           </View>
           <View
@@ -68,8 +67,7 @@ export const EditCustomerOverlay = (props: {
               color={"#aaa"}
               onPress={() => {
                 props.handleUpdateSubmit(name);
-                // setName("");
-                props.setVisible(false);
+                setPopup("");
               }}
             />
           </View>

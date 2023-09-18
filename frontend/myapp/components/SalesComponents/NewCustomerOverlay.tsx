@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { Text, View, StyleSheet, TextInput } from "react-native";
 import { Icon, Overlay } from "react-native-elements";
+import { POSContext } from "../../interfaces/interfaces";
 
 const randomNameGen = () => {
   let firstName = [
@@ -157,7 +158,6 @@ const randomNameGen = () => {
     "Guillermo",
     "Alfonso",
   ];
-
   let address = [
     "Aliaga",
     "Bongabon",
@@ -320,24 +320,19 @@ const randomNameGen = () => {
 
 export const NewCustomerOverlay = (props: {
   handleNameSubmit: (name: string) => void;
-  visible: boolean;
-  setVisible: (v: boolean) => void;
 }) => {
+  const { popup, setPopup } = useContext(POSContext);
   const [name, setName] = useState("");
-
-  const handleChange = useCallback((text: any) => {
-    setName(text);
-  }, []);
 
   useEffect(() => {
     setName("");
-  }, [props.visible]);
+  }, [popup]);
 
   return (
     <>
       <Overlay
-        isVisible={props.visible}
-        onBackdropPress={() => props.setVisible(false)}
+        isVisible={popup === "name"}
+        onBackdropPress={() => setPopup("")}
       >
         <View style={styles.msgBox}>
           <View
@@ -351,7 +346,7 @@ export const NewCustomerOverlay = (props: {
               name={"close"}
               size={30}
               color={"#aaa"}
-              onPress={() => props.setVisible(false)}
+              onPress={() => setPopup("")}
             />
           </View>
           <View
@@ -373,7 +368,7 @@ export const NewCustomerOverlay = (props: {
                 height: 40,
               }}
               value={name}
-              onChangeText={handleChange}
+              onChangeText={setName}
             />
             <Icon
               name={"shuffle"}
@@ -390,8 +385,7 @@ export const NewCustomerOverlay = (props: {
               color={"#aaa"}
               onPress={() => {
                 props.handleNameSubmit(name);
-                // setName("");
-                props.setVisible(false);
+                setPopup("");
               }}
             />
           </View>

@@ -2,8 +2,15 @@ import { useCallback, useEffect, useState, useContext } from "react";
 import { Text, View, StyleSheet, TextInput } from "react-native";
 import { Icon, Overlay } from "react-native-elements";
 import { POSContext } from "../../interfaces/interfaces";
-export const PaymentRequestOverlay = (props: any) => {
-  const { salesItems, customer } = useContext(POSContext);
+export const PaymentRequestOverlay = (props: {
+  handlePaymentSubmit: (
+    paidAmt: number,
+    discAmt: number,
+    paidGCashAmt: number
+  ) => void;
+  total: number;
+}) => {
+  const { salesItems, customer, popup, setPopup } = useContext(POSContext);
 
   const [paidAmt, setPaidAmt] = useState("");
   const [paidGCashAmt, setPaidGCashAmt] = useState("0");
@@ -13,7 +20,7 @@ export const PaymentRequestOverlay = (props: any) => {
     setPaidAmt("");
     setDiscSalesAmt("0");
     setPaidGCashAmt("0");
-  }, [props.visible]);
+  }, [popup]);
 
   const handleCheck = useCallback(() => {
     console.log(
@@ -27,13 +34,13 @@ export const PaymentRequestOverlay = (props: any) => {
         isNaN(parseFloat(discSalesAmt)) ? 0 : parseFloat(discSalesAmt),
         parseFloat(paidGCashAmt)
       );
-      props.setVisible(false);
+      setPopup("");
     }
   }, [paidAmt, discSalesAmt, paidGCashAmt]);
 
   return (
     <>
-      <Overlay isVisible={props.visible}>
+      <Overlay isVisible={popup === "payRequest"}>
         <View style={styles.msgBox}>
           <View
             style={{
@@ -49,7 +56,7 @@ export const PaymentRequestOverlay = (props: any) => {
               name={"close"}
               size={30}
               color={"#aaa"}
-              onPress={() => props.setVisible(false)}
+              onPress={() => setPopup("")}
             />
           </View>
           <Text

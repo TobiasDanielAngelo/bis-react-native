@@ -4,8 +4,17 @@ import { Icon, Overlay } from "react-native-elements";
 import SelectDropdown from "react-native-select-dropdown";
 import { CustomerLaborItem, POSContext } from "../../interfaces/interfaces";
 
-export const AddLaborItemOverlay = (props: any) => {
-  const { customer, laborItem, laborItems } = useContext(POSContext);
+export const AddLaborItemOverlay = (props: {
+  handleAddLaborSubmit: (item: CustomerLaborItem, randNum: number) => void;
+  handleEditLaborSubmit: (
+    mechanic: string,
+    labor: string,
+    cost: number
+  ) => void;
+  handleDelete: () => void;
+}) => {
+  const { customer, laborItem, laborItems, popup, setPopup } =
+    useContext(POSContext);
 
   const [cost, setCost] = useState("0");
   const [mechanic, setMechanic] = useState("DATS");
@@ -56,7 +65,7 @@ export const AddLaborItemOverlay = (props: any) => {
       setCost("0");
       setMechanic("DATS");
     }
-  }, [props.visible]);
+  }, [popup]);
 
   const handleCheck = () => {
     const randNum = Math.round(1000 * Math.random());
@@ -71,19 +80,19 @@ export const AddLaborItemOverlay = (props: any) => {
       collected: 0,
     } as CustomerLaborItem;
     props.handleAddLaborSubmit(item, randNum);
-    props.setVisible(false);
+    setPopup("");
   };
 
   const handleUpdateCheck = () => {
-    props.handleEditLaborSubmit(mechanic, labor, cost);
-    props.setVisible(false);
+    props.handleEditLaborSubmit(mechanic, labor, parseFloat(cost));
+    setPopup("");
   };
 
   return (
     <>
       <Overlay
-        isVisible={props.visible}
-        onBackdropPress={() => props.setVisible(false)}
+        isVisible={popup === "labor"}
+        onBackdropPress={() => setPopup("")}
       >
         <View style={styles.msgBox}>
           <View
@@ -101,7 +110,7 @@ export const AddLaborItemOverlay = (props: any) => {
               name={"close"}
               size={30}
               color={"#aaa"}
-              onPress={() => props.setVisible(false)}
+              onPress={() => setPopup("")}
             />
           </View>
 
@@ -195,7 +204,7 @@ export const AddLaborItemOverlay = (props: any) => {
                 color={"#aaa"}
                 onPress={() => {
                   props.handleDelete();
-                  props.setVisible(false);
+                  setPopup("");
                 }}
               />
             )}

@@ -92,6 +92,24 @@ export type POSContent = {
   laborItem: number;
   laborItems: CustomerLaborItem[];
   paymentStatus: "paid" | "not paid" | "validating";
+  popup:
+    | ""
+    | "name"
+    | "editName"
+    | "update"
+    | "payRequest"
+    | "payValidation"
+    | "labor";
+  setPopup: (
+    popup:
+      | ""
+      | "name"
+      | "editName"
+      | "update"
+      | "payRequest"
+      | "payValidation"
+      | "labor"
+  ) => void;
 };
 
 export const POSContext = createContext<POSContent>({
@@ -109,6 +127,17 @@ export const POSContext = createContext<POSContent>({
   laborItem: -1,
   laborItems: [],
   paymentStatus: "not paid",
+  popup: "",
+  setPopup: (
+    popup:
+      | ""
+      | "name"
+      | "editName"
+      | "update"
+      | "payRequest"
+      | "payValidation"
+      | "labor"
+  ) => {},
 });
 
 export type RedeemContent = {

@@ -6,10 +6,8 @@ import { POSContext } from "../../interfaces/interfaces";
 export const UpdateItemOverlay = (props: {
   handleUpdateSubmit: (quantity: number) => void;
   handleDelete: () => void;
-  visible: boolean;
-  setVisible: (v: boolean) => void;
 }) => {
-  const { salesItem, items } = useContext(POSContext);
+  const { salesItem, items, popup, setPopup } = useContext(POSContext);
   const [qty, setQty] = useState("1");
 
   const handleChange = useCallback(
@@ -32,8 +30,8 @@ export const UpdateItemOverlay = (props: {
   return (
     <>
       <Overlay
-        isVisible={props.visible}
-        onBackdropPress={() => props.setVisible(false)}
+        isVisible={popup === "update"}
+        onBackdropPress={() => setPopup("")}
       >
         <View style={styles.msgBox}>
           <View
@@ -47,7 +45,7 @@ export const UpdateItemOverlay = (props: {
               name={"close"}
               size={30}
               color={"#aaa"}
-              onPress={() => props.setVisible(false)}
+              onPress={() => setPopup("")}
             />
           </View>
           <Text style={{ fontSize: 16, textAlign: "center" }}>{itemName}</Text>
@@ -78,28 +76,6 @@ export const UpdateItemOverlay = (props: {
                 }}
                 keyboardType="numeric"
               />
-              {/* <ScrollPicker
-                dataSource={Array.from(Array(100), (_, index) => index + 1)}
-                selectedIndex={0}
-                renderItem={(data, index, isSelected) => (
-                  <Text
-                    style={{
-                      color: isSelected ? "black" : "#888",
-                      fontSize: 18,
-                    }}
-                  >
-                    {data}
-                  </Text>
-                )}
-                onValueChange={(data) => {
-                  handleChange(data);
-                }}
-                wrapperHeight={100}
-                wrapperBackground="white"
-                itemHeight={30}
-                highlightColor="#d8d8d8"
-                highlightBorderWidth={2}
-              /> */}
             </View>
           </View>
           <View
@@ -111,8 +87,7 @@ export const UpdateItemOverlay = (props: {
               color={"#aaa"}
               onPress={() => {
                 props.handleDelete();
-                // setName("");
-                props.setVisible(false);
+                setPopup("");
               }}
             />
             <Icon
@@ -121,8 +96,7 @@ export const UpdateItemOverlay = (props: {
               color={"#aaa"}
               onPress={() => {
                 props.handleUpdateSubmit(parseInt(qty));
-                // setName("");
-                props.setVisible(false);
+                setPopup("");
               }}
             />
           </View>

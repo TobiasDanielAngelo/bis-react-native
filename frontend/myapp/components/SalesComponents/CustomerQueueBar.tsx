@@ -9,8 +9,8 @@ import { useContext } from "react";
 import { Icon } from "react-native-elements";
 import { POSContext } from "../../interfaces/interfaces";
 
-export const CustomerQueueBar = (props: any) => {
-  const { customer, setCustomer, customers } = useContext(POSContext);
+export const CustomerQueueBar = () => {
+  const { customer, setCustomer, customers, setPopup } = useContext(POSContext);
 
   return (
     <View style={styles.customerQueue}>
@@ -54,7 +54,7 @@ export const CustomerQueueBar = (props: any) => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-      <TouchableOpacity onPress={() => props.setNamePopup(true)}>
+      <TouchableOpacity onPress={() => setPopup("name")}>
         <Icon name="add" size={60} />
       </TouchableOpacity>
     </View>

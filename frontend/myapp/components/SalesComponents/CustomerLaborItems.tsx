@@ -3,8 +3,10 @@ import { useContext } from "react";
 import { LaborPOSItem } from "./LaborPOSItem";
 import { POSContext } from "../../interfaces/interfaces";
 
-export const CustomerLaborItems = (props: any) => {
-  const { customer, laborItems, focused, paymentStatus } =
+export const CustomerLaborItems = (props: {
+  setLaborItem: (laborItem: number) => void;
+}) => {
+  const { customer, laborItems, focused, paymentStatus, setPopup } =
     useContext(POSContext);
 
   return (
@@ -29,7 +31,7 @@ export const CustomerLaborItems = (props: any) => {
               <TouchableOpacity
                 onPress={() => {
                   if (paymentStatus === "not paid") {
-                    props.setLaborPopup(true);
+                    setPopup("labor");
                     props.setLaborItem(s?.id ?? -1);
                   }
                 }}
@@ -37,14 +39,6 @@ export const CustomerLaborItems = (props: any) => {
                 onLongPress={() => {
                   if (paymentStatus === "validating") {
                   }
-                  // props.toggleClaimed(
-                  //   s?.id ?? -1,
-                  //   !(
-                  //     salesItems.find(
-                  //       (t) => t.custId === customer && t.itemId === s?.id
-                  //     )?.claimed ?? false
-                  //   )
-                  // );
                 }}
               >
                 <LaborPOSItem
