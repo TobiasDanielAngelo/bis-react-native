@@ -61,7 +61,7 @@ export class UserStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/login`, {
+      fetch(`${process.env["BASE_URL"]}/login`, {
         method: "POST",
         body: JSON.stringify(credentials),
         headers: {
@@ -146,7 +146,7 @@ export class UserStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/reauth`, {
+      fetch(`${process.env["BASE_URL"]}/reauth`, {
         method: "POST",
         headers: {
           "Content-type": "application/json",

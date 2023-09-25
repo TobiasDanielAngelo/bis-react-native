@@ -8,7 +8,7 @@ import {
   modelAction,
 } from "mobx-keystone";
 
-export interface TransactionItemInterface {
+export interface ParticularTransaction {
   id?: string;
   description: string;
   remarks: string;
@@ -21,7 +21,7 @@ export interface TransactionInputInterface {
   description: string;
   transmitter: string;
   receiver: string;
-  particular_transaction: TransactionItemInterface[];
+  particular_transaction: ParticularTransaction[];
 }
 
 export interface TransactionUpdateInterface {
@@ -30,7 +30,7 @@ export interface TransactionUpdateInterface {
   description?: string;
   transmitter?: string;
   receiver?: string;
-  particular_transaction?: TransactionItemInterface[];
+  particular_transaction?: ParticularTransaction[];
 }
 
 export interface TransactionInterface {
@@ -41,7 +41,7 @@ export interface TransactionInterface {
   encoder: string;
   transmitter: string;
   receiver: string;
-  particular_transaction: TransactionItemInterface[];
+  particular_transaction: ParticularTransaction[];
 }
 
 @model("myApp/Transaction")
@@ -53,7 +53,7 @@ export class Transaction extends Model({
   encoder: prop<string>(""),
   transmitter: prop<string>(""),
   receiver: prop<string>(""),
-  particular_transaction: prop<TransactionItemInterface[]>(),
+  particular_transaction: prop<ParticularTransaction[]>(),
 }) {
   get asJson() {
     return {
@@ -79,32 +79,23 @@ export class Transaction extends Model({
     this.particular_transaction = details.particular_transaction;
     return this;
   }
-
-  get totalAmount() {
-    return this.particular_transaction
-      .map((s) => s.quantity * s.unit_amount)
-      .reduce((total: number, item: number) => total + item, 0);
-  }
 }
 
 @model("myApp/TransactionStore")
 export class TransactionStore extends Model({
   transactions: prop<Transaction[]>(() => []),
 }) {
-  get showTransactions() {
-    return this.transactions.map((s) => s.asJson);
-  }
-
-  @modelAction
-  transactionDetails(pk: string) {
-    return this.transactions.find((s) => `${s.pk}` === `${pk}`);
-  }
   get allIDs() {
     return this.transactions.map((s) => s.pk);
   }
 
   get allParticularTransactions() {
     return this.transactions.map((s) => s.particular_transaction).flat(1);
+  }
+
+  @modelAction
+  transactionDetails(pk: string) {
+    return this.transactions.find((s) => `${s.pk}` === `${pk}`);
   }
 
   @modelFlow
@@ -116,7 +107,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/${query}/`, {
+      fetch(`${process.env["BASE_URL"]}/${query}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -195,7 +186,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/transactions/`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/`, {
         method: "POST",
         body: JSON.stringify(transactionDetails),
         headers: {
@@ -248,7 +239,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/transactions/${pk}/`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/${pk}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -295,7 +286,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/transactions/${pk}/`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/${pk}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

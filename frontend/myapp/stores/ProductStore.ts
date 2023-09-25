@@ -67,7 +67,7 @@ export class ProductStore extends Model({
   }
 
   @modelFlow
-  fetchProducts = _async(function* (this: ProductStore) {
+  fetchProductByQuery = _async(function* (this: ProductStore, query: string) {
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -75,7 +75,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/products/`, {
+      fetch(`${process.env["BASE_URL"]}/products/?q=${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -106,6 +106,69 @@ export class ProductStore extends Model({
     }
 
     json.forEach((s) => {
+      // AsyncStorage.setItem(`@product${s.pk}`, JSON.stringify(s));
+      if (!this.allPK.includes(s.pk)) {
+        this.products.push(new Product(s));
+      }
+    });
+
+    return { details: "", ok: true, data: json };
+  });
+
+  @modelFlow
+  fetchProducts = _async(function* (this: ProductStore) {
+    // const products = JSON.parse(
+    //   (yield* _await(AsyncStorage.getItem("@allProducts"))) ?? "[]"
+    // ) as ProductInterface[];
+
+    // if (products.length > 0) {
+    //   products.forEach((s) => {
+    //     if (!this.allPK.includes(s.pk)) {
+    //       this.products.push(new Product(s));
+    //     }
+    //   });
+    //   return { details: "", ok: true, data: products };
+    // }
+
+    let token: string;
+
+    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
+
+    let response: Response;
+
+    response = yield* _await(
+      fetch(`${process.env["BASE_URL"]}/products/`, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+    );
+
+    if (!response.ok) {
+      let msg: any = yield* _await(response.json());
+      if (msg.non_field_errors) {
+        return {
+          details: `${msg.non_field_errors}`,
+          ok: false,
+          data: null,
+        };
+      }
+      return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let json: ProductInterface[];
+    try {
+      const resp = yield* _await(response.json());
+      json = resp;
+    } catch (error) {
+      console.error("Parsing Error", error);
+      return { details: "Parsing Error", ok: false, data: null };
+    }
+
+    json.forEach((s) => {
+      // AsyncStorage.setItem(`@product${s.pk}`, JSON.stringify(s));
       if (!this.allPK.includes(s.pk)) {
         this.products.push(new Product(s));
       }
@@ -126,7 +189,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/products`, {
+      fetch(`${process.env["BASE_URL"]}/products`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {

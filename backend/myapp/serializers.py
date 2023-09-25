@@ -74,9 +74,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class TransactionItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransactionLineItem
-        exclude = [
-            "transaction",
-        ]
+        fields = "__all__"
 
 
 class TransactionSerializer(serializers.ModelSerializer):

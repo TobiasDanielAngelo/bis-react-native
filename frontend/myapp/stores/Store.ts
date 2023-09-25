@@ -1,20 +1,23 @@
 import { createContext, useContext } from "react";
-import { productStore, ProductStore } from "./ProductStore";
-import { transactionStore, TransactionStore } from "./TransactionStore";
-import { userStore, UserStore } from "./UserStore";
 import { CategoryStore, categoryStore } from "./CategoryStore";
+import { ProductStore, productStore } from "./ProductStore";
+import { TransactionStore, transactionStore } from "./TransactionStore";
+import { UserStore, userStore } from "./UserStore";
+import { ParticularPOSStore, particularPOSStore } from "./ParticularPOSStore";
 
 class Store {
   userStore: UserStore;
   productStore: ProductStore;
   transactionStore: TransactionStore;
   categoryStore: CategoryStore;
+  particularPOSStore: ParticularPOSStore;
 
   constructor() {
     this.userStore = userStore;
     this.productStore = productStore;
     this.transactionStore = transactionStore;
     this.categoryStore = categoryStore;
+    this.particularPOSStore = particularPOSStore;
   }
 }
 

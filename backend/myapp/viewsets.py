@@ -1,10 +1,20 @@
-from rest_framework import viewsets
-from knox.auth import TokenAuthentication
+import operator
+import re
 from datetime import date
-from .serializers import ProductSerializer, TransactionSerializer, CategorySerializer
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import response
-from .models import Product, Transaction, Category
+from functools import reduce
+
+from django.db.models import Q
+from knox.auth import TokenAuthentication
+from rest_framework import response, viewsets
+from rest_framework.permissions import AllowAny, IsAuthenticated
+
+from .models import Category, Product, Transaction, TransactionLineItem
+from .serializers import (
+    CategorySerializer,
+    ProductSerializer,
+    TransactionItemSerializer,
+    TransactionSerializer,
+)
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -16,6 +26,30 @@ class ProductViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
 
     queryset = Product.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        params = self.request.query_params
+        if params.get("q"):
+            if len(f'{params["q"]}') > 4:
+                pattern = r"\W+"
+                list_queries = re.split(pattern, params["q"])
+                print(list_queries)
+                # queryset = None
+                queryset = self.filter_queryset(self.get_queryset()).filter(
+                    #     description__icontains=params["q"]
+                    reduce(
+                        operator.and_,
+                        (Q(description__icontains=x) for x in list_queries),
+                    )
+                )
+            else:
+                queryset = None
+
+        else:
+            queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        params = self.request.query_params
+        return response.Response(serializer.data)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -108,5 +142,27 @@ class PointOfSaleViewSet(viewsets.ModelViewSet):
                 category=Category.objects.filter(pk=1).first(),
                 description__icontains="Open",
             )
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
+
+
+class POSItemViewSet(viewsets.ModelViewSet):
+    serializer_class = TransactionItemSerializer
+    queryset = TransactionLineItem.objects.all()
+    permission_classes = [
+        # AllowAny,
+        IsAuthenticated,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    def list(self, request, *args, **kwargs):
+        params = self.request.query_params
+        if params.get("q"):
+            queryset = self.filter_queryset(self.get_queryset()).filter(
+                category=Category.objects.filter(pk=1).first(),
+                description__icontains=params["q"],
+            )
+        else:
+            queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)

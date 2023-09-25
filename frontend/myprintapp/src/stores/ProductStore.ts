@@ -74,7 +74,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/products/`, {
+      fetch(`${process.env["BASE_URL"]}/products/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -125,7 +125,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/products`, {
+      fetch(`${process.env["BASE_URL"]}/products`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {

@@ -8,21 +8,14 @@ import {
   _await,
   modelAction,
 } from "mobx-keystone";
-
-export interface TransactionItemInterface {
-  id?: string;
-  description: string;
-  remarks: string;
-  quantity: number;
-  unit_amount: number;
-}
+import { ParticularTransaction } from "../constants/interfaces";
 
 export interface TransactionInputInterface {
   category: string;
   description: string;
   transmitter: string;
   receiver: string;
-  particular_transaction: TransactionItemInterface[];
+  particular_transaction: ParticularTransaction[];
 }
 
 export interface TransactionUpdateInterface {
@@ -31,7 +24,7 @@ export interface TransactionUpdateInterface {
   description?: string;
   transmitter?: string;
   receiver?: string;
-  particular_transaction?: TransactionItemInterface[];
+  particular_transaction?: ParticularTransaction[];
 }
 
 export interface TransactionInterface {
@@ -42,7 +35,7 @@ export interface TransactionInterface {
   encoder: string;
   transmitter: string;
   receiver: string;
-  particular_transaction: TransactionItemInterface[];
+  particular_transaction: ParticularTransaction[];
 }
 
 @model("myApp/Transaction")
@@ -54,7 +47,7 @@ export class Transaction extends Model({
   encoder: prop<string>(""),
   transmitter: prop<string>(""),
   receiver: prop<string>(""),
-  particular_transaction: prop<TransactionItemInterface[]>(),
+  particular_transaction: prop<ParticularTransaction[]>(),
 }) {
   get asJson() {
     return {
@@ -92,10 +85,6 @@ export class Transaction extends Model({
 export class TransactionStore extends Model({
   transactions: prop<Transaction[]>(() => []),
 }) {
-  get showTransactions() {
-    return this.transactions.map((s) => s.asJson);
-  }
-
   @modelAction
   deleteTransactionHistory() {
     this.transactions.splice(0, this.transactions.length);
@@ -122,7 +111,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/${query}`, {
+      fetch(`${process.env["BASE_URL"]}/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -202,7 +191,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/transactions/`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/`, {
         method: "POST",
         body: JSON.stringify(transactionDetails),
         headers: {
@@ -255,7 +244,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/transactions/${pk}/`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/${pk}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -302,7 +291,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/transactions/${pk}/`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/${pk}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

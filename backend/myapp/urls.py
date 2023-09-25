@@ -9,6 +9,7 @@ from .viewsets import (
     IncomeViewSet,
     CategoryViewSet,
     PointOfSaleViewSet,
+    POSItemViewSet,
 )
 
 router = DefaultRouter()
@@ -18,6 +19,7 @@ router.register(r"categories", CategoryViewSet, basename="category")
 router.register(r"expenses", ExpenseViewSet, basename="expense")
 router.register(r"incomes", IncomeViewSet, basename="income")
 router.register(r"sales", PointOfSaleViewSet, basename="sales")
+router.register(r"particularpos", POSItemViewSet, basename="particularpos")
 
 urlpatterns = [
     path("", include(router.urls)),
