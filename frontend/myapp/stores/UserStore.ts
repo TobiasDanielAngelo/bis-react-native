@@ -9,20 +9,7 @@ import {
 } from "mobx-keystone";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-export interface UserInterface {
-  username: string;
-  userId: string;
-  firstName: string;
-  lastName: string;
-  privilege: string;
-  isActive: boolean;
-}
-
-export interface LoginInterface {
-  username: string;
-  password: string;
-}
+import { LoginInterface, UserInterface } from "../constants/interfaces";
 
 @model("myApp/User")
 export class User extends Model({

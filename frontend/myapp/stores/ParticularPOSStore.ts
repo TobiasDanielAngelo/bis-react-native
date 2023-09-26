@@ -17,6 +17,7 @@ export class ParticularPOS extends Model({
   remarks: prop<string>(""),
   quantity: prop<number>(0),
   unit_amount: prop<number>(0),
+  transaction: prop<number>(0),
 }) {
   get asJson() {
     return {
@@ -25,6 +26,7 @@ export class ParticularPOS extends Model({
       remarks: this.remarks,
       quantity: this.quantity,
       unit_amount: this.unit_amount,
+      transaction: this.transaction,
     };
   }
 
@@ -34,7 +36,7 @@ export class ParticularPOS extends Model({
     this.remarks = details.remarks ?? this.remarks;
     this.quantity = details.quantity ?? this.quantity;
     this.unit_amount = details.unit_amount ?? this.unit_amount;
-
+    this.transaction = details.transaction ?? this.transaction;
     return this;
   }
 }
@@ -45,6 +47,11 @@ export class ParticularPOSStore extends Model({
 }) {
   get allIDs() {
     return this.particulars.map((s) => s.id);
+  }
+
+  @modelAction
+  deleteParticularsHistory() {
+    this.particulars.splice(0, this.particulars.length);
   }
 
   @modelFlow
@@ -104,7 +111,7 @@ export class ParticularPOSStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/particularpos/q=Labor`, {
+      fetch(`${process.env["BASE_URL"]}/particularpos/?q=Labor`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",

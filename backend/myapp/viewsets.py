@@ -159,7 +159,7 @@ class POSItemViewSet(viewsets.ModelViewSet):
         params = self.request.query_params
         if params.get("q"):
             queryset = self.filter_queryset(self.get_queryset()).filter(
-                category=Category.objects.filter(pk=1).first(),
+                transaction__category=Category.objects.filter(pk=1).first(),
                 description__icontains=params["q"],
             )
         else:

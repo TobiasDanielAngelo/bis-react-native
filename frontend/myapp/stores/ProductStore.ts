@@ -8,16 +8,7 @@ import {
   _await,
   modelAction,
 } from "mobx-keystone";
-
-export interface ProductInterface {
-  pk: string;
-  unit: string;
-  description: string;
-  datetime_added: string;
-  sell_price: number;
-  location: string;
-  is_active: boolean;
-}
+import { ProductInterface } from "../constants/interfaces";
 
 @model("myApp/Product")
 export class Product extends Model({

@@ -8,13 +8,7 @@ import {
   _await,
   modelAction,
 } from "mobx-keystone";
-
-export interface CategoryInterface {
-  pk: string;
-  nature: string;
-  title: string;
-  logo: string;
-}
+import { CategoryInterface } from "../constants/interfaces";
 
 @model("myApp/Category")
 export class Category extends Model({

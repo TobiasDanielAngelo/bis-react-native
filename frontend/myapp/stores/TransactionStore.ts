@@ -8,35 +8,12 @@ import {
   _await,
   modelAction,
 } from "mobx-keystone";
-import { ParticularTransaction } from "../constants/interfaces";
-
-export interface TransactionInputInterface {
-  category: string;
-  description: string;
-  transmitter: string;
-  receiver: string;
-  particular_transaction: ParticularTransaction[];
-}
-
-export interface TransactionUpdateInterface {
-  id?: string;
-  category?: string;
-  description?: string;
-  transmitter?: string;
-  receiver?: string;
-  particular_transaction?: ParticularTransaction[];
-}
-
-export interface TransactionInterface {
-  pk?: string;
-  category: string;
-  description: string;
-  datetime_transacted: string;
-  encoder: string;
-  transmitter: string;
-  receiver: string;
-  particular_transaction: ParticularTransaction[];
-}
+import {
+  ParticularTransaction,
+  TransactionInputInterface,
+  TransactionInterface,
+  TransactionUpdateInterface,
+} from "../constants/interfaces";
 
 @model("myApp/Transaction")
 export class Transaction extends Model({
@@ -72,12 +49,6 @@ export class Transaction extends Model({
     this.datetime_transacted = details.datetime_transacted;
     this.particular_transaction = details.particular_transaction;
     return this;
-  }
-
-  get totalAmount() {
-    return this.particular_transaction
-      .map((s) => s.quantity * s.unit_amount)
-      .reduce((total: number, item: number) => total + item, 0);
   }
 }
 

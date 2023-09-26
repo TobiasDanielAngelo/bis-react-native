@@ -1,13 +1,20 @@
-import { createContext } from "react";
 import {
   defaultCustomer,
+  defaultExpense,
   defaultLaborItem,
+  defaultPOSItem,
   defaultSalesItem,
+  defaultUser,
 } from "./constants";
+import { createContext } from "react";
 
-export type POSItem = { id: number; name: string; price: number };
-
-export type Customer = {
+export interface CategoryInterface {
+  pk: string;
+  nature: string;
+  title: string;
+  logo: string;
+}
+export interface Customer {
   id: number;
   name: string;
   paymentStatus: "not paid" | "validating" | "paid";
@@ -17,24 +24,23 @@ export type Customer = {
   toPrint: boolean;
   isClosed: boolean;
   dateTransacted: string;
-};
-
-export type CustomerLabor = {
+}
+export interface CustomerLabor {
   id: number;
   name: string;
   paymentStatus: "not paid" | "validating" | "paid";
   amountPaid: number;
   dateTransacted: string;
-};
-
-export type Item = {
+}
+export interface CustomerLaborItem {
   id: number;
-  name: string;
-  remarks: string;
-  price: number;
-};
-
-export type CustomerSalesItem = {
+  custId: number;
+  laborer: string;
+  description: string;
+  cost: number;
+  collected: number;
+}
+export interface CustomerSalesItem {
   id: number;
   itemId: number;
   itemDescription: string;
@@ -42,53 +48,112 @@ export type CustomerSalesItem = {
   qty: number;
   unitAmount: number;
   claimed: boolean;
-};
-
-export type CustomerLaborItem = {
+}
+export interface Expense {
   id: number;
-  custId: number;
-  laborer: string;
+  amount: number;
+  spender: string;
+  remarks: string;
+  datetimeTransacted: string;
+  categoryId: string;
+  receiptId: number;
+}
+export interface Item {
+  id: number;
+  name: string;
+  remarks: string;
+  price: number;
+}
+export interface LoginInterface {
+  username: string;
+  password: string;
+}
+export interface ParticularTransaction {
+  id?: string;
+  description?: string;
+  remarks?: string;
+  quantity?: number;
+  unit_amount?: number;
+  transaction?: number;
+}
+export interface POSItem {
+  id: number;
+  name: string;
+  price: number;
+}
+export interface ProductInterface {
+  pk: string;
+  unit: string;
   description: string;
-  cost: number;
-  collected: number;
-};
+  datetime_added: string;
+  sell_price: number;
+  location: string;
+  is_active: boolean;
+}
 
-export type User = {
+export interface TransactionInputInterface {
+  category: string;
+  description: string;
+  transmitter: string;
+  receiver: string;
+  particular_transaction: ParticularTransaction[];
+}
+
+export interface TransactionInterface {
+  pk?: string;
+  category: string;
+  description: string;
+  datetime_transacted: string;
+  encoder: string;
+  transmitter: string;
+  receiver: string;
+  particular_transaction: ParticularTransaction[];
+}
+export interface TransactionUpdateInterface {
+  id?: string;
+  category?: string;
+  description?: string;
+  transmitter?: string;
+  receiver?: string;
+  particular_transaction?: ParticularTransaction[];
+}
+export interface User {
   username: string;
   userId: string;
   firstName: string;
   lastName: string;
   privilege: string;
   isActive: boolean;
+}
+export interface UserInterface {
+  username: string;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  privilege: string;
+  isActive: boolean;
+}
+export type M2S3Content = {
+  expense: Expense;
+  setExpense: (t: Expense) => void;
+  popup: string;
+  setPopup: (t: string) => void;
 };
+export const M2S3Context = createContext<M2S3Content>({
+  expense: defaultExpense,
+  setExpense: (t: Expense) => {},
+  popup: "",
+  setPopup: (t: string) => {},
+});
 
-export type MainContent = {
-  currentUser: User;
-  currentScreen: string;
-};
+export type MainContent = { currentUser: User; currentScreen: string };
 
 export const MainContext = createContext<MainContent>({
-  currentUser: {
-    username: "",
-    userId: "",
-    firstName: "",
-    lastName: "",
-    privilege: "",
-    isActive: true,
-  },
+  currentUser: defaultUser,
   currentScreen: "",
 });
 
-export const defaultUser = {
-  username: "",
-  userId: "",
-  firstName: "",
-  lastName: "",
-  privilege: "",
-  isActive: true,
-};
-
-export type POSContent = {
+export type M1S1Content = {
   items: POSItem[];
   popup: string;
   query: string;
@@ -126,7 +191,7 @@ export type POSContent = {
   currentTotal: number;
 };
 
-export const POSContext = createContext<POSContent>({
+export const M1S1Context = createContext<M1S1Content>({
   items: [],
   popup: "",
   query: "",
@@ -164,7 +229,7 @@ export const POSContext = createContext<POSContent>({
   currentTotal: 0,
 });
 
-export type RedeemContent = {
+export type M1S2Content = {
   laborItem: CustomerLaborItem;
   laborItems: CustomerLaborItem[];
   setLaborItem: (
@@ -174,12 +239,12 @@ export type RedeemContent = {
     t: CustomerLaborItem[] | ((u: CustomerLaborItem[]) => CustomerLaborItem[])
   ) => void;
   laborer: string;
-  setLaborer: (l: string) => void;
+  setLaborer: (t: string) => void;
   laborers: string[];
   customers: CustomerLabor[];
 };
 
-export const RedeemContext = createContext<RedeemContent>({
+export const M1S2Context = createContext<M1S2Content>({
   laborItem: defaultLaborItem,
   laborItems: [],
   setLaborItem: (
@@ -189,81 +254,95 @@ export const RedeemContext = createContext<RedeemContent>({
     t: CustomerLaborItem[] | ((u: CustomerLaborItem[]) => CustomerLaborItem[])
   ) => {},
   laborer: "Others",
-  setLaborer: (l: string) => {},
+  setLaborer: (t: string) => {},
   laborers: [],
   customers: [],
 });
 
-export type RefundContent = {
+export type M1S3Content = {
+  item: POSItem;
   items: POSItem[];
   query: string;
-  onQueryChange: (q: string) => void;
+  onQueryChange: (t: string) => void;
   focus: boolean;
-  onFocusChange: (f: boolean) => void;
-  salesItem: number;
+  onFocusChange: (t: boolean) => void;
+  customer: Customer;
+  customers: Customer[];
+  salesItem: CustomerSalesItem;
   salesItems: CustomerSalesItem[];
+  returnItem: CustomerSalesItem;
+  returnItems: CustomerSalesItem[];
+  setItem: (t: POSItem | ((u: POSItem) => POSItem)) => void;
+  setItems: (t: POSItem[] | ((u: POSItem[]) => POSItem[])) => void;
+  setCustomer: (t: Customer) => void;
+  setSalesItem: (
+    t: CustomerSalesItem | ((u: CustomerSalesItem) => CustomerSalesItem)
+  ) => void;
+  setReturnItem: (
+    t: CustomerSalesItem | ((u: CustomerSalesItem) => CustomerSalesItem)
+  ) => void;
+  setSalesItems: (
+    t: CustomerSalesItem[] | ((u: CustomerSalesItem[]) => CustomerSalesItem[])
+  ) => void;
+  setReturnItems: (
+    t: CustomerSalesItem[] | ((u: CustomerSalesItem[]) => CustomerSalesItem[])
+  ) => void;
+  popup: string;
+  setPopup: (t: string) => void;
 };
 
-export const RefundContext = createContext<RefundContent>({
+export const M1S3Context = createContext<M1S3Content>({
+  item: defaultPOSItem,
   items: [],
   query: "",
-  onQueryChange: (q: string) => {},
+  onQueryChange: (t: string) => {},
   focus: false,
-  onFocusChange: (f: boolean) => {},
-  salesItem: -1,
+  onFocusChange: (t: boolean) => {},
+  customer: defaultCustomer,
+  customers: [],
+  setCustomer: (t: Customer) => {},
+  salesItem: defaultSalesItem,
   salesItems: [],
-});
-
-export type ParticularTransaction = {
-  id?: string;
-  description?: string;
-  remarks?: string;
-  quantity?: number;
-  unit_amount?: number;
-};
-
-export type ReviewContent = {
-  items: POSItem[];
-};
-
-export const ReviewContext = createContext<ReviewContent>({
-  items: [],
-});
-
-export type Expenses = {
-  id: number;
-  amount: number;
-  spender: string;
-  remarks: string;
-  datetimeTransacted: string;
-  categoryId: string;
-  receiptId: number;
-};
-
-export const defaultExpense = {
-  id: -1,
-  amount: 0,
-  spender: "",
-  remarks: "",
-  datetimeTransacted: "",
-  categoryId: "",
-  receiptId: 0,
-};
-
-export type QuickExpenseContent = {};
-
-export const QuickExpenseContext = createContext<QuickExpenseContent>({});
-
-export type ExpenseReviewContent = {
-  expense: Expenses;
-  setExpense: (e: Expenses) => void;
-  popup: string;
-  setPopup: (popup: string) => void;
-};
-
-export const ExpenseReviewContext = createContext<ExpenseReviewContent>({
-  expense: defaultExpense,
-  setExpense: (e: Expenses) => {},
+  returnItem: defaultSalesItem,
+  returnItems: [],
+  setItem: (t: POSItem | ((u: POSItem) => POSItem)) => {},
+  setItems: (t: POSItem[] | ((u: POSItem[]) => POSItem[])) => {},
+  setSalesItem: (
+    t: CustomerSalesItem | ((u: CustomerSalesItem) => CustomerSalesItem)
+  ) => {},
+  setReturnItem: (
+    t: CustomerSalesItem | ((u: CustomerSalesItem) => CustomerSalesItem)
+  ) => {},
+  setSalesItems: (
+    t: CustomerSalesItem[] | ((u: CustomerSalesItem[]) => CustomerSalesItem[])
+  ) => {},
+  setReturnItems: (
+    t: CustomerSalesItem[] | ((u: CustomerSalesItem[]) => CustomerSalesItem[])
+  ) => {},
   popup: "",
-  setPopup: (popup: string) => {},
+  setPopup: (t: string) => {},
 });
+
+export type M1S4Content = {
+  customer: Customer;
+  setCustomer: (t: Customer) => void;
+  customers: Customer[];
+  salesItems: CustomerSalesItem[];
+  laborItems: CustomerLaborItem[];
+  returnItems: CustomerSalesItem[];
+  date: Date;
+};
+
+export const M1S4Context = createContext<M1S4Content>({
+  customer: defaultCustomer,
+  setCustomer: (t: Customer) => {},
+  customers: [],
+  salesItems: [],
+  laborItems: [],
+  returnItems: [],
+  date: new Date(),
+});
+
+export type M2S1Content = {};
+
+export const M2S1Context = createContext<M2S1Content>({});

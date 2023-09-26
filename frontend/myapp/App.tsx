@@ -1,10 +1,10 @@
 import * as React from "react";
 import { StyleSheet } from "react-native";
 import { NativeRouter, Route, Routes } from "react-router-native";
-import { HomeView } from "./containers/general/HomeView";
-import { LoginView } from "./containers/general/LoginView";
+import { HomeView } from "./components/G1C1";
+import { LoginView } from "./components/G0C1";
 import { StoreContext, createStore } from "./stores/Store";
-import { DummyView } from "./containers/general/DummyView";
+import { DummyView } from "./components/G3C1";
 
 export default function App() {
   const store = createStore();

@@ -1,10 +1,57 @@
 import { Dimensions } from "react-native";
-import { Customer, CustomerLaborItem, CustomerSalesItem } from "./interfaces";
+import {
+  Customer,
+  CustomerLaborItem,
+  CustomerSalesItem,
+  POSItem,
+} from "./interfaces";
 
 const { height, width } = Dimensions.get("window");
 
 export const winHeight = height;
 export const winWidth = width;
+
+export const mechanics = [
+  "DATS",
+  "Aldo",
+  "Reniel",
+  "Ping",
+  "Jervin",
+  "Jomar",
+  "Others",
+  "",
+];
+
+export const mechanicsColors = [
+  { color: "darkred", name: "DATS" },
+  { color: "chocolate", name: "Aldo" },
+  { color: "darkgoldenrod", name: "Jervin" },
+  { color: "darkgreen", name: "Ping" },
+  { color: "darkblue", name: "Reniel" },
+  { color: "indigo", name: "Jomar" },
+  { color: "darkviolet", name: "Others" },
+];
+
+export const labors = [
+  "Labor (Others)",
+  "Rebore",
+  "Press",
+  "Tire Changer",
+  "Overhaul",
+  "Torno",
+  "Asinta",
+  "Palit Gulong",
+  "Change Oil",
+  "Honing",
+  "Rimatse",
+  "General",
+];
+
+export const defaultPOSItem = {
+  id: -1,
+  name: "",
+  price: 0,
+} as POSItem;
 
 export const defaultCustomer = {
   id: -1,
@@ -33,3 +80,21 @@ export const defaultLaborItem = {
   cost: 0,
   collected: 0,
 } as CustomerLaborItem;
+
+export const defaultExpense = {
+  id: -1,
+  amount: 0,
+  spender: "",
+  remarks: "",
+  datetimeTransacted: "",
+  categoryId: "",
+  receiptId: 0,
+};
+export const defaultUser = {
+  username: "",
+  userId: "",
+  firstName: "",
+  lastName: "",
+  privilege: "",
+  isActive: true,
+};
