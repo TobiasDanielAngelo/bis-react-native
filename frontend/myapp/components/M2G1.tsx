@@ -11,18 +11,18 @@ export const MenuBar = (props: any) => {
           selected={props.view === "quick"}
         />
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => props.setView("loans")}>
+      <TouchableOpacity onPress={() => props.setView("category")}>
         <MenuItem
-          logoName="payments"
-          label="Loans"
-          selected={props.view === "loans"}
+          logoName="category"
+          label="Categorized"
+          selected={props.view === "category"}
         />
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => props.setView("view")}>
+      <TouchableOpacity onPress={() => props.setView("history")}>
         <MenuItem
           logoName="history"
-          label="View"
-          selected={props.view === "view"}
+          label="History"
+          selected={props.view === "history"}
         />
       </TouchableOpacity>
     </View>

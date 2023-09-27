@@ -1,36 +1,38 @@
-import DateTimePicker from "@react-native-community/datetimepicker";
+import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { Icon } from "react-native-elements";
+import { StyleSheet } from "react-native";
 import { defaultExpense } from "../constants/constants";
-import { isEqualDate } from "../constants/helpers";
 import { Expense, M2S3Context, MainContext } from "../constants/interfaces";
 import { useStore } from "../stores/Store";
-import { ExpenseHistoryItems } from "./M2S1G1";
-import { EditExpenseModal } from "./M2S1P1";
+import { DateSelector } from "./M1S2U2";
+import { ExpenseHistoryItems } from "./M2S3G1";
+import { EditExpenseModal } from "./M2P1";
 
-export const ReviewView = (props: any) => {
+export const ReviewView = (props: { visible: boolean }) => {
   const { categoryStore, transactionStore } = useStore();
   const [date, setDate] = useState(new Date());
   const [popup, setPopup] = useState("");
-  const [showDate, setShowDate] = useState(false);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [expense, setExpense] = useState(defaultExpense);
 
   const { currentScreen } = useContext(MainContext);
 
-  const getCategories = useCallback(async () => {
-    await categoryStore.fetchCategories();
-  }, []);
-
   const getTransactions = useCallback(async () => {
-    await transactionStore.fetchTransactions("expenses/");
+    await transactionStore.fetchTransactions(
+      `expenses/?date=${moment(date).format("YYYYMMDD")}`
+    );
+
     const ExpenseTransactions = transactionStore.transactions
       .map((s) => s.asJson)
       .map((s) => ({
         id: parseInt(s.pk),
         amount: s.particular_transaction
-          .map((t) => t.quantity ?? 0 * (t.unit_amount ?? 0))
+          .map(
+            (t) =>
+              (t.description?.includes("***Received***") ? -1 : 1) *
+              (t.quantity ?? 0) *
+              (t.unit_amount ?? 0)
+          )
           .reduce((a, b) => a + b, 0),
         spender: s.receiver,
         remarks: s.description,
@@ -40,89 +42,33 @@ export const ReviewView = (props: any) => {
       }));
 
     setExpenses(ExpenseTransactions);
-  }, []);
+  }, [date]);
 
-  const handleChangeDate = (date: Date) => {
-    setDate(date);
-    setShowDate(false);
+  const values = {
+    expense: expense,
+    setExpense: setExpense,
+    popup: popup,
+    setPopup: setPopup,
   };
 
-  const updateCost = async (cost: number) => {};
-
-  const deleteTransactionHistory = () => {
-    transactionStore.deleteTransactionHistory();
-  };
   useEffect(() => {
     if (props.visible && currentScreen === "Expenses") {
-      getCategories();
-      deleteTransactionHistory();
+      transactionStore.deleteTransactionHistory();
       getTransactions();
-
-      if (true) {
-        const interval = setInterval(() => {
-          getTransactions();
-        }, 10000);
-        return () => clearInterval(interval);
-      }
     }
-  }, [props.visible, currentScreen]);
+  }, [props.visible, currentScreen, date]);
 
   return (
     props.visible && (
-      <M2S3Context.Provider
-        value={{
-          expense: expense,
-          setExpense: setExpense,
-          popup: popup,
-          setPopup: setPopup,
-        }}
-      >
-        <EditExpenseModal updateCost={updateCost} />
-        <View
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "darkslategray",
-            paddingVertical: 10,
-            flexDirection: "row",
-          }}
-        >
-          <Text
-            style={{ fontSize: 30, color: "white" }}
-            onPress={() => setShowDate(true)}
-          >
-            {date.toDateString()}
-          </Text>
-          <Icon
-            name="edit"
-            size={35}
-            color="white"
-            style={{ margin: 10 }}
-            onPress={() => setShowDate(true)}
-          />
-        </View>
-        <View
-          style={{
-            alignItems: "center",
-            justifyContent: "flex-start",
-            flex: 1,
-          }}
-        >
-          <ExpenseHistoryItems
-            expenses={expenses.filter((s) =>
-              isEqualDate(s.datetimeTransacted, "")
-            )}
-          />
-        </View>
-        {showDate && (
-          <DateTimePicker
-            mode="date"
-            display="calendar"
-            value={date}
-            maximumDate={new Date()}
-            onChange={(_, date) => handleChangeDate(date ?? new Date())}
-          />
-        )}
+      <M2S3Context.Provider value={values}>
+        <EditExpenseModal
+          expense={expense}
+          setExpenses={setExpenses}
+          popup={popup}
+          setPopup={setPopup}
+        />
+        <DateSelector date={date} setDate={setDate} />
+        <ExpenseHistoryItems expenses={expenses} />
       </M2S3Context.Provider>
     )
   );

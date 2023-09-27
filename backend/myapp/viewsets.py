@@ -92,9 +92,23 @@ class ExpenseViewSet(viewsets.ModelViewSet):
         expense_categories = [
             x["pk"] for x in Category.objects.filter(nature="1").values("pk")
         ]
-        queryset = self.filter_queryset(self.get_queryset()).filter(
-            category__in=expense_categories
-        )
+        params = self.request.query_params
+
+        if params.get("cat"):
+            queryset = self.filter_queryset(self.get_queryset()).filter(
+                category__title=params["cat"]
+            )
+        elif params.get("date"):
+            queryset = self.filter_queryset(self.get_queryset()).filter(
+                category__in=expense_categories,
+                datetime_transacted__year=(params["date"])[0:4],
+                datetime_transacted__month=(params["date"])[4:6],
+                datetime_transacted__day=(params["date"])[6:8],
+            )
+        else:
+            queryset = self.filter_queryset(self.get_queryset()).filter(
+                category__in=expense_categories
+            )
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
 
@@ -132,7 +146,7 @@ class PointOfSaleViewSet(viewsets.ModelViewSet):
         params = self.request.query_params
         if params.get("date"):
             queryset = self.filter_queryset(self.get_queryset()).filter(
-                category=Category.objects.filter(pk=1).first(),
+                category__title="Point of Sales",
                 datetime_transacted__year=(params["date"])[0:4],
                 datetime_transacted__month=(params["date"])[4:6],
                 datetime_transacted__day=(params["date"])[6:8],
@@ -159,7 +173,7 @@ class POSItemViewSet(viewsets.ModelViewSet):
         params = self.request.query_params
         if params.get("q"):
             queryset = self.filter_queryset(self.get_queryset()).filter(
-                transaction__category=Category.objects.filter(pk=1).first(),
+                transaction__category__title="Point of Sales",
                 description__icontains=params["q"],
             )
         else:

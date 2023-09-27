@@ -133,18 +133,6 @@ export interface UserInterface {
   privilege: string;
   isActive: boolean;
 }
-export type M2S3Content = {
-  expense: Expense;
-  setExpense: (t: Expense) => void;
-  popup: string;
-  setPopup: (t: string) => void;
-};
-export const M2S3Context = createContext<M2S3Content>({
-  expense: defaultExpense,
-  setExpense: (t: Expense) => {},
-  popup: "",
-  setPopup: (t: string) => {},
-});
 
 export type MainContent = { currentUser: User; currentScreen: string };
 
@@ -343,6 +331,49 @@ export const M1S4Context = createContext<M1S4Content>({
   date: new Date(),
 });
 
-export type M2S1Content = {};
+export type M2S1Content = {
+  categories: CategoryInterface[];
+  viewHistory: boolean;
+  setViewHistory: (t: boolean | ((u: boolean) => boolean)) => void;
+  expenses: Expense[];
+  setExpenses: (t: Expense[] | ((u: Expense[]) => Expense[])) => void;
+};
 
-export const M2S1Context = createContext<M2S1Content>({});
+export const M2S1Context = createContext<M2S1Content>({
+  categories: [],
+  viewHistory: false,
+  setViewHistory: (t: boolean | ((u: boolean) => boolean)) => {},
+  expenses: [],
+  setExpenses: (t: Expense[] | ((u: Expense[]) => Expense[])) => {},
+});
+
+export type M2S2Content = {
+  expense: Expense;
+  setExpense: (t: Expense) => void;
+  expenses: Expense[];
+  setExpenses: (t: Expense[] | ((u: Expense[]) => Expense[])) => void;
+  popup: string;
+  setPopup: (t: string) => void;
+};
+
+export const M2S2Context = createContext<M2S2Content>({
+  expense: defaultExpense,
+  setExpense: (t: Expense) => {},
+  expenses: [],
+  setExpenses: (t: Expense[] | ((u: Expense[]) => Expense[])) => {},
+  popup: "",
+  setPopup: (t: string) => {},
+});
+
+export type M2S3Content = {
+  expense: Expense;
+  setExpense: (t: Expense) => void;
+  popup: string;
+  setPopup: (t: string) => void;
+};
+export const M2S3Context = createContext<M2S3Content>({
+  expense: defaultExpense,
+  setExpense: (t: Expense) => {},
+  popup: "",
+  setPopup: (t: string) => {},
+});

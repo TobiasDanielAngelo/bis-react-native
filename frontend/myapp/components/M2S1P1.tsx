@@ -1,106 +1,140 @@
-import { useContext, useEffect, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
-import { Icon, Overlay } from "react-native-elements";
-import { M2S3Context } from "../constants/interfaces";
+import { useCallback, useContext, useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
+import { Icon } from "react-native-elements";
+import { winWidth } from "../constants/constants";
+import { Expense, M2S1Context } from "../constants/interfaces";
+import { useStore } from "../stores/Store";
+import { particularPOSStore } from "../stores/ParticularPOSStore";
+import { ExpenseCategorySelector } from "./M2P2";
 
-export const EditExpenseModal = (props: any) => {
-  const [change, setChange] = useState("0");
-  const [receipt, setReceipt] = useState("");
-  const { popup, setPopup, expense } = useContext(M2S3Context);
+export const CreateExpenseForm = () => {
+  const [open, setOpen] = useState(false);
+  const { transactionStore, categoryStore } = useStore();
+  const { categories, expenses, viewHistory, setExpenses, setViewHistory } =
+    useContext(M2S1Context);
 
-  useEffect(() => {
-    setReceipt("");
-    setChange("0");
-  }, [popup]);
+  const [amount, setAmount] = useState("0");
+  const [category, setCategory] = useState("-1");
+  const [remarks, setRemarks] = useState("");
+  const [spender, setSpender] = useState("");
+
+  const setValue = (t: any) => {
+    setViewHistory(false);
+    setCategory(t);
+  };
+
+  const submitExpense = useCallback(async () => {
+    if (!isNaN(parseFloat(amount)) && parseFloat(amount) !== 0) {
+      let newTransaction = {
+        category: category,
+        description:
+          remarks === ""
+            ? `Expense ${categories.find((s) => s.pk === category)?.title}`
+            : remarks,
+        transmitter: "DATS",
+        receiver: spender === "" ? "-" : spender,
+        particular_transaction: [],
+      };
+
+      const resp = await transactionStore.addTransaction(newTransaction);
+
+      await particularPOSStore.addParticularPOS(
+        {
+          description: remarks === "" ? "-" : remarks,
+          remarks: remarks === "" ? "-" : remarks,
+          quantity: 1,
+          unit_amount: parseInt(amount),
+        },
+        parseInt(resp.data?.pk ?? "-1")
+      );
+
+      setExpenses((prev: Expense[]) => [
+        ...prev,
+        {
+          id: parseInt(resp.data?.pk ?? "-1"),
+          amount: parseFloat(amount),
+          spender: spender === "" ? "-" : spender,
+          remarks:
+            remarks === ""
+              ? `Expense ${categories.find((s) => s.pk === category)?.title}`
+              : remarks,
+          datetimeTransacted: resp.data?.datetime_transacted ?? "",
+          categoryId: categoryStore.categoryName(category) ?? "",
+          receiptId: 0,
+        },
+      ]);
+      setCategory("-1");
+      setAmount("0");
+      setSpender("");
+      setRemarks("");
+
+      setViewHistory(true);
+    }
+  }, [category, spender, remarks, amount, expenses]);
 
   return (
     <>
-      <Overlay
-        isVisible={popup === "editExpense"}
-        onBackdropPress={() => setPopup("")}
+      <ExpenseCategorySelector
+        categories={categories}
+        setValue={setValue}
+        categoryId={category}
+      />
+      <TouchableOpacity
+        onPress={() => setViewHistory((prev: boolean) => !prev)}
       >
-        <View style={styles.msgBox}>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ fontSize: 16 }}>Edit Expense</Text>
-            <Icon
-              name={"close"}
-              size={30}
-              color={"gainsboro"}
-              onPress={() => setPopup("")}
-            />
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              paddingHorizontal: 10,
-              marginTop: 10,
-            }}
-          >
-            <Text style={{ fontSize: 20, color: "grey" }}>Receipt</Text>
-            <TextInput
-              style={{
-                marginTop: -5,
-                padding: 5,
-                borderWidth: 1,
-                width: 150,
-                borderColor: "gainsboro",
-                fontSize: 20,
-                height: 40,
-                textAlign: "center",
-              }}
-              value={receipt}
-              onChangeText={setReceipt}
-            />
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              paddingHorizontal: 10,
-            }}
-          >
-            <Text style={{ fontSize: 20, color: "grey" }}>Previous</Text>
+        <View
+          style={[
+            styles.historyBtn,
+            { display: expenses.length > 0 ? "flex" : "none" },
+          ]}
+        >
+          <View style={{ justifyContent: "center", flex: 1 }}>
             <Text
               style={{
-                padding: 5,
                 fontSize: 20,
-                height: 40,
-                textAlign: "right",
+                color: "white",
+                textAlign: "center",
               }}
             >
-              {expense.amount.toFixed(2)}
+              {viewHistory ? "Hide History" : "View History"}
             </Text>
           </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              paddingHorizontal: 10,
-            }}
-          >
-            <Text style={{ fontSize: 20, color: "grey" }}>Change</Text>
+        </View>
+      </TouchableOpacity>
+      <ScrollView
+        style={{
+          display: category !== "-1" && !viewHistory ? "flex" : "none",
+        }}
+        keyboardShouldPersistTaps="always"
+      >
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <View>
+            <Text>Cost</Text>
             <TextInput
               style={{
-                marginTop: -5,
-                padding: 5,
                 borderWidth: 1,
+                backgroundColor: "white",
                 width: 150,
                 borderColor: "gainsboro",
-                fontSize: 20,
-                height: 40,
-                textAlign: "right",
+                fontSize: 25,
+                height: 50,
+                textAlign: "center",
+                padding: 10,
+                marginBottom: 20,
               }}
-              value={change}
+              value={amount}
+              placeholder="Set Cost"
               keyboardType="numeric"
               onChangeText={(amt) =>
-                setChange(
+                setAmount(
                   (isNaN(parseFloat(amt.replace(/[^.0-9]/g, "")))
                     ? ""
                     : amt.replace(/[^.0-9]/g, "")
@@ -109,49 +143,58 @@ export const EditExpenseModal = (props: any) => {
               }
             />
           </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              paddingHorizontal: 10,
-            }}
-          >
-            <Text style={{ fontSize: 20, color: "grey" }}>Updated Cost</Text>
-            <Text
-              style={{
-                padding: 5,
-                fontSize: 20,
-                height: 40,
-                textAlign: "right",
-              }}
-            >
-              {isNaN(parseFloat(change))
-                ? ""
-                : (expense.amount - parseFloat(change)).toFixed(2)}
-            </Text>
-          </View>
-
-          <View style={{ flexDirection: "row-reverse" }}>
-            <Icon
-              name={"check"}
-              size={40}
-              color={"gainsboro"}
-              onPress={() => {
-                props.updateCost(expense.amount - parseFloat(change));
-                setPopup("");
-              }}
-            />
-          </View>
+          <Icon
+            name="request-quote"
+            size={70}
+            color={"teal"}
+            onPress={submitExpense}
+          />
         </View>
-      </Overlay>
+        <Text>Requester (c/o):</Text>
+        <TextInput
+          style={{
+            borderWidth: 1,
+            backgroundColor: "white",
+            width: 300,
+            borderColor: "gainsboro",
+            fontSize: 17,
+            height: 40,
+            padding: 10,
+            marginBottom: 20,
+          }}
+          value={spender}
+          placeholder="Requester (Optional)"
+          onChangeText={(name) => setSpender(name)}
+          maxLength={15}
+        />
+        <Text>Remarks:</Text>
+        <TextInput
+          style={{
+            borderWidth: 1,
+            backgroundColor: "white",
+            width: 300,
+            borderColor: "gainsboro",
+            fontSize: 17,
+            height: 40,
+            padding: 10,
+            marginBottom: 20,
+          }}
+          maxLength={30}
+          value={remarks}
+          placeholder="Remarks (Optional)"
+          onChangeText={(name) => setRemarks(name)}
+        />
+      </ScrollView>
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  msgBox: {
-    height: 250,
-    width: 300,
-    justifyContent: "space-between",
+  historyBtn: {
+    width: 200,
+    height: 30,
+    borderRadius: 25,
+    borderColor: "gray",
+    backgroundColor: "teal",
   },
 });

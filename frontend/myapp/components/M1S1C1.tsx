@@ -34,6 +34,7 @@ import { PaymentRequestModal } from "./M1S1P3";
 import { SalesItemModal } from "./M1S1P4";
 import { PaymentValidationModal } from "./M1S1P5";
 import { StatusPOSBar } from "./M1S1S1";
+import { particularPOSStore } from "../stores/ParticularPOSStore";
 
 export const POSView = memo(
   (props: { visible: boolean; setPOSInputFocus: (focus: boolean) => void }) => {
@@ -58,6 +59,7 @@ export const POSView = memo(
       try {
         setLoading(true);
         await transactionStore.fetchTransactions(`sales/?active=1`);
+
         const POSTransactions = transactionStore.transactions.filter(
           (s) => s.category === categoryStore.categoryId("Point of Sales")
         );

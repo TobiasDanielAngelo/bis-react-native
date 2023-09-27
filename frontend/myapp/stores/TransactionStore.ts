@@ -106,6 +106,7 @@ export class TransactionStore extends Model({
     let json: TransactionInterface[];
     try {
       const resp = yield* _await(response.json());
+
       json = resp;
     } catch (error) {
       console.error("Parsing Error", error);

@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { defaultUser } from "../constants/constants";
 import { MainContext, User } from "../constants/interfaces";
 import { useStore } from "../stores/Store";
@@ -23,6 +23,8 @@ export const HomeView = () => {
     );
   };
 
+  const myFocusScreen = useMemo(() => "Expenses", []);
+
   const getCategories = useCallback(async () => {
     await categoryStore.fetchCategories();
   }, []);
@@ -39,7 +41,7 @@ export const HomeView = () => {
         currentScreen:
           latest.key?.split("-")[0] !== ""
             ? latest.key?.split("-")[0]
-            : "Sales",
+            : myFocusScreen,
       }}
     >
       <NavigationContainer
@@ -58,7 +60,7 @@ export const HomeView = () => {
         }}
       >
         <Drawer.Navigator
-          initialRouteName="Sales"
+          initialRouteName={myFocusScreen}
           screenOptions={{
             headerShown: false,
             headerStyle: {

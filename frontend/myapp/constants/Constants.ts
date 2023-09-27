@@ -90,6 +90,7 @@ export const defaultExpense = {
   categoryId: "",
   receiptId: 0,
 };
+
 export const defaultUser = {
   username: "",
   userId: "",

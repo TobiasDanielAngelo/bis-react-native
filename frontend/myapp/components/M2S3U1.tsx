@@ -3,11 +3,18 @@ import { useContext } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { Text } from "react-native-elements";
 import { winWidth } from "../constants/constants";
-import { Expense } from "../constants/interfaces";
+import { Expense, M2S3Context } from "../constants/interfaces";
 
-export const QuickExpenseItem = (props: { expense: Expense }) => {
+export const ExpenseHistoryItem = (props: { expense: Expense }) => {
+  const { setExpense, setPopup } = useContext(M2S3Context);
+
   return (
-    <TouchableOpacity>
+    <TouchableOpacity
+      onPress={() => {
+        setPopup("editExpense");
+        setExpense(props.expense);
+      }}
+    >
       <View style={[styles.listItem, styles.shadowProp]}>
         <View
           style={{

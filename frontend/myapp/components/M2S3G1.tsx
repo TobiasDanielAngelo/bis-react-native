@@ -1,8 +1,8 @@
 import { ScrollView, StyleSheet, Text } from "react-native";
 import { Expense } from "../constants/interfaces";
-import { QuickExpenseItem } from "./M2S1U1";
+import { ExpenseHistoryItem } from "./M2S3U1";
 
-export const QuickExpenseItems = (props: { expenses: Expense[] }) => {
+export const ExpenseHistoryItems = (props: { expenses: Expense[] }) => {
   return (
     <ScrollView style={styles.expenseTable}>
       <Text
@@ -12,13 +12,13 @@ export const QuickExpenseItems = (props: { expenses: Expense[] }) => {
           display: props.expenses.length > 0 ? "flex" : "none",
         }}
       >
-        Today's Expenses
+        History
       </Text>
 
       {props.expenses
         .sort((a, b) => b.id - a.id)
         .map((s) => (
-          <QuickExpenseItem expense={s} key={`expense-${s.id}`} />
+          <ExpenseHistoryItem expense={s} key={`expense-${s.id}`} />
         ))}
     </ScrollView>
   );

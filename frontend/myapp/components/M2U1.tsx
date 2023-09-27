@@ -13,7 +13,7 @@ export const MenuItem = (props: {
         styles.fcnBtns,
         {
           width: winWidth / 3,
-          backgroundColor: props.selected ? "darkcyan" : "teal",
+          backgroundColor: props.selected ? "lightseagreen" : "teal",
         },
       ]}
     >

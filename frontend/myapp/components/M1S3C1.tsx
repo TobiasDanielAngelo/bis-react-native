@@ -121,8 +121,6 @@ export const RefundView = (props: any) => {
           };
         });
 
-      console.log("SALES ITEMS", particularSalesItems);
-      console.log("RETURNED ITEMS", particularReturnedItems);
       setSalesItems(particularSalesItems);
       setReturnItems(particularReturnedItems);
       setLoading(false);

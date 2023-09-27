@@ -19,7 +19,7 @@ class TransactionItemInline(admin.TabularInline):
 
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("title", "nature", "logo")
+    list_display = ("title", "nature", "logo", "pk")
 
 
 class TransactionAdmin(admin.ModelAdmin):
