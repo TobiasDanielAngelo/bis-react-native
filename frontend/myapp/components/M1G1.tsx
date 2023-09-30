@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { MainContext } from "../constants/interfaces";
-import { MenuItem } from "./M1U1";
+import { MenuItem } from "./G4U1";
 
 export const MenuBar = (props: any) => {
   const { currentUser } = useContext(MainContext);
@@ -16,7 +16,10 @@ export const MenuBar = (props: any) => {
         },
       ]}
     >
-      <TouchableOpacity onPress={() => props.setView("transact")}>
+      <TouchableOpacity
+        onPress={() => props.setView("transact")}
+        style={{ flex: 1 }}
+      >
         <MenuItem
           logoName="point-of-sale"
           label="Transact"
@@ -24,7 +27,10 @@ export const MenuBar = (props: any) => {
         />
       </TouchableOpacity>
       {currentUser.privilege !== "3" && (
-        <TouchableOpacity onPress={() => props.setView("compensate")}>
+        <TouchableOpacity
+          onPress={() => props.setView("compensate")}
+          style={{ flex: 1 }}
+        >
           <MenuItem
             logoName="home-repair-service"
             label="Compensate"
@@ -32,7 +38,10 @@ export const MenuBar = (props: any) => {
           />
         </TouchableOpacity>
       )}
-      <TouchableOpacity onPress={() => props.setView("return")}>
+      <TouchableOpacity
+        onPress={() => props.setView("return")}
+        style={{ flex: 1 }}
+      >
         <MenuItem
           logoName="assignment-return"
           label="Return"
@@ -41,7 +50,7 @@ export const MenuBar = (props: any) => {
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => props.setView("view")}
-        // disabled={currentUser.privilege === "3"}
+        style={{ flex: 1 }}
       >
         <MenuItem
           logoName="history"

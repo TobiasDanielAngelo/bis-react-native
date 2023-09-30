@@ -1,8 +1,19 @@
-from rest_framework import serializers
-from .models import MyUser, Product, Transaction, Category, TransactionLineItem
-from .encoders import DecimalEncoder
-from django.contrib.auth import authenticate
 import json
+
+from django.contrib.auth import authenticate
+from rest_framework import serializers
+
+from .encoders import DecimalEncoder
+from .models import (
+    Category,
+    Mechanic,
+    Motor,
+    MyUser,
+    Product,
+    SparePart,
+    Transaction,
+    TransactionLineItem,
+)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -63,6 +74,24 @@ class ProductSerializer(serializers.ModelSerializer):
             "datetime_added",
             "is_active",
         ]
+
+
+class MotorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Motor
+        fields = "__all__"
+
+
+class MechanicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mechanic
+        fields = "__all__"
+
+
+class SparePartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SparePart
+        fields = "__all__"
 
 
 class CategorySerializer(serializers.ModelSerializer):

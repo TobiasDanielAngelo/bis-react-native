@@ -1,59 +1,30 @@
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useStore } from "../stores/Store";
+import { useState } from "react";
+import { SafeAreaView, StyleSheet, View } from "react-native";
+import { MenuBar } from "./M3G1";
+import { ProductsView } from "./M3S2C1";
 
-export const InventoryModule = observer(() => {
-  const { transactionStore } = useStore();
-  const [loading, setLoading] = useState(false);
-  const [refresh, setRefresh] = useState(false);
+export const InventoryModule = observer(({ navigation }: any) => {
+  const [view, setView] = useState("products");
 
-  const toggleRefresh = () => {
-    setRefresh((r) => !r);
-  };
-
-  const getInfo = async () => {
-    try {
-      setLoading(true);
-      await transactionStore.fetchTransactions("incomes");
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    getInfo();
-  }, [refresh]);
-
-  const incomes = transactionStore.transactions;
   return (
-    <SafeAreaView>
-      <Text style={{ backgroundColor: "yellow", fontSize: 30 }}>
-        {loading ? "Loading" : "Not Loading"}
-      </Text>
-
-      {incomes.map((s) => (
-        <View key={s.pk}>
-          <Text>
-            {s.transmitter}
-            {s.description} -
-            {s.particular_transaction.map((s) => s.description)}
-          </Text>
-        </View>
-      ))}
-      <TouchableOpacity onPress={toggleRefresh}>
-        <Text>Refresh</Text>
-      </TouchableOpacity>
+    <SafeAreaView style={styles.all}>
+      <View style={styles.body}>
+        <ProductsView visible={view === "products"} />
+      </View>
+      <MenuBar view={view} setView={setView} />
     </SafeAreaView>
   );
 });
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  all: {
+    flex: 1,
+  },
+  body: {
+    flex: 1,
+    justifyContent: "flex-end",
+    paddingTop: 25,
+    backgroundColor: "lightcyan",
+  },
+});

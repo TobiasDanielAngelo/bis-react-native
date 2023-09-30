@@ -27,7 +27,9 @@ export const ReturnItemModal = (props: {}) => {
     if (
       !returnItems.some(
         (s) => s.custId === customer.id && s.itemId === salesItem.id
-      )
+      ) &&
+      returnItem.id !== -1 &&
+      returnItem.id
     ) {
       setReturnItems((prev: CustomerSalesItem[]) => {
         (prev.find((s) => s.id === returnItem.id) ?? defaultSalesItem).qty =

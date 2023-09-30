@@ -88,7 +88,7 @@ export const defaultExpense = {
   remarks: "",
   datetimeTransacted: "",
   categoryId: "",
-  receiptId: 0,
+  receiptId: "",
 };
 
 export const defaultUser = {
@@ -98,4 +98,19 @@ export const defaultUser = {
   lastName: "",
   privilege: "",
   isActive: true,
+};
+
+export const defaultProduct = {
+  // part: "",
+  brand: "",
+  pieces: "1",
+  unitPP: "",
+  packPP: "",
+  unitSP: "",
+  packSP: "",
+  miscInfo: "",
+  location: "",
+  minimum: "",
+  unit: "pc.",
+  isOrig: false,
 };

@@ -50,7 +50,7 @@ export const QuickExpenseView = (props: any) => {
         remarks: s.description,
         datetimeTransacted: s.datetime_transacted,
         categoryId: categoryStore.categoryName(s.category) ?? "",
-        receiptId: -1,
+        receiptId: s.description,
       }));
 
     setExpenses(ExpenseTransactions);

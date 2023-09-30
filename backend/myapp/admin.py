@@ -1,11 +1,15 @@
 from django.contrib import admin
+
 from .models import (
+    Category,
+    Mechanic,
+    Motor,
     MyUser,
     Product,
-    Transaction,
-    Category,
-    TransactionLineItem,
     ProductImageLineItem,
+    SparePart,
+    Transaction,
+    TransactionLineItem,
 )
 
 
@@ -40,11 +44,29 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = (ProductImageInline,)
 
 
+class MotorAdmin(admin.ModelAdmin):
+    model = Motor
+    list_display = ("name", "maker")
+
+
 class MyUserAdmin(admin.ModelAdmin):
     model = MyUser
     list_display = ("user_id", "username")
 
 
+class SparePartAdmin(admin.ModelAdmin):
+    model = SparePart
+    list_display = ("name",)
+
+
+class MechanicAdmin(admin.ModelAdmin):
+    model = Mechanic
+    list_display = ("name",)
+
+
+admin.site.register(Motor, MotorAdmin)
+admin.site.register(Mechanic, MechanicAdmin)
+admin.site.register(SparePart, SparePartAdmin)
 admin.site.register(MyUser, MyUserAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)

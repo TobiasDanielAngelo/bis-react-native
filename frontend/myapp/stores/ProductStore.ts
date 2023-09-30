@@ -48,6 +48,11 @@ export class ProductStore extends Model({
   }
 
   @modelAction
+  deleteProductHistory() {
+    this.products.splice(0, this.products.length);
+  }
+
+  @modelAction
   productName(pk: string) {
     return this.products.find((s) => `${s.pk}` === `${pk}`)?.description;
   }

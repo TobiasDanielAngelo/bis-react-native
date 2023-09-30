@@ -14,9 +14,7 @@ export const RefundableSalesItems = () => {
     setCustomer,
     setPopup,
     setReturnItem,
-    returnItem,
     returnItems,
-    items,
   } = useContext(M1S3Context);
 
   return (

@@ -68,7 +68,7 @@ export const CreateExpenseForm = () => {
               : remarks,
           datetimeTransacted: resp.data?.datetime_transacted ?? "",
           categoryId: categoryStore.categoryName(category) ?? "",
-          receiptId: 0,
+          receiptId: "",
         },
       ]);
       setCategory("-1");

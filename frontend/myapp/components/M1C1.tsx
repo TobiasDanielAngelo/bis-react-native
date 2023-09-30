@@ -35,7 +35,6 @@ export const SalesModule = observer(({ navigation }: any) => {
         POSInputFocus={POSInputFocus}
         refundInputFocus={refundInputFocus}
       />
-      {/* <Button title="Logout" onPress={logoutUser} /> */}
     </SafeAreaView>
   );
 });

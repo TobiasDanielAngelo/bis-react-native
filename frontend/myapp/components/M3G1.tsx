@@ -5,25 +5,46 @@ export const MenuBar = (props: any) => {
   return (
     <View style={[styles.functions]}>
       <TouchableOpacity
-        onPress={() => props.setView("quick")}
+        onPress={() => props.setView("order")}
         style={{ flex: 1 }}
       >
         <MenuItem
-          logoName="flash-on"
-          label="Quick"
-          selected={props.view === "quick"}
+          logoName="add-shopping-cart"
+          label="Order"
+          selected={props.view === "order"}
         />
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={() => props.setView("category")}
+        onPress={() => props.setView("products")}
         style={{ flex: 1 }}
       >
         <MenuItem
           logoName="category"
-          label="Categorized"
-          selected={props.view === "category"}
+          label="Products"
+          selected={props.view === "products"}
         />
       </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => props.setView("delivery")}
+        style={{ flex: 1 }}
+      >
+        <MenuItem
+          logoName="local-shipping"
+          label="Delivery"
+          selected={props.view === "delivery"}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => props.setView("check")}
+        style={{ flex: 1 }}
+      >
+        <MenuItem
+          logoName="fact-check"
+          label="Check"
+          selected={props.view === "check"}
+        />
+      </TouchableOpacity>
+
       <TouchableOpacity
         onPress={() => props.setView("history")}
         style={{ flex: 1 }}

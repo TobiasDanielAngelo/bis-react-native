@@ -56,7 +56,7 @@ export interface Expense {
   remarks: string;
   datetimeTransacted: string;
   categoryId: string;
-  receiptId: number;
+  receiptId: string;
 }
 export interface Item {
   id: number;
@@ -64,10 +64,29 @@ export interface Item {
   remarks: string;
   price: number;
 }
+
 export interface LoginInterface {
   username: string;
   password: string;
 }
+
+export interface MotorInterface {
+  id: number;
+  name: string;
+  maker: string;
+}
+
+export interface SparePartInterface {
+  id: number;
+  name: string;
+}
+
+export interface MechanicInterface {
+  id: number;
+  name: string;
+  color: string;
+}
+
 export interface ParticularTransaction {
   id?: string;
   description?: string;
@@ -377,3 +396,6 @@ export const M2S3Context = createContext<M2S3Content>({
   popup: "",
   setPopup: (t: string) => {},
 });
+
+export type M3S2Content = {};
+export const M3S2Context = createContext<M3S2Content>({});

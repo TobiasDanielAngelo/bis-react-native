@@ -31,6 +31,20 @@ class Product(models.Model):
         return f"{self.description}"
 
 
+class Mechanic(models.Model):
+    name = models.CharField(max_length=20, default="")
+    color = models.CharField(max_length=20, default="gray")
+
+
+class Motor(models.Model):
+    name = models.CharField(max_length=20, default="")
+    maker = models.CharField(max_length=20, default="", blank=True)
+
+
+class SparePart(models.Model):
+    name = models.CharField(max_length=30, default="")
+
+
 class ProductImageLineItem(models.Model):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="product_image"

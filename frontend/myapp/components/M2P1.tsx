@@ -13,14 +13,27 @@ export const EditExpenseModal = (props: {
 }) => {
   const [change, setChange] = useState("0");
   const [receipt, setReceipt] = useState("");
-  const { particularPOSStore } = useStore();
+  const { particularPOSStore, transactionStore } = useStore();
 
   const onUpdateExpense = async (balance: number) => {
+    if (isNaN(balance)) return;
     props.setExpenses((prev: Expense[]) => {
       (prev.find((s) => s.id === props.expense.id) ?? defaultExpense).amount =
         props.expense.amount - balance;
       return [...prev];
     });
+
+    if (receipt !== "") {
+      props.setExpenses((prev: Expense[]) => {
+        (
+          prev.find((s) => s.id === props.expense.id) ?? defaultExpense
+        ).receiptId = receipt;
+        return [...prev];
+      });
+      await transactionStore.updateTransaction(`${props.expense.id}`, {
+        description: `Receipt ${receipt}`,
+      });
+    }
 
     await particularPOSStore.addParticularPOS(
       {
@@ -34,9 +47,9 @@ export const EditExpenseModal = (props: {
   };
 
   useEffect(() => {
-    setReceipt("");
+    setReceipt(props.expense.receiptId.replace("Receipt", ""));
     setChange("0");
-  }, [props.popup]);
+  }, [props.popup, props.expense]);
 
   return (
     <>

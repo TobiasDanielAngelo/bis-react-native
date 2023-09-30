@@ -8,10 +8,21 @@ from knox.auth import TokenAuthentication
 from rest_framework import response, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from .models import Category, Product, Transaction, TransactionLineItem
+from .models import (
+    Category,
+    Mechanic,
+    Motor,
+    Product,
+    SparePart,
+    Transaction,
+    TransactionLineItem,
+)
 from .serializers import (
     CategorySerializer,
+    MechanicSerializer,
+    MotorSerializer,
     ProductSerializer,
+    SparePartSerializer,
     TransactionItemSerializer,
     TransactionSerializer,
 )
@@ -61,6 +72,39 @@ class CategoryViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
 
     queryset = Category.objects.all()
+
+
+class MotorViewSet(viewsets.ModelViewSet):
+    serializer_class = MotorSerializer
+    permission_classes = [
+        IsAuthenticated,
+        # AllowAny,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = Motor.objects.all()
+
+
+class SparePartViewSet(viewsets.ModelViewSet):
+    serializer_class = SparePartSerializer
+    permission_classes = [
+        IsAuthenticated,
+        # AllowAny,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = SparePart.objects.all()
+
+
+class MechanicViewSet(viewsets.ModelViewSet):
+    serializer_class = MechanicSerializer
+    permission_classes = [
+        IsAuthenticated,
+        # AllowAny,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = Mechanic.objects.all()
 
 
 class TransactionViewSet(viewsets.ModelViewSet):

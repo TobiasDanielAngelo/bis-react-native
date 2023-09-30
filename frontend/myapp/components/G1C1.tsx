@@ -8,6 +8,9 @@ import { Drawer } from "./G1G1";
 import { DrawerActions } from "./G1U1";
 import { SalesModule } from "./M1C1";
 import { ExpensesModule } from "./M2C1";
+import { InventoryModule } from "./M3C1";
+
+const myFocusScreen = "Inventory";
 
 export const HomeView = () => {
   const [currentUser, setCurrentUser] = useState<User>();
@@ -22,8 +25,6 @@ export const HomeView = () => {
       JSON.parse((await AsyncStorage.getItem("@currentUser")) ?? "")
     );
   };
-
-  const myFocusScreen = useMemo(() => "Expenses", []);
 
   const getCategories = useCallback(async () => {
     await categoryStore.fetchCategories();
@@ -75,6 +76,7 @@ export const HomeView = () => {
           {currentUser?.privilege !== "3" && (
             <Drawer.Screen name="Expenses" component={ExpensesModule} />
           )}
+          <Drawer.Screen name="Inventory" component={InventoryModule} />
         </Drawer.Navigator>
       </NavigationContainer>
     </MainContext.Provider>

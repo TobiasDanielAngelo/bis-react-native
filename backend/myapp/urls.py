@@ -1,23 +1,30 @@
-from django.urls import path, include
-from . import views
+from django.urls import include, path
 from knox.views import LogoutView as KnoxLogoutView
 from rest_framework.routers import DefaultRouter
+
+from . import views
 from .viewsets import (
-    ProductViewSet,
-    TransactionViewSet,
+    CategoryViewSet,
     ExpenseViewSet,
     IncomeViewSet,
-    CategoryViewSet,
+    MechanicViewSet,
+    MotorViewSet,
     PointOfSaleViewSet,
     POSItemViewSet,
+    ProductViewSet,
+    SparePartViewSet,
+    TransactionViewSet,
 )
 
 router = DefaultRouter()
 router.register(r"products", ProductViewSet, basename="product")
 router.register(r"transactions", TransactionViewSet, basename="transaction")
 router.register(r"categories", CategoryViewSet, basename="category")
+router.register(r"motors", MotorViewSet, basename="motor")
+router.register(r"spareparts", SparePartViewSet, basename="sparepart")
 router.register(r"expenses", ExpenseViewSet, basename="expense")
 router.register(r"incomes", IncomeViewSet, basename="income")
+router.register(r"mechanics", MechanicViewSet, basename="mechanic")
 router.register(r"sales", PointOfSaleViewSet, basename="sales")
 router.register(r"particularpos", POSItemViewSet, basename="particularpos")
 
