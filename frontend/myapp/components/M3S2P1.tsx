@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import {
   ScrollView,
   Switch,
@@ -8,37 +8,71 @@ import {
   View,
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
-import { MotorInterface, SparePartInterface } from "../constants/interfaces";
+import {
+  M3S2Context,
+  MotorInterface,
+  ProductInterface,
+  SparePartInterface,
+} from "../constants/interfaces";
 import { useStore } from "../stores/Store";
 import { defaultProduct } from "../constants/constants";
 import { Icon } from "react-native-elements";
 
 export const ProductForm = (props: { mode: string }) => {
-  const { motorStore, sparePartStore } = useStore();
-  const [motors, setMotors] = useState<MotorInterface[]>([]);
+  const { motorStore, sparePartStore, productStore } = useStore();
+  const {
+    motors,
+    part,
+    setPart,
+    product,
+    setProduct,
+    selectedMotors,
+    setSelectedMotors,
+  } = useContext(M3S2Context);
   const [parts, setParts] = useState<SparePartInterface[]>([]);
 
   const [motorsOpen, setMotorsOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
-
-  const [part, setPart] = useState(-1);
+  const [showMotors, setShowMotors] = useState(true);
   const [partQuery, setPartQuery] = useState("");
   const [motorQuery, setMotorQuery] = useState("");
-  const [newMotors, setNewMotors] = useState<MotorInterface[]>([]);
 
-  const [product, setProduct] = useState(defaultProduct);
-  const [selectedMotors, setSelectedMotors] = useState<number[]>([]);
+  const onCreateProduct = async () => {
+    let details = {
+      piece_count: parseInt(product.pieces),
+      unit: product.unit.toUpperCase(),
+      description: product.miscInfo.toUpperCase(),
+      brand: product.brand.toUpperCase(),
+      part: part.toString(),
+      motors: selectedMotors.map((s) => motorStore.motorName(s)).join(", "),
+      generic: `${sparePartStore.sparePartName(part)} ${product.miscInfo}${
+        showMotors ? " " + motorStore.motorName(selectedMotors[0]) : ""
+      } ${product.brand}`.toUpperCase(),
+      datetime_added: new Date().toISOString(),
+      is_active: true,
+      location: product.location.toUpperCase(),
+      purchase_price: parseFloat(product.packPP),
+      sell_price: parseFloat(product.packSP),
+      min_quantity: parseInt(product.minimum),
+    };
 
-  const deleteMotor = (t: number) => {
-    setSelectedMotors((prev) => {
-      return prev.filter((s) => s !== t);
-    });
+    try {
+      const resp = await productStore.addProduct(details);
+      if (!resp.ok) return;
+      setCategoryOpen(false);
+      setMotorsOpen(false);
+      setPart(-1);
+      setProduct(defaultProduct);
+      setSelectedMotors([]);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const getMotors = async () => {
-    motorStore.deleteMotorHistory();
-    await motorStore.fetchMotors();
-    setMotors(motorStore.motors);
+  const deleteMotor = (t: number) => {
+    setSelectedMotors((prev: number[]) => {
+      return prev.filter((s) => s !== t);
+    });
   };
 
   const getSpareParts = async () => {
@@ -47,16 +81,15 @@ export const ProductForm = (props: { mode: string }) => {
     setParts(sparePartStore.spareParts);
   };
 
-  useEffect(() => {
-    setCategoryOpen(false);
-    setMotorsOpen(false);
-    setPart(-1);
-    setProduct(defaultProduct);
-    setSelectedMotors([]);
-  }, [props.mode]);
+  // useEffect(() => {
+  //   setCategoryOpen(false);
+  //   setMotorsOpen(false);
+  //   setPart(-1);
+  //   setProduct(defaultProduct);
+  //   setSelectedMotors([]);
+  // }, [props.mode]);
 
   useEffect(() => {
-    getMotors();
     getSpareParts();
   }, [props.mode]);
 
@@ -64,7 +97,7 @@ export const ProductForm = (props: { mode: string }) => {
     <View
       style={{
         paddingVertical: 10,
-        flex: 2,
+        flex: 8,
         display: props.mode !== "" ? "flex" : "none",
       }}
     >
@@ -83,18 +116,18 @@ export const ProductForm = (props: { mode: string }) => {
                 value: s.id,
                 icon: () => <Icon name="inventory" size={20} />,
               })),
-              {
-                label: partQuery.toUpperCase(),
-                value: 0,
-                icon: () => <Icon name="add" size={20} color="red" />,
-              },
+              // {
+              //   label: partQuery.toUpperCase(),
+              //   value: 0,
+              //   icon: () => <Icon name="add" size={20} color="red" />,
+              // },
             ]}
             multiple={false}
             setValue={setPart}
             value={part}
             open={categoryOpen}
             setOpen={setCategoryOpen}
-            onChangeSearchText={setPartQuery}
+            // onChangeSearchText={setPartQuery}
             textStyle={{
               fontSize: 17,
             }}
@@ -134,7 +167,7 @@ export const ProductForm = (props: { mode: string }) => {
           />
         </View>
         <View style={{ flexDirection: "row" }}>
-          <View style={{ marginHorizontal: 20, flex: 1 }}>
+          <View style={{ marginLeft: 20, flex: 1 }}>
             <Text>Suitable for Motors</Text>
             <DropDownPicker
               items={[
@@ -143,11 +176,11 @@ export const ProductForm = (props: { mode: string }) => {
                   value: s.id,
                   icon: () => <Text>[{s.maker.substring(0, 3)}]</Text>,
                 })),
-                {
-                  label: motorQuery.toUpperCase(),
-                  value: 0,
-                  icon: () => <Icon name="add" size={20} color="red" />,
-                },
+                // {
+                //   label: motorQuery.toUpperCase(),
+                //   value: 0,
+                //   icon: () => <Icon name="add" size={20} color="red" />,
+                // },
               ]}
               multiple={true}
               setValue={setSelectedMotors}
@@ -167,12 +200,22 @@ export const ProductForm = (props: { mode: string }) => {
                 borderRadius: 0,
                 marginBottom: 5,
               }}
-              onChangeSearchText={setMotorQuery}
+              // onChangeSearchText={setMotorQuery}
               placeholderStyle={{ color: "gray" }}
               placeholder="Select motors"
               searchable={true}
               searchPlaceholder="Search..."
             />
+          </View>
+          <View style={{ paddingHorizontal: 10, alignItems: "center" }}>
+            <Switch
+              trackColor={{ false: "gray", true: "teal" }}
+              onValueChange={setShowMotors}
+              value={showMotors}
+            />
+            <Text style={{ textAlign: "center" }}>
+              {showMotors ? "SHOWN" : "HIDDEN"}
+            </Text>
           </View>
         </View>
         <View
@@ -484,7 +527,7 @@ export const ProductForm = (props: { mode: string }) => {
             />
           </View>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onCreateProduct}>
           <View
             style={{
               borderRadius: 25,

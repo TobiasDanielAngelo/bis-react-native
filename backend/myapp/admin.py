@@ -40,7 +40,7 @@ class TransactionAdmin(admin.ModelAdmin):
 
 class ProductAdmin(admin.ModelAdmin):
     model = Product
-    list_display = ("description", "location", "pk", "sell_price")
+    list_display = ("generic", "pk")
     inlines = (ProductImageInline,)
 
 
@@ -61,7 +61,7 @@ class SparePartAdmin(admin.ModelAdmin):
 
 class MechanicAdmin(admin.ModelAdmin):
     model = Mechanic
-    list_display = ("name",)
+    list_display = ("name", "color")
 
 
 admin.site.register(Motor, MotorAdmin)

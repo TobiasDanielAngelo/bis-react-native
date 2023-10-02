@@ -3,6 +3,7 @@ import {
   defaultExpense,
   defaultLaborItem,
   defaultPOSItem,
+  defaultProduct,
   defaultSalesItem,
   defaultUser,
 } from "./constants";
@@ -101,13 +102,20 @@ export interface POSItem {
   price: number;
 }
 export interface ProductInterface {
-  pk: string;
+  id?: string;
+  piece_count: number;
   unit: string;
   description: string;
+  brand: string;
+  part: string;
+  motors: string;
+  generic: string;
   datetime_added: string;
-  sell_price: number;
-  location: string;
   is_active: boolean;
+  location: string;
+  purchase_price: number;
+  sell_price: number;
+  min_quantity: number;
 }
 
 export interface TransactionInputInterface {
@@ -247,7 +255,7 @@ export type M1S2Content = {
   ) => void;
   laborer: string;
   setLaborer: (t: string) => void;
-  laborers: string[];
+  laborers: MechanicInterface[];
   customers: CustomerLabor[];
 };
 
@@ -397,5 +405,22 @@ export const M2S3Context = createContext<M2S3Content>({
   setPopup: (t: string) => {},
 });
 
-export type M3S2Content = {};
-export const M3S2Context = createContext<M3S2Content>({});
+export type M3S2Content = {
+  motors: MotorInterface[];
+  part: number;
+  setPart: (t: any) => void;
+  product: typeof defaultProduct;
+  setProduct: (t: typeof defaultProduct) => void;
+  selectedMotors: number[];
+  setSelectedMotors: (t: number[] | ((u: number[]) => number[])) => void;
+};
+
+export const M3S2Context = createContext<M3S2Content>({
+  motors: [],
+  part: -1,
+  setPart: (t: any) => {},
+  product: defaultProduct,
+  setProduct: (t: typeof defaultProduct) => {},
+  selectedMotors: [],
+  setSelectedMotors: (t: number[] | ((u: number[]) => number[])) => {},
+});

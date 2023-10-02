@@ -19,24 +19,12 @@ export class Category extends Model({
   pk: prop<string>(""),
   nature: prop<string>(""),
   title: prop<string>(""),
-}) {
-  get asJson() {
-    return {
-      pk: this.pk,
-      nature: this.nature,
-      title: this.title,
-    };
-  }
-}
+}) {}
 
 @model("myApp/CategoryStore")
 export class CategoryStore extends Model({
   categories: prop<Category[]>(() => []),
 }) {
-  get showCategories() {
-    return this.categories.map((s) => s.asJson);
-  }
-
   get allIDs() {
     return this.categories.map((s) => s.pk);
   }

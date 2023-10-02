@@ -17,20 +17,6 @@ class MyUser(AbstractUser):
     date_joined = models.DateTimeField(default=timezone.now)
 
 
-class Product(models.Model):
-    unit = models.CharField(max_length=10, default="pcs")
-    description = models.CharField(max_length=200, default="")
-    generic = models.CharField(max_length=200, default="")
-    datetime_added = models.DateTimeField(default=timezone.now, blank=True)
-    is_active = models.BooleanField(default=True)
-    location = models.CharField(max_length=30)
-    sell_price = models.DecimalField(default=0, decimal_places=2, max_digits=10)
-    min_quantity = models.IntegerField(validators=[MinValueValidator(0)], default=1)
-
-    def __str__(self):
-        return f"{self.description}"
-
-
 class Mechanic(models.Model):
     name = models.CharField(max_length=20, default="")
     color = models.CharField(max_length=20, default="gray")
@@ -43,6 +29,36 @@ class Motor(models.Model):
 
 class SparePart(models.Model):
     name = models.CharField(max_length=30, default="")
+
+    def __str__(self):
+        return f"{self.name}"
+
+
+class ProductManager(models.Manager):
+    def name(self):
+        return "_".join([self.part__name, self.description, self.brand, self.motors])
+
+
+class Product(models.Model):
+    objects = ProductManager()
+    piece_count = models.IntegerField(validators=[MinValueValidator(1)], default=1)
+    unit = models.CharField(max_length=10, default="pcs")
+    description = models.CharField(max_length=50, default="")
+    brand = models.CharField(max_length=20, default="", blank=True)
+    part = models.ForeignKey(
+        SparePart, on_delete=models.SET_NULL, related_name="product_part", null=True
+    )
+    motors = models.CharField(max_length=200, default="", blank=True)
+    generic = models.CharField(max_length=200, default="", blank=True)
+    datetime_added = models.DateTimeField(default=timezone.now, blank=True)
+    is_active = models.BooleanField(default=True)
+    location = models.CharField(max_length=30)
+    purchase_price = models.DecimalField(default=0, decimal_places=2, max_digits=10)
+    sell_price = models.DecimalField(default=0, decimal_places=2, max_digits=10)
+    min_quantity = models.IntegerField(validators=[MinValueValidator(0)], default=1)
+
+    def __str__(self):
+        return f"{self.generic}"
 
 
 class ProductImageLineItem(models.Model):

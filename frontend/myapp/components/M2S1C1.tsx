@@ -34,24 +34,22 @@ export const QuickExpenseView = (props: any) => {
       `expenses/?date=${moment(new Date()).format("YYYYMMDD")}`
     );
 
-    const ExpenseTransactions = transactionStore.transactions
-      .map((s) => s.asJson)
-      .map((s) => ({
-        id: parseInt(s.pk),
-        amount: s.particular_transaction
-          .map(
-            (t) =>
-              (t.description?.includes("***Received***") ? -1 : 1) *
-              (t.quantity ?? 0) *
-              (t.unit_amount ?? 0)
-          )
-          .reduce((a, b) => a + b, 0),
-        spender: s.receiver,
-        remarks: s.description,
-        datetimeTransacted: s.datetime_transacted,
-        categoryId: categoryStore.categoryName(s.category) ?? "",
-        receiptId: s.description,
-      }));
+    const ExpenseTransactions = transactionStore.transactions.map((s) => ({
+      id: parseInt(s.pk),
+      amount: s.particular_transaction
+        .map(
+          (t) =>
+            (t.description?.includes("***Received***") ? -1 : 1) *
+            (t.quantity ?? 0) *
+            (t.unit_amount ?? 0)
+        )
+        .reduce((a, b) => a + b, 0),
+      spender: s.receiver,
+      remarks: s.description,
+      datetimeTransacted: s.datetime_transacted,
+      categoryId: categoryStore.categoryName(s.category) ?? "",
+      receiptId: s.description,
+    }));
 
     setExpenses(ExpenseTransactions);
   }, []);

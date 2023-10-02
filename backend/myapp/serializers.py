@@ -64,16 +64,7 @@ class LoginSerializer(serializers.Serializer):
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = [
-            "pk",
-            "unit",
-            "description",
-            "min_quantity",
-            "location",
-            "sell_price",
-            "datetime_added",
-            "is_active",
-        ]
+        fields = "__all__"
 
 
 class MotorSerializer(serializers.ModelSerializer):

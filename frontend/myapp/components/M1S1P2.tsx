@@ -2,8 +2,12 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { Icon, Overlay } from "react-native-elements";
 import SelectDropdown from "react-native-select-dropdown";
-import { defaultLaborItem, labors, mechanics } from "../constants/constants";
-import { CustomerLaborItem, M1S1Context } from "../constants/interfaces";
+import { defaultLaborItem, labors } from "../constants/constants";
+import {
+  CustomerLaborItem,
+  M1S1Context,
+  MechanicInterface,
+} from "../constants/interfaces";
 import { useStore } from "../stores/Store";
 
 Icon.defaultProps = Icon.defaultProps || {};
@@ -19,10 +23,16 @@ export const LaborItemModal = (props: {}) => {
     setLaborItems,
     setLaborItem,
   } = useContext(M1S1Context);
-  const { particularPOSStore } = useStore();
+  const { particularPOSStore, mechanicStore } = useStore();
   const [cost, setCost] = useState("0");
   const [mechanic, setMechanic] = useState("");
+  const [mechanics, setMechanics] = useState<MechanicInterface[]>([]);
   const [labor, setLabor] = useState("Labor (Others)");
+
+  const getMechanics = useCallback(async () => {
+    await mechanicStore.fetchMechanics();
+    setMechanics(mechanicStore.mechanics);
+  }, []);
 
   const onCreateLabor = useCallback(async () => {
     const resp = await particularPOSStore.addParticularPOS(
@@ -82,6 +92,10 @@ export const LaborItemModal = (props: {}) => {
     await particularPOSStore.deleteParticularPOS(`${laborItem.id}`);
     setLaborItem(defaultLaborItem);
   }, [laborItem, laborItems]);
+
+  useEffect(() => {
+    getMechanics();
+  }, []);
 
   useEffect(() => {
     if (laborItem.id !== -1) {

@@ -3,7 +3,8 @@ import re
 from datetime import date
 from functools import reduce
 
-from django.db.models import Q
+from django.db.models import Q, Value
+from django.db.models.functions import Concat
 from knox.auth import TokenAuthentication
 from rest_framework import response, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -15,6 +16,7 @@ from .models import (
     Product,
     SparePart,
     Transaction,
+    MyUser,
     TransactionLineItem,
 )
 from .serializers import (
@@ -24,6 +26,7 @@ from .serializers import (
     ProductSerializer,
     SparePartSerializer,
     TransactionItemSerializer,
+    UserSerializer,
     TransactionSerializer,
 )
 
@@ -31,12 +34,22 @@ from .serializers import (
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [
-        IsAuthenticated,
-        # AllowAny,
+        # IsAuthenticated,
+        AllowAny,
     ]
     authentication_classes = (TokenAuthentication,)
 
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().annotate(
+        name=Concat(
+            "part__name",
+            Value(" "),
+            "description",
+            Value(" "),
+            "motors",
+            Value(" "),
+            "brand",
+        )
+    )
 
     def list(self, request, *args, **kwargs):
         params = self.request.query_params
@@ -44,22 +57,47 @@ class ProductViewSet(viewsets.ModelViewSet):
             if len(f'{params["q"]}') > 4:
                 pattern = r"\W+"
                 list_queries = re.split(pattern, params["q"])
-                print(list_queries)
-                # queryset = None
                 queryset = self.filter_queryset(self.get_queryset()).filter(
-                    #     description__icontains=params["q"]
+                    reduce(
+                        operator.and_,
+                        (Q(name__icontains=x) for x in list_queries),
+                    )
+                )
+            else:
+                queryset = None
+        elif params.get("part"):
+            queryset = self.filter_queryset(self.get_queryset()).filter(
+                part=params["part"]
+            )
+            if params.get("brand"):
+                queryset = queryset.filter(brand__icontains=params["brand"])
+            if params.get("description"):
+                pattern = r"\W+"
+                list_queries = re.split(pattern, params["description"])
+                print(list_queries)
+                queryset = queryset.filter(
                     reduce(
                         operator.and_,
                         (Q(description__icontains=x) for x in list_queries),
                     )
                 )
-            else:
-                queryset = None
-
+            if params.get("motors"):
+                pattern = r"\W+"
+                list_queries = re.split(pattern, params["motors"])
+                queryset = queryset.filter(
+                    reduce(
+                        operator.or_,
+                        (
+                            Q(motors__icontains=Motor.objects.get(pk=x).name)
+                            for x in list_queries
+                        ),
+                    )
+                )
+            print(queryset)
         else:
-            queryset = self.filter_queryset(self.get_queryset())
+            queryset = None
+            # queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        params = self.request.query_params
         return response.Response(serializer.data)
 
 
@@ -105,6 +143,17 @@ class MechanicViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
 
     queryset = Mechanic.objects.all()
+
+
+class MyUserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    permission_classes = [
+        IsAuthenticated,
+        # AllowAny,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = MyUser.objects.all()
 
 
 class TransactionViewSet(viewsets.ModelViewSet):

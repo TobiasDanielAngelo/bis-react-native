@@ -9,7 +9,12 @@ import {
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { winWidth } from "../constants/constants";
-import { M1S1Context, POSItem } from "../constants/interfaces";
+import {
+  Item,
+  M1S1Context,
+  POSItem,
+  ProductInterface,
+} from "../constants/interfaces";
 import { useStore } from "../stores/Store";
 
 export const ProductSearch = (props: {}) => {
@@ -33,33 +38,16 @@ export const ProductSearch = (props: {}) => {
 
   const getProducts = async (query: string) => {
     const resp = await productStore.fetchProductByQuery(query.toUpperCase());
+
     setItems(
       resp.data?.map((s) => ({
-        id: parseInt(s.pk),
-        name: s.description,
+        id: parseInt(s.id ?? "-1"),
+        name: s.generic,
         price: s.sell_price,
         remarks: "",
       })) ?? []
     );
   };
-
-  const dataMatches = useMemo(
-    () =>
-      items.filter((s: POSItem) => {
-        if (query === "") {
-          return;
-        } else if (
-          query
-            .split(/[ ,]+/)
-            .every((v) => s.name.toLowerCase().includes(v.toLowerCase()))
-        ) {
-          return s;
-        } else {
-          return;
-        }
-      }),
-    [items, query]
-  );
 
   const onCreateSales = useCallback(
     async (item: POSItem) => {
@@ -186,7 +174,7 @@ export const ProductSearch = (props: {}) => {
         ]}
       >
         <FlatList
-          data={dataMatches}
+          data={items}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.searchResultItem}

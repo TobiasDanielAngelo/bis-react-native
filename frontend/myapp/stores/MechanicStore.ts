@@ -29,10 +29,6 @@ export class Mechanic extends Model({
 export class MechanicStore extends Model({
   mechanics: prop<Mechanic[]>(() => []),
 }) {
-  get showMechanics() {
-    return this.mechanics.map((s) => s.asJson);
-  }
-
   get allIDs() {
     return this.mechanics.map((s) => s.id);
   }

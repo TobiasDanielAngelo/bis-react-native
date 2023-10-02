@@ -65,6 +65,7 @@ export class TransactionStore extends Model({
   transactionDetails(pk: string) {
     return this.transactions.find((s) => `${s.pk}` === `${pk}`);
   }
+
   get allIDs() {
     return this.transactions.map((s) => s.pk);
   }

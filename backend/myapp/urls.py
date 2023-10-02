@@ -14,9 +14,11 @@ from .viewsets import (
     ProductViewSet,
     SparePartViewSet,
     TransactionViewSet,
+    MyUserViewSet,
 )
 
 router = DefaultRouter()
+router.register(r"users", MyUserViewSet, basename="users")
 router.register(r"products", ProductViewSet, basename="product")
 router.register(r"transactions", TransactionViewSet, basename="transaction")
 router.register(r"categories", CategoryViewSet, basename="category")

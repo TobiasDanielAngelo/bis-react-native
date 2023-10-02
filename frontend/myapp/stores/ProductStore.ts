@@ -12,25 +12,37 @@ import { ProductInterface } from "../constants/interfaces";
 
 @model("myApp/Product")
 export class Product extends Model({
-  pk: prop<string>(""),
+  id: prop<string>(""),
+  piece_count: prop<number>(0),
   unit: prop<string>(""),
   description: prop<string>(""),
-  min_quantity: prop<number>(0),
-  location: prop<string>(""),
-  sell_price: prop<number>(0),
+  brand: prop<string>(""),
+  part: prop<string>(""),
+  motors: prop<string>(""),
+  generic: prop<string>(""),
   datetime_added: prop<string>(""),
   is_active: prop<boolean>(true),
+  location: prop<string>(""),
+  purchase_price: prop<number>(0),
+  sell_price: prop<number>(0),
+  min_quantity: prop<number>(0),
 }) {
   get asJson() {
     return {
-      pk: this.pk,
+      id: this.id,
+      piece_count: this.piece_count,
       unit: this.unit,
       description: this.description,
-      min_quantity: this.min_quantity,
-      location: this.location,
-      sell_price: this.sell_price,
+      brand: this.brand,
+      part: this.part,
+      motors: this.motors,
+      generic: this.generic,
       datetime_added: this.datetime_added,
       is_active: this.is_active,
+      location: this.location,
+      purchase_price: this.purchase_price,
+      sell_price: this.sell_price,
+      min_quantity: this.min_quantity,
     };
   }
 }
@@ -39,27 +51,13 @@ export class Product extends Model({
 export class ProductStore extends Model({
   products: prop<Product[]>(() => []),
 }) {
-  get showProducts() {
-    return this.products.map((s) => s.asJson);
-  }
-
   get allPK() {
-    return this.products.map((s) => s.pk);
+    return this.products.map((s) => s.id);
   }
 
   @modelAction
   deleteProductHistory() {
     this.products.splice(0, this.products.length);
-  }
-
-  @modelAction
-  productName(pk: string) {
-    return this.products.find((s) => `${s.pk}` === `${pk}`)?.description;
-  }
-
-  @modelAction
-  productPrice(pk: string) {
-    return this.products.find((s) => `${s.pk}` === `${pk}`)?.sell_price;
   }
 
   @modelFlow
@@ -102,8 +100,68 @@ export class ProductStore extends Model({
     }
 
     json.forEach((s) => {
-      // AsyncStorage.setItem(`@product${s.pk}`, JSON.stringify(s));
-      if (!this.allPK.includes(s.pk)) {
+      if (!this.allPK.includes(s.id ?? "-1")) {
+        this.products.push(new Product(s));
+      }
+    });
+
+    return { details: "", ok: true, data: json };
+  });
+
+  @modelFlow
+  fetchProductByProps = _async(function* (
+    this: ProductStore,
+    brand: string,
+    part: number,
+    motors: number[],
+    description: string
+  ) {
+    let token: string;
+
+    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
+
+    let response: Response;
+
+    response = yield* _await(
+      fetch(
+        `${
+          process.env["BASE_URL"]
+        }/products/?brand=${brand}&part=${part}&motors=${motors.join(
+          "+"
+        )}&description=${description}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+    );
+
+    if (!response.ok) {
+      let msg: any = yield* _await(response.json());
+      if (msg.non_field_errors) {
+        return {
+          details: `${msg.non_field_errors}`,
+          ok: false,
+          data: null,
+        };
+      }
+      return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let json: ProductInterface[];
+    try {
+      const resp = yield* _await(response.json());
+      json = resp;
+    } catch (error) {
+      console.error("Parsing Error", error);
+      return { details: "Parsing Error", ok: false, data: null };
+    }
+
+    json.forEach((s) => {
+      if (!this.allPK.includes(s.id ?? "-1")) {
         this.products.push(new Product(s));
       }
     });
@@ -113,19 +171,6 @@ export class ProductStore extends Model({
 
   @modelFlow
   fetchProducts = _async(function* (this: ProductStore) {
-    // const products = JSON.parse(
-    //   (yield* _await(AsyncStorage.getItem("@allProducts"))) ?? "[]"
-    // ) as ProductInterface[];
-
-    // if (products.length > 0) {
-    //   products.forEach((s) => {
-    //     if (!this.allPK.includes(s.pk)) {
-    //       this.products.push(new Product(s));
-    //     }
-    //   });
-    //   return { details: "", ok: true, data: products };
-    // }
-
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -164,8 +209,7 @@ export class ProductStore extends Model({
     }
 
     json.forEach((s) => {
-      // AsyncStorage.setItem(`@product${s.pk}`, JSON.stringify(s));
-      if (!this.allPK.includes(s.pk)) {
+      if (!this.allPK.includes(s.id ?? "-1")) {
         this.products.push(new Product(s));
       }
     });
@@ -185,7 +229,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products`, {
+      fetch(`${process.env["BASE_URL"]}/products/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -194,6 +238,7 @@ export class ProductStore extends Model({
         },
       })
     );
+
     if (!response.ok) {
       let msg: any = yield* _await(response.json());
       if (msg.non_field_errors) {
@@ -209,7 +254,7 @@ export class ProductStore extends Model({
     let json: ProductInterface;
     try {
       const resp = yield* _await(response.json());
-      json = resp.Product;
+      json = resp;
     } catch (error) {
       console.error("Parsing Error", error);
       return { details: "Parsing Error", ok: false, data: null };

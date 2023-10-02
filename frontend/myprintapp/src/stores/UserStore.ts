@@ -47,10 +47,6 @@ export class User extends Model({
 export class UserStore extends Model({
   users: prop<User[]>(() => []),
 }) {
-  get showUsers() {
-    return this.users.map((s) => s.asJson);
-  }
-
   @modelAction
   addUser(credentials: UserInterface) {
     this.users.push(new User(credentials));

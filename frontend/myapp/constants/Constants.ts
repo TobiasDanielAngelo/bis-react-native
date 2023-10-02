@@ -11,27 +11,6 @@ const { height, width } = Dimensions.get("window");
 export const winHeight = height;
 export const winWidth = width;
 
-export const mechanics = [
-  "DATS",
-  "Aldo",
-  "Reniel",
-  "Ping",
-  "Jervin",
-  "Jomar",
-  "Others",
-  "",
-];
-
-export const mechanicsColors = [
-  { color: "darkred", name: "DATS" },
-  { color: "chocolate", name: "Aldo" },
-  { color: "darkgoldenrod", name: "Jervin" },
-  { color: "darkgreen", name: "Ping" },
-  { color: "darkblue", name: "Reniel" },
-  { color: "indigo", name: "Jomar" },
-  { color: "darkviolet", name: "Others" },
-];
-
 export const labors = [
   "Labor (Others)",
   "Rebore",

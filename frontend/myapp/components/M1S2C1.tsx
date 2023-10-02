@@ -1,12 +1,13 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { defaultLaborItem, mechanics } from "../constants/constants";
+import { defaultLaborItem } from "../constants/constants";
 import { Icon, Text } from "react-native-elements";
 import {
   CustomerLabor,
   CustomerLaborItem,
   M1S2Context,
   MainContext,
+  MechanicInterface,
 } from "../constants/interfaces";
 import { useStore } from "../stores/Store";
 import { LoadingView } from "./G2C1";
@@ -18,13 +19,20 @@ import { DateSelector } from "./M1S2U2";
 
 export const RedeemView = (props: { visible: boolean }) => {
   const { currentScreen } = useContext(MainContext);
-  const { transactionStore, categoryStore } = useStore();
+  const { transactionStore, categoryStore, mechanicStore } = useStore();
   const [customers, setCustomers] = useState<CustomerLabor[]>([]);
   const [laborer, setLaborer] = useState("");
   const [laborItem, setLaborItem] = useState(defaultLaborItem);
   const [laborItems, setLaborItems] = useState<CustomerLaborItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [date, setDate] = useState(new Date());
+  const [mechanics, setMechanics] = useState<MechanicInterface[]>([]);
+
+  const getMechanics = useCallback(async () => {
+    setLoading(true);
+    await mechanicStore.fetchMechanics();
+    setMechanics(mechanicStore.mechanics);
+  }, []);
 
   const getTransactions = useCallback(async () => {
     transactionStore.deleteTransactionHistory();
@@ -100,6 +108,7 @@ export const RedeemView = (props: { visible: boolean }) => {
       setLaborer("");
       transactionStore.deleteTransactionHistory();
       getTransactions();
+      getMechanics();
     }
   }, [props.visible, currentScreen, date]);
 

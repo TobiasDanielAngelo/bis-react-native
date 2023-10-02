@@ -29,10 +29,6 @@ export class Motor extends Model({
 export class MotorStore extends Model({
   motors: prop<Motor[]>(() => []),
 }) {
-  get showMotors() {
-    return this.motors.map((s) => s.asJson);
-  }
-
   get allIDs() {
     return this.motors.map((s) => s.id);
   }

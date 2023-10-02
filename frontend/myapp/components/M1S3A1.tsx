@@ -29,10 +29,11 @@ export const ProductSearch = (props: {}) => {
 
   const getProducts = async (query: string) => {
     const resp = await productStore.fetchProductByQuery(query.toUpperCase());
+
     setItems(
       resp.data?.map((s) => ({
-        id: parseInt(s.pk),
-        name: s.description,
+        id: parseInt(s.id ?? "-1"),
+        name: s.generic,
         price: s.sell_price,
         remarks: "",
       })) ?? []

@@ -28,41 +28,14 @@ export class Product extends Model({
   sell_price: prop<number>(0),
   datetime_added: prop<string>(""),
   is_active: prop<boolean>(true),
-}) {
-  get asJson() {
-    return {
-      pk: this.pk,
-      unit: this.unit,
-      description: this.description,
-      min_quantity: this.min_quantity,
-      location: this.location,
-      sell_price: this.sell_price,
-      datetime_added: this.datetime_added,
-      is_active: this.is_active,
-    };
-  }
-}
+}) {}
 
 @model("myApp/ProductStore")
 export class ProductStore extends Model({
   products: prop<Product[]>(() => []),
 }) {
-  get showProducts() {
-    return this.products.map((s) => s.asJson);
-  }
-
   get allPK() {
     return this.products.map((s) => s.pk);
-  }
-
-  @modelAction
-  productName(pk: string) {
-    return this.products.find((s) => `${s.pk}` === `${pk}`)?.description;
-  }
-
-  @modelAction
-  productPrice(pk: string) {
-    return this.products.find((s) => `${s.pk}` === `${pk}`)?.sell_price;
   }
 
   @modelFlow

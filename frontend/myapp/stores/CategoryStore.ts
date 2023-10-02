@@ -31,10 +31,6 @@ export class Category extends Model({
 export class CategoryStore extends Model({
   categories: prop<Category[]>(() => []),
 }) {
-  get showCategories() {
-    return this.categories.map((s) => s.asJson);
-  }
-
   get allIDs() {
     return this.categories.map((s) => s.pk);
   }

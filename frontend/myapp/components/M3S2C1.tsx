@@ -3,7 +3,9 @@ import { ProductForm } from "./M3S2P1";
 import { ProductListMatches } from "./M3S2G1";
 import { Icon } from "react-native-elements";
 import { useState, useEffect } from "react";
-import { M3S2Context } from "../constants/interfaces";
+import { M3S2Context, MotorInterface } from "../constants/interfaces";
+import { defaultProduct } from "../constants/constants";
+import { useStore } from "../stores/Store";
 
 const ModeItem = (props: {
   title: string;
@@ -33,15 +35,35 @@ const ModeItem = (props: {
 };
 
 export const ProductsView = (props: { visible: boolean }) => {
+  const { motorStore } = useStore();
   const [mode, setMode] = useState("");
+  const [part, setPart] = useState(-1);
+  const [product, setProduct] = useState(defaultProduct);
+  const [selectedMotors, setSelectedMotors] = useState<number[]>([]);
+  const [motors, setMotors] = useState<MotorInterface[]>([]);
 
   const modes = ["create", "uPrice", "uLocation", "uMotors"];
 
+  const getMotors = async () => {
+    motorStore.deleteMotorHistory();
+    await motorStore.fetchMotors();
+    setMotors(motorStore.motors);
+  };
+
   useEffect(() => {
+    getMotors();
     setMode("");
   }, [props.visible]);
 
-  const values = {};
+  const values = {
+    motors: motors,
+    part: part,
+    setPart: setPart,
+    product: product,
+    setProduct: setProduct,
+    selectedMotors: selectedMotors,
+    setSelectedMotors: setSelectedMotors,
+  };
 
   return (
     props.visible && (

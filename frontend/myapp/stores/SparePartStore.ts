@@ -32,10 +32,6 @@ export class SparePartStore extends Model({
     this.spareParts.splice(0, this.spareParts.length);
   }
 
-  get showSpareParts() {
-    return this.spareParts.map((s) => s.asJson);
-  }
-
   get allIDs() {
     return this.spareParts.map((s) => s.id);
   }

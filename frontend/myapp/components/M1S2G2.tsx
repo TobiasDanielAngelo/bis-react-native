@@ -7,13 +7,11 @@ import {
   View,
 } from "react-native";
 import { Icon } from "react-native-elements";
-import { mechanicsColors } from "../constants/constants";
-import { isEqualDate, laborDueToMechanic } from "../constants/helpers";
+import { laborDueToMechanic } from "../constants/helpers";
 import { M1S2Context } from "../constants/interfaces";
 
 export const MechanicList = () => {
-  const { setLaborer, laborers, laborer, laborItems, customers } =
-    useContext(M1S2Context);
+  const { setLaborer, laborers, laborer, laborItems } = useContext(M1S2Context);
 
   return (
     <View style={styles.customerQueue}>
@@ -21,7 +19,7 @@ export const MechanicList = () => {
         {laborers.map(
           (s) =>
             laborItems
-              .filter((u) => u.laborer === s)
+              .filter((u) => u.laborer === s.name)
               .filter(
                 (u) =>
                   u.collected !==
@@ -32,16 +30,16 @@ export const MechanicList = () => {
               ).length > 0 && (
               <TouchableOpacity
                 onPress={() => {
-                  setLaborer(s);
+                  setLaborer(s.name);
                 }}
                 key={`laborer-${s}`}
               >
-                {s === laborer ? (
+                {s.name === laborer ? (
                   <Icon
                     name="person-pin-circle"
                     size={65}
                     style={styles.selectedAvatar}
-                    color={mechanicsColors.find((t) => t.name === s)?.color}
+                    color={s.color}
                     key={`sav-${s}`}
                   />
                 ) : (
@@ -50,10 +48,10 @@ export const MechanicList = () => {
                       name="account-circle"
                       size={45}
                       style={styles.avatar}
-                      color={mechanicsColors.find((t) => t.name === s)?.color}
+                      color={s.color}
                       key={`av-${s}`}
                     />
-                    <Text>{s}</Text>
+                    <Text>{s.name}</Text>
                   </>
                 )}
               </TouchableOpacity>
