@@ -3,7 +3,12 @@ import { MenuItem } from "./G4U1";
 
 export const MenuBar = (props: any) => {
   return (
-    <View style={[styles.functions]}>
+    <View
+      style={[
+        styles.functions,
+        { display: !props.productInputFocus ? "flex" : "none" },
+      ]}
+    >
       <TouchableOpacity
         onPress={() => props.setView("order")}
         style={{ flex: 1 }}

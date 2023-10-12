@@ -185,8 +185,11 @@ export const ProductSearch = (props: {}) => {
               }}
               key={`match-${item.id}`}
             >
-              <Text style={styles.text} key={`${item.id}`}>
-                {item.name} P{item.price}
+              <Text style={styles.text} key={`itemname-${item.id}`}>
+                {item.name}
+              </Text>
+              <Text style={styles.priceText} key={`itemprice-${item.id}`}>
+                P{item.price}
               </Text>
             </TouchableOpacity>
           )}
@@ -208,6 +211,7 @@ const styles = StyleSheet.create({
     backgroundColor: "cadetblue",
   },
   text: { fontFamily: "monospace" },
+  priceText: { fontFamily: "monospace", textAlign: "right" },
   textInput: {
     width: 0.7 * winWidth,
     padding: 10,

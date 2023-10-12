@@ -26,6 +26,7 @@ export class Product extends Model({
   purchase_price: prop<number>(0),
   sell_price: prop<number>(0),
   min_quantity: prop<number>(0),
+  is_orig: prop<boolean>(false),
 }) {
   get asJson() {
     return {
@@ -43,6 +44,7 @@ export class Product extends Model({
       purchase_price: this.purchase_price,
       sell_price: this.sell_price,
       min_quantity: this.min_quantity,
+      is_orig: this.is_orig,
     };
   }
 }
@@ -112,10 +114,13 @@ export class ProductStore extends Model({
   fetchProductByProps = _async(function* (
     this: ProductStore,
     brand: string,
-    part: number,
+    part: string,
     motors: number[],
     description: string
   ) {
+    if (!isNaN(parseInt(part)) || part === "")
+      return { details: "Parsing Error", ok: false, data: null };
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -126,9 +131,9 @@ export class ProductStore extends Model({
       fetch(
         `${
           process.env["BASE_URL"]
-        }/products/?brand=${brand}&part=${part}&motors=${motors.join(
+        }/products/?x=${brand} ${part} ${description}&motors=${motors.join(
           "+"
-        )}&description=${description}`,
+        )}`,
         {
           method: "GET",
           headers: {
@@ -218,6 +223,48 @@ export class ProductStore extends Model({
   });
 
   @modelFlow
+  fetchProduct = _async(function* (this: ProductStore, productId: number) {
+    let token: string;
+
+    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
+
+    let response: Response;
+
+    response = yield* _await(
+      fetch(`${process.env["BASE_URL"]}/products/${productId}`, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+    );
+
+    if (!response.ok) {
+      let msg: any = yield* _await(response.json());
+      if (msg.non_field_errors) {
+        return {
+          details: `${msg.non_field_errors}`,
+          ok: false,
+          data: null,
+        };
+      }
+      return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let json: ProductInterface;
+    try {
+      const resp = yield* _await(response.json());
+      json = resp;
+    } catch (error) {
+      console.error("Parsing Error", error);
+      return { details: "Parsing Error", ok: false, data: null };
+    }
+
+    return { details: "", ok: true, data: json };
+  });
+
+  @modelFlow
   addProduct = _async(function* (
     this: ProductStore,
     details: ProductInterface
@@ -267,6 +314,53 @@ export class ProductStore extends Model({
     this.products.push(product);
 
     return { details: "", ok: true, data: product };
+  });
+
+  @modelFlow
+  updateProduct = _async(function* (
+    this: ProductStore,
+    pk: string,
+    details: ProductInterface
+  ) {
+    let token: string;
+
+    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
+
+    let response: Response;
+
+    response = yield* _await(
+      fetch(`${process.env["BASE_URL"]}/products/${pk}/`, {
+        method: "PATCH",
+        body: JSON.stringify(details),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+    );
+
+    if (!response.ok) {
+      let msg: any = yield* _await(response.json());
+      if (msg.non_field_errors) {
+        return {
+          details: `${msg.non_field_errors}`,
+          ok: false,
+          data: null,
+        };
+      }
+      return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let json: ProductInterface;
+    try {
+      const resp = yield* _await(response.json());
+      json = resp;
+    } catch (error) {
+      console.error("Parsing Error", error);
+      return { details: "Parsing Error", ok: false, data: null };
+    }
+
+    return { details: "", ok: true, data: json };
   });
 }
 

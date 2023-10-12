@@ -34,13 +34,13 @@ from .serializers import (
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [
-        # IsAuthenticated,
-        AllowAny,
+        IsAuthenticated,
+        # AllowAny,
     ]
     authentication_classes = (TokenAuthentication,)
 
     queryset = Product.objects.all().annotate(
-        name=Concat(
+        name1=Concat(
             "part__name",
             Value(" "),
             "description",
@@ -48,7 +48,14 @@ class ProductViewSet(viewsets.ModelViewSet):
             "motors",
             Value(" "),
             "brand",
-        )
+        ),
+        name2=Concat(
+            "part__name",
+            Value(" "),
+            "description",
+            Value(" "),
+            "brand",
+        ),
     )
 
     def list(self, request, *args, **kwargs):
@@ -57,30 +64,24 @@ class ProductViewSet(viewsets.ModelViewSet):
             if len(f'{params["q"]}') > 4:
                 pattern = r"\W+"
                 list_queries = re.split(pattern, params["q"])
+                print(list_queries)
                 queryset = self.filter_queryset(self.get_queryset()).filter(
                     reduce(
                         operator.and_,
-                        (Q(name__icontains=x) for x in list_queries),
+                        (Q(name1__icontains=x) for x in list_queries),
                     )
                 )
             else:
                 queryset = None
-        elif params.get("part"):
+        elif params.get("x"):
+            pattern = r"\W+"
+            list_queries = re.split(pattern, params["x"])
             queryset = self.filter_queryset(self.get_queryset()).filter(
-                part=params["part"]
-            )
-            if params.get("brand"):
-                queryset = queryset.filter(brand__icontains=params["brand"])
-            if params.get("description"):
-                pattern = r"\W+"
-                list_queries = re.split(pattern, params["description"])
-                print(list_queries)
-                queryset = queryset.filter(
-                    reduce(
-                        operator.and_,
-                        (Q(description__icontains=x) for x in list_queries),
-                    )
+                reduce(
+                    operator.and_,
+                    (Q(name2__icontains=x) for x in list_queries),
                 )
+            )
             if params.get("motors"):
                 pattern = r"\W+"
                 list_queries = re.split(pattern, params["motors"])
@@ -93,7 +94,6 @@ class ProductViewSet(viewsets.ModelViewSet):
                         ),
                     )
                 )
-            print(queryset)
         else:
             queryset = None
             # queryset = self.filter_queryset(self.get_queryset())

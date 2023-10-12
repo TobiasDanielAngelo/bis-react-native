@@ -93,3 +93,21 @@ export const defaultProduct = {
   unit: "pc.",
   isOrig: false,
 };
+
+export const defaultProductInterface = {
+  id: "-1",
+  piece_count: 0,
+  unit: "pc.",
+  description: "",
+  brand: "",
+  part: "",
+  motors: "",
+  generic: "",
+  datetime_added: "",
+  is_active: true,
+  location: "",
+  purchase_price: 0,
+  sell_price: 0,
+  min_quantity: 1,
+  is_orig: false,
+};

@@ -4,6 +4,7 @@ import {
   defaultLaborItem,
   defaultPOSItem,
   defaultProduct,
+  defaultProductInterface,
   defaultSalesItem,
   defaultUser,
 } from "./constants";
@@ -116,6 +117,7 @@ export interface ProductInterface {
   purchase_price: number;
   sell_price: number;
   min_quantity: number;
+  is_orig: boolean;
 }
 
 export interface TransactionInputInterface {
@@ -406,6 +408,8 @@ export const M2S3Context = createContext<M2S3Content>({
 });
 
 export type M3S2Content = {
+  mode: string;
+  setMode: (t: string) => void;
   motors: MotorInterface[];
   part: number;
   setPart: (t: any) => void;
@@ -413,9 +417,23 @@ export type M3S2Content = {
   setProduct: (t: typeof defaultProduct) => void;
   selectedMotors: number[];
   setSelectedMotors: (t: number[] | ((u: number[]) => number[])) => void;
+  item: ProductInterface;
+  items: ProductInterface[];
+  query: string;
+  onQueryChange: (t: string) => void;
+  focus: boolean;
+  onFocusChange: (t: boolean) => void;
+  setItem: (
+    t: ProductInterface | ((u: ProductInterface) => ProductInterface)
+  ) => void;
+  setItems: (
+    t: ProductInterface[] | ((u: ProductInterface[]) => ProductInterface[])
+  ) => void;
 };
 
 export const M3S2Context = createContext<M3S2Content>({
+  mode: "",
+  setMode: (t: string) => {},
   motors: [],
   part: -1,
   setPart: (t: any) => {},
@@ -423,4 +441,16 @@ export const M3S2Context = createContext<M3S2Content>({
   setProduct: (t: typeof defaultProduct) => {},
   selectedMotors: [],
   setSelectedMotors: (t: number[] | ((u: number[]) => number[])) => {},
+  item: defaultProductInterface,
+  items: [],
+  query: "",
+  onQueryChange: (t: string) => {},
+  focus: false,
+  onFocusChange: (t: boolean) => {},
+  setItem: (
+    t: ProductInterface | ((u: ProductInterface) => ProductInterface)
+  ) => {},
+  setItems: (
+    t: ProductInterface[] | ((u: ProductInterface[]) => ProductInterface[])
+  ) => {},
 });

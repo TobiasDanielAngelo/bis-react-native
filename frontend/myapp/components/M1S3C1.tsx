@@ -1,13 +1,6 @@
-import DateTimePicker from "@react-native-community/datetimepicker";
+import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Icon } from "react-native-elements";
+import { StyleSheet } from "react-native";
 import {
   defaultCustomer,
   defaultPOSItem,
@@ -16,19 +9,16 @@ import {
 import {
   Customer,
   CustomerSalesItem,
-  Item,
   M1S3Context,
   MainContext,
   POSItem,
 } from "../constants/interfaces";
 import { useStore } from "../stores/Store";
 import { LoadingView } from "./G2C1";
-import { ReturnItemModal } from "./M1S3P1";
-import { SalesRefundItem } from "./M1S3U1";
-import { ProductSearch } from "./M1S3A1";
 import { DateSelector } from "./M1S2U2";
+import { ProductSearch } from "./M1S3A1";
 import { RefundableSalesItems } from "./M1S3G1";
-import moment from "moment";
+import { ReturnItemModal } from "./M1S3P1";
 
 export const RefundView = (props: any) => {
   const { categoryStore, transactionStore } = useStore();

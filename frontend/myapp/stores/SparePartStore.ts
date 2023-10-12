@@ -38,12 +38,12 @@ export class SparePartStore extends Model({
 
   @modelAction
   sparePartName(id: number) {
-    return this.spareParts.find((s) => s.id === id)?.name;
+    return this.spareParts.find((s) => s.id === id)?.name ?? "";
   }
 
   @modelAction
   sparePartId(name: string) {
-    return this.spareParts.find((s) => s.name === name)?.id;
+    return this.spareParts.find((s) => s.name === name)?.id ?? -1;
   }
 
   @modelFlow

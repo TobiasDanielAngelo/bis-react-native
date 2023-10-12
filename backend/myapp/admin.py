@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Count
 
 from .models import (
     Category,
@@ -40,7 +41,7 @@ class TransactionAdmin(admin.ModelAdmin):
 
 class ProductAdmin(admin.ModelAdmin):
     model = Product
-    list_display = ("generic", "pk")
+    list_display = ("part", "generic", "purchase_price", "sell_price", "pk")
     inlines = (ProductImageInline,)
 
 
@@ -55,8 +56,17 @@ class MyUserAdmin(admin.ModelAdmin):
 
 
 class SparePartAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super(SparePartAdmin, self).get_queryset(request)
+        return qs.annotate(product_count=Count("product_part")).order_by(
+            "-product_count"
+        )
+
+    def product_count(self, instance):
+        return instance.product_count
+
     model = SparePart
-    list_display = ("name",)
+    list_display = ("name", "product_count", "id")
 
 
 class MechanicAdmin(admin.ModelAdmin):

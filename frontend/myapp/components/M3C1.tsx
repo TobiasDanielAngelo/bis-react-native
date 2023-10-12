@@ -6,13 +6,21 @@ import { ProductsView } from "./M3S2C1";
 
 export const InventoryModule = observer(({ navigation }: any) => {
   const [view, setView] = useState("products");
+  const [productInputFocus, setProductInputFocus] = useState(false);
 
   return (
     <SafeAreaView style={styles.all}>
       <View style={styles.body}>
-        <ProductsView visible={view === "products"} />
+        <ProductsView
+          visible={view === "products"}
+          setProductInputFocus={setProductInputFocus}
+        />
       </View>
-      <MenuBar view={view} setView={setView} />
+      <MenuBar
+        view={view}
+        setView={setView}
+        productInputFocus={productInputFocus}
+      />
     </SafeAreaView>
   );
 });

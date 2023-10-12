@@ -34,21 +34,15 @@ class SparePart(models.Model):
         return f"{self.name}"
 
 
-class ProductManager(models.Manager):
-    def name(self):
-        return "_".join([self.part__name, self.description, self.brand, self.motors])
-
-
 class Product(models.Model):
-    objects = ProductManager()
     piece_count = models.IntegerField(validators=[MinValueValidator(1)], default=1)
     unit = models.CharField(max_length=10, default="pcs")
-    description = models.CharField(max_length=50, default="")
+    description = models.CharField(max_length=50, default="", blank=True)
     brand = models.CharField(max_length=20, default="", blank=True)
     part = models.ForeignKey(
-        SparePart, on_delete=models.SET_NULL, related_name="product_part", null=True
+        SparePart, on_delete=models.CASCADE, related_name="product_part", null=True
     )
-    motors = models.CharField(max_length=200, default="", blank=True)
+    motors = models.CharField(max_length=1000, default="", blank=True)
     generic = models.CharField(max_length=200, default="", blank=True)
     datetime_added = models.DateTimeField(default=timezone.now, blank=True)
     is_active = models.BooleanField(default=True)
@@ -56,6 +50,7 @@ class Product(models.Model):
     purchase_price = models.DecimalField(default=0, decimal_places=2, max_digits=10)
     sell_price = models.DecimalField(default=0, decimal_places=2, max_digits=10)
     min_quantity = models.IntegerField(validators=[MinValueValidator(0)], default=1)
+    is_orig = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.generic}"

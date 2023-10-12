@@ -24,10 +24,7 @@ export const SalesModule = observer(({ navigation }: any) => {
           visible={view === "return"}
           setRefundInputFocus={setRefundInputFocus}
         />
-        <ReviewView
-          visible={view === "view"}
-          setRefundInputFocus={setRefundInputFocus}
-        />
+        <ReviewView visible={view === "view"} />
       </View>
       <MenuBar
         view={view}

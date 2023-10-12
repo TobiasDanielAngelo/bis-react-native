@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import {
   ScrollView,
   Switch,
@@ -8,22 +8,28 @@ import {
   View,
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
+import { Icon } from "react-native-elements";
+import {
+  defaultPOSItem,
+  defaultProduct,
+  defaultProductInterface,
+} from "../constants/constants";
 import {
   M3S2Context,
-  MotorInterface,
+  POSItem,
   ProductInterface,
   SparePartInterface,
 } from "../constants/interfaces";
 import { useStore } from "../stores/Store";
-import { defaultProduct } from "../constants/constants";
-import { Icon } from "react-native-elements";
 
-export const ProductForm = (props: { mode: string }) => {
+export const ProductForm = (props: { item?: ProductInterface }) => {
   const { motorStore, sparePartStore, productStore } = useStore();
   const {
+    mode,
     motors,
     part,
     setPart,
+    setItem,
     product,
     setProduct,
     selectedMotors,
@@ -31,6 +37,8 @@ export const ProductForm = (props: { mode: string }) => {
   } = useContext(M3S2Context);
   const [parts, setParts] = useState<SparePartInterface[]>([]);
 
+  const [ok, setOk] = useState(true);
+  const [msg, setMsg] = useState("");
   const [motorsOpen, setMotorsOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [showMotors, setShowMotors] = useState(true);
@@ -45,25 +53,89 @@ export const ProductForm = (props: { mode: string }) => {
       brand: product.brand.toUpperCase(),
       part: part.toString(),
       motors: selectedMotors.map((s) => motorStore.motorName(s)).join(", "),
-      generic: `${sparePartStore.sparePartName(part)} ${product.miscInfo}${
-        showMotors ? " " + motorStore.motorName(selectedMotors[0]) : ""
-      } ${product.brand}`.toUpperCase(),
+      generic: `${sparePartStore.sparePartName(part)}${
+        product.miscInfo !== "" ? " " + product.miscInfo : ""
+      }${
+        selectedMotors[0] && showMotors
+          ? " " + motorStore.motorName(selectedMotors[0])?.replaceAll("_", " ")
+          : ""
+      }${product.brand !== "" ? " " + product.brand : ""}${
+        product.isOrig ? " ORIG." : ""
+      }`.toUpperCase(),
       datetime_added: new Date().toISOString(),
       is_active: true,
       location: product.location.toUpperCase(),
       purchase_price: parseFloat(product.packPP),
       sell_price: parseFloat(product.packSP),
       min_quantity: parseInt(product.minimum),
+      is_orig: product.isOrig,
     };
 
     try {
       const resp = await productStore.addProduct(details);
-      if (!resp.ok) return;
+      if (!resp.ok) {
+        setOk(false);
+        setMsg("Error adding this product.");
+        return;
+      }
+      setOk(true);
+      setMsg(`Added product #${resp.data?.id}.`);
+
       setCategoryOpen(false);
       setMotorsOpen(false);
       setPart(-1);
       setProduct(defaultProduct);
       setSelectedMotors([]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onUpdateProduct = async () => {
+    let details = {
+      piece_count: parseInt(product.pieces),
+      unit: product.unit.toUpperCase(),
+      description: product.miscInfo.toUpperCase(),
+      brand: product.brand.toUpperCase(),
+      part: part.toString(),
+      motors: selectedMotors.map((s) => motorStore.motorName(s)).join(", "),
+      generic: `${sparePartStore.sparePartName(part)}${
+        product.miscInfo !== "" ? " " + product.miscInfo : ""
+      }${
+        selectedMotors[0] && showMotors
+          ? " " + motorStore.motorName(selectedMotors[0])?.replaceAll("_", " ")
+          : ""
+      }${product.brand !== "" ? " " + product.brand : ""}${
+        product.isOrig ? " ORIG." : ""
+      }`.toUpperCase(),
+      datetime_added: new Date().toISOString(),
+      is_active: true,
+      location: product.location.toUpperCase(),
+      purchase_price: parseFloat(product.packPP),
+      sell_price: parseFloat(product.packSP),
+      min_quantity: parseInt(product.minimum),
+      is_orig: product.isOrig,
+    };
+
+    try {
+      const resp = await productStore.updateProduct(
+        (props.item?.id ?? -1).toString(),
+        details
+      );
+      if (!resp.ok) {
+        setOk(false);
+        setMsg("Error updating this product.");
+        return;
+      }
+      setOk(true);
+      setMsg(`Updated product #${resp.data?.id}.`);
+
+      setCategoryOpen(false);
+      setMotorsOpen(false);
+      setPart(-1);
+      setProduct(defaultProduct);
+      setSelectedMotors([]);
+      setItem(defaultProductInterface);
     } catch (error) {
       console.log(error);
     }
@@ -75,32 +147,66 @@ export const ProductForm = (props: { mode: string }) => {
     });
   };
 
+  const setProductItem = useCallback(async () => {
+    let resp;
+    if (props.item) {
+      resp = (await productStore.fetchProduct(parseInt(props.item.id ?? "-1")))
+        .data;
+      setProduct({
+        brand: resp?.brand ?? "",
+        pieces: resp?.piece_count.toString() ?? "1",
+        unitPP: resp?.purchase_price.toString() ?? "0",
+        packPP:
+          ((resp?.piece_count ?? 1) * (resp?.purchase_price ?? 0)).toString() ??
+          "0",
+        unitSP: resp?.sell_price.toString() ?? "0",
+        packSP:
+          ((resp?.piece_count ?? 1) * (resp?.sell_price ?? 0)).toString() ??
+          "0",
+        miscInfo: resp?.description ?? "",
+        location: resp?.location ?? "",
+        minimum: resp?.min_quantity.toString() ?? "0",
+        unit: resp?.unit ?? "pc.",
+        isOrig: resp?.is_orig ?? false,
+      });
+      setPart(resp?.part);
+      setSelectedMotors(
+        resp?.motors.split(", ").map((s) => motorStore.motorId(s) ?? -1) ?? []
+      );
+      setShowMotors(true);
+    }
+  }, [props.item]);
+
   const getSpareParts = async () => {
     sparePartStore.deletePartsHistory();
     await sparePartStore.fetchSpareParts();
     setParts(sparePartStore.spareParts);
   };
 
-  // useEffect(() => {
-  //   setCategoryOpen(false);
-  //   setMotorsOpen(false);
-  //   setPart(-1);
-  //   setProduct(defaultProduct);
-  //   setSelectedMotors([]);
-  // }, [props.mode]);
-
   useEffect(() => {
     getSpareParts();
-  }, [props.mode]);
+  }, []);
+
+  useEffect(() => {
+    setProductItem();
+  }, [props.item]);
 
   return (
     <View
       style={{
         paddingVertical: 10,
         flex: 8,
-        display: props.mode !== "" ? "flex" : "none",
       }}
     >
+      <Text
+        style={{
+          textAlign: "right",
+          marginHorizontal: 10,
+          color: ok ? "darkgreen" : "darkred",
+        }}
+      >
+        {msg}
+      </Text>
       <ScrollView
         nestedScrollEnabled={true}
         keyboardShouldPersistTaps="always"
@@ -166,57 +272,45 @@ export const ProductForm = (props: { mode: string }) => {
             onChangeText={(t) => setProduct({ ...product, miscInfo: t })}
           />
         </View>
-        <View style={{ flexDirection: "row" }}>
-          <View style={{ marginLeft: 20, flex: 1 }}>
-            <Text>Suitable for Motors</Text>
-            <DropDownPicker
-              items={[
-                ...motors.map((s) => ({
-                  label: s.name.replaceAll("_", " "),
-                  value: s.id,
-                  icon: () => <Text>[{s.maker.substring(0, 3)}]</Text>,
-                })),
-                // {
-                //   label: motorQuery.toUpperCase(),
-                //   value: 0,
-                //   icon: () => <Icon name="add" size={20} color="red" />,
-                // },
-              ]}
-              multiple={true}
-              setValue={setSelectedMotors}
-              value={selectedMotors}
-              open={motorsOpen}
-              setOpen={setMotorsOpen}
-              textStyle={{
-                fontSize: 20,
-              }}
-              flatListProps={{
-                keyboardShouldPersistTaps: "always",
-                nestedScrollEnabled: true,
-              }}
-              listMode="MODAL"
-              style={{
-                borderColor: "#ddd",
-                borderRadius: 0,
-                marginBottom: 5,
-              }}
-              // onChangeSearchText={setMotorQuery}
-              placeholderStyle={{ color: "gray" }}
-              placeholder="Select motors"
-              searchable={true}
-              searchPlaceholder="Search..."
-            />
-          </View>
-          <View style={{ paddingHorizontal: 10, alignItems: "center" }}>
-            <Switch
-              trackColor={{ false: "gray", true: "teal" }}
-              onValueChange={setShowMotors}
-              value={showMotors}
-            />
-            <Text style={{ textAlign: "center" }}>
-              {showMotors ? "SHOWN" : "HIDDEN"}
-            </Text>
-          </View>
+        <View style={{ marginHorizontal: 20, flex: 1 }}>
+          <Text>Suitable for Motors</Text>
+          <DropDownPicker
+            items={[
+              ...motors.map((s) => ({
+                label: s.name.replaceAll("_", " "),
+                value: s.id,
+                icon: () => <Text>[{s.maker.substring(0, 3)}]</Text>,
+              })),
+              // {
+              //   label: motorQuery.toUpperCase(),
+              //   value: 0,
+              //   icon: () => <Icon name="add" size={20} color="red" />,
+              // },
+            ]}
+            multiple={true}
+            setValue={setSelectedMotors}
+            value={selectedMotors}
+            open={motorsOpen}
+            setOpen={setMotorsOpen}
+            textStyle={{
+              fontSize: 20,
+            }}
+            flatListProps={{
+              keyboardShouldPersistTaps: "always",
+              nestedScrollEnabled: true,
+            }}
+            listMode="MODAL"
+            style={{
+              borderColor: "#ddd",
+              borderRadius: 0,
+              marginBottom: 5,
+            }}
+            // onChangeSearchText={setMotorQuery}
+            placeholderStyle={{ color: "gray" }}
+            placeholder="Select motors"
+            searchable={true}
+            searchPlaceholder="Search..."
+          />
         </View>
         <View
           style={{
@@ -396,7 +490,7 @@ export const ProductForm = (props: { mode: string }) => {
                   ...product,
                   unitPP: isNaN(n)
                     ? ""
-                    : (n / parseInt(product.pieces)).toString(),
+                    : (n / parseInt(product.pieces)).toFixed(2),
                   packPP: isNaN(n) ? "" : n.toString(),
                 });
               }}
@@ -473,7 +567,7 @@ export const ProductForm = (props: { mode: string }) => {
                     : (
                         n /
                         parseInt(product.pieces === "" ? "1" : product.pieces)
-                      ).toString(),
+                      ).toFixed(2),
                   packSP: isNaN(n) ? "" : n.toString(),
                 });
               }}
@@ -527,21 +621,57 @@ export const ProductForm = (props: { mode: string }) => {
             />
           </View>
         </View>
-        <TouchableOpacity onPress={onCreateProduct}>
-          <View
-            style={{
-              borderRadius: 25,
-              marginHorizontal: 50,
-              marginVertical: 10,
-              borderColor: "gray",
-              backgroundColor: "teal",
-            }}
+        <View style={{ marginHorizontal: 20, flexDirection: "row" }}>
+          <TouchableOpacity
+            onPress={mode === "create" ? onCreateProduct : onUpdateProduct}
+            style={{ flex: 1 }}
           >
-            <Text style={{ color: "white", fontSize: 25, textAlign: "center" }}>
-              {props.mode === "create" ? "Add Product" : "Update Product"}
+            <View
+              style={{
+                borderRadius: 25,
+                // marginHorizontal: 50,
+                marginVertical: 10,
+                borderColor: "gray",
+                backgroundColor: "teal",
+              }}
+            >
+              <Text
+                style={{ color: "white", fontSize: 25, textAlign: "center" }}
+              >
+                {mode === "create" ? "Add Product" : "Update"}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <View style={{ paddingHorizontal: 10, alignItems: "center" }}>
+            <Text style={{ textAlign: "center", fontFamily: "monospace" }}>
+              {showMotors ? "Show Motors" : "Hide Motors"}
             </Text>
+            <Switch
+              trackColor={{ false: "gray", true: "teal" }}
+              onValueChange={setShowMotors}
+              value={showMotors}
+            />
           </View>
-        </TouchableOpacity>
+        </View>
+
+        <View style={{ alignItems: "center" }}>
+          <Text style={{ fontSize: 15 }}>
+            {part === -1
+              ? ""
+              : `Details: ${sparePartStore.sparePartName(part)}${
+                  product.miscInfo !== "" ? " " + product.miscInfo : ""
+                }${
+                  selectedMotors[0] && showMotors
+                    ? " " +
+                      motorStore
+                        .motorName(selectedMotors[0])
+                        ?.replaceAll("_", " ")
+                    : ""
+                }${product.brand !== "" ? " " + product.brand : ""}${
+                  product.isOrig ? " ORIG." : ""
+                }`.toUpperCase()}
+          </Text>
+        </View>
       </ScrollView>
     </View>
   );
