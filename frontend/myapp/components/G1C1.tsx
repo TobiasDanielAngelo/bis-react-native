@@ -14,7 +14,6 @@ const myFocusScreen = "Inventory";
 
 export const HomeView = () => {
   const [currentUser, setCurrentUser] = useState<User>();
-  const { categoryStore } = useStore();
   const [latest, setLatest] = useState({
     key: "",
     type: "",
@@ -26,13 +25,8 @@ export const HomeView = () => {
     );
   };
 
-  const getCategories = useCallback(async () => {
-    await categoryStore.fetchCategories();
-  }, []);
-
   useEffect(() => {
     retrieveCurrentUser();
-    getCategories();
   }, []);
 
   return (

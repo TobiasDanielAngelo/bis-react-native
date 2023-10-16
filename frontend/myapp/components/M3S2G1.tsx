@@ -1,19 +1,38 @@
 import { useContext, useEffect, useState } from "react";
-import { StyleSheet, Text, View, Pressable } from "react-native";
-import { M3S2Context, ProductInterface } from "../constants/interfaces";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import Dots from "react-native-dots-pagination";
+import PagerView from "react-native-pager-view";
+import {
+  InventoryContext,
+  M3S2Context,
+  ProductInterface,
+} from "../constants/interfaces";
 import { useStore } from "../stores/Store";
 import { LoadingView } from "./G2C1";
-import PagerView from "react-native-pager-view";
-import Dots from "react-native-dots-pagination";
-import { winWidth } from "../constants/constants";
 
 export const ProductListMatches = (props: {}) => {
-  const { part, product, selectedMotors, mode } = useContext(M3S2Context);
+  const { part, product, selectedMotors, mode, setMode, setItem } =
+    useContext(InventoryContext);
   const [items, setItems] = useState<ProductInterface[]>([]);
   const [loading, setLoading] = useState(false);
   const [active, setActive] = useState(0);
   const [viewAll, setViewAll] = useState(false);
   const { sparePartStore, productStore } = useStore();
+
+  const toProductShortName = (t: ProductInterface) => {
+    return `${sparePartStore.sparePartName(parseInt(t.part))}${
+      t.description !== "" ? " " + t.description : ""
+    }${
+      t.motors !== ""
+        ? sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+            ?.is_motor_shown
+          ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
+          : ""
+        : ""
+    }${t.brand !== "" ? " " + t.brand : ""}${
+      t.is_orig ? " ORIG." : ""
+    }`.toUpperCase();
+  };
 
   const getProducts = async () => {
     if (part !== -1) {
@@ -26,6 +45,8 @@ export const ProductListMatches = (props: {}) => {
       );
       setLoading(false);
       if (resp.ok) setItems(resp?.data ?? []);
+    } else {
+      setItems([]);
     }
   };
 
@@ -76,8 +97,16 @@ export const ProductListMatches = (props: {}) => {
                 style={[styles.listItem, styles.shadowProp]}
                 key={`${s.id}`}
               >
-                <Pressable onPress={() => setViewAll((prev) => !prev)}>
-                  <Text style={styles.mainItemText}>{s.generic}</Text>
+                <Pressable
+                  onPress={() => setViewAll((prev) => !prev)}
+                  onLongPress={() => {
+                    setItem(s);
+                    setMode("update");
+                  }}
+                >
+                  <Text style={styles.mainItemText}>
+                    {toProductShortName(s)}
+                  </Text>
                   <View style={{ display: viewAll ? "flex" : "none" }}>
                     <Text style={styles.descriptionText}>
                       {s.location !== "" && `Located at Shelf ${s.location}`}

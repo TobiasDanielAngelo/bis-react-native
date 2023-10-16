@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -9,23 +9,36 @@ import {
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { winWidth } from "../constants/constants";
-import { M3S2Context, POSItem } from "../constants/interfaces";
+import {
+  InventoryContext,
+  M3S2Context,
+  ProductInterface,
+} from "../constants/interfaces";
 import { useStore } from "../stores/Store";
 
 export const ProductSearch = (props: {}) => {
   const inputRef = useRef<TextInput>(null);
 
-  const { productStore } = useStore();
+  const { sparePartStore, productStore } = useStore();
 
-  const {
-    items,
-    setItem,
-    setItems,
-    query,
-    onQueryChange,
-    focus,
-    onFocusChange,
-  } = useContext(M3S2Context);
+  const { items, setItems, setItem } = useContext(InventoryContext);
+
+  const { query, onQueryChange, focus, onFocusChange } =
+    useContext(M3S2Context);
+
+  const toProductShortName = (t: ProductInterface) => {
+    return `${sparePartStore.sparePartName(parseInt(t.part))}${
+      t.description !== "" ? " " + t.description : ""
+    }${
+      t.motors !== "" &&
+      sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+        ?.is_motor_shown
+        ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
+        : ""
+    }${t.brand !== "" ? " " + t.brand : ""}${
+      t.is_orig ? " ORIG." : ""
+    }`.toUpperCase();
+  };
 
   const getProducts = async (query: string) => {
     const resp = await productStore.fetchProductByQuery(query.toUpperCase());
@@ -128,7 +141,7 @@ export const ProductSearch = (props: {}) => {
               key={`match2-${item.id}`}
             >
               <Text style={styles.text} key={`match2text-${item.id}`}>
-                {item.generic} P{item.sell_price}
+                {toProductShortName(item)} P{item.sell_price}
               </Text>
             </TouchableOpacity>
           )}

@@ -14,11 +14,13 @@ import { SparePartInterface } from "../constants/interfaces";
 export class SparePart extends Model({
   id: prop<number>(),
   name: prop<string>(""),
+  is_motor_shown: prop<boolean>(true),
 }) {
   get asJson() {
     return {
       id: this.id,
       name: this.name,
+      is_motor_shown: this.is_motor_shown,
     };
   }
 }

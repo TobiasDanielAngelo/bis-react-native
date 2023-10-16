@@ -1,29 +1,18 @@
-import DateTimePicker from "@react-native-community/datetimepicker";
+import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Icon } from "react-native-elements";
+import { StyleSheet } from "react-native";
 import { defaultCustomer } from "../constants/constants";
-import { isEqualDate } from "../constants/helpers";
 import {
   Customer,
   CustomerLaborItem,
   CustomerSalesItem,
-  Item,
   M1S4Context,
   MainContext,
 } from "../constants/interfaces";
 import { useStore } from "../stores/Store";
-import { CustomerViewItem } from "./M1S4U1";
 import { LoadingView } from "./G2C1";
 import { DateSelector } from "./M1S2U2";
 import { CustomerViewItems } from "./M1S4G1";
-import moment from "moment";
 
 export const ReviewView = (props: any) => {
   const [date, setDate] = useState(new Date());
@@ -36,6 +25,10 @@ export const ReviewView = (props: any) => {
 
   const { categoryStore, transactionStore } = useStore();
   const { currentScreen } = useContext(MainContext);
+
+  const getCategories = useCallback(async () => {
+    await categoryStore.fetchCategories();
+  }, []);
 
   const getTransactions = useCallback(async () => {
     try {
@@ -148,6 +141,7 @@ export const ReviewView = (props: any) => {
   };
 
   useEffect(() => {
+    getCategories();
     if (props.visible && currentScreen === "Sales") {
       transactionStore.deleteTransactionHistory();
       getTransactions();

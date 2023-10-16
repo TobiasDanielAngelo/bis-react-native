@@ -10,13 +10,12 @@ import {
 import DropDownPicker from "react-native-dropdown-picker";
 import { Icon } from "react-native-elements";
 import {
-  defaultPOSItem,
   defaultProduct,
   defaultProductInterface,
 } from "../constants/constants";
 import {
+  InventoryContext,
   M3S2Context,
-  POSItem,
   ProductInterface,
   SparePartInterface,
 } from "../constants/interfaces";
@@ -26,24 +25,21 @@ export const ProductForm = (props: { item?: ProductInterface }) => {
   const { motorStore, sparePartStore, productStore } = useStore();
   const {
     mode,
-    motors,
+    setItem,
     part,
     setPart,
-    setItem,
     product,
     setProduct,
     selectedMotors,
     setSelectedMotors,
-  } = useContext(M3S2Context);
+  } = useContext(InventoryContext);
+  const { motors } = useContext(M3S2Context);
   const [parts, setParts] = useState<SparePartInterface[]>([]);
 
   const [ok, setOk] = useState(true);
   const [msg, setMsg] = useState("");
   const [motorsOpen, setMotorsOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
-  const [showMotors, setShowMotors] = useState(true);
-  const [partQuery, setPartQuery] = useState("");
-  const [motorQuery, setMotorQuery] = useState("");
 
   const onCreateProduct = async () => {
     let details = {
@@ -53,15 +49,6 @@ export const ProductForm = (props: { item?: ProductInterface }) => {
       brand: product.brand.toUpperCase(),
       part: part.toString(),
       motors: selectedMotors.map((s) => motorStore.motorName(s)).join(", "),
-      generic: `${sparePartStore.sparePartName(part)}${
-        product.miscInfo !== "" ? " " + product.miscInfo : ""
-      }${
-        selectedMotors[0] && showMotors
-          ? " " + motorStore.motorName(selectedMotors[0])?.replaceAll("_", " ")
-          : ""
-      }${product.brand !== "" ? " " + product.brand : ""}${
-        product.isOrig ? " ORIG." : ""
-      }`.toUpperCase(),
       datetime_added: new Date().toISOString(),
       is_active: true,
       location: product.location.toUpperCase(),
@@ -99,15 +86,6 @@ export const ProductForm = (props: { item?: ProductInterface }) => {
       brand: product.brand.toUpperCase(),
       part: part.toString(),
       motors: selectedMotors.map((s) => motorStore.motorName(s)).join(", "),
-      generic: `${sparePartStore.sparePartName(part)}${
-        product.miscInfo !== "" ? " " + product.miscInfo : ""
-      }${
-        selectedMotors[0] && showMotors
-          ? " " + motorStore.motorName(selectedMotors[0])?.replaceAll("_", " ")
-          : ""
-      }${product.brand !== "" ? " " + product.brand : ""}${
-        product.isOrig ? " ORIG." : ""
-      }`.toUpperCase(),
       datetime_added: new Date().toISOString(),
       is_active: true,
       location: product.location.toUpperCase(),
@@ -141,6 +119,12 @@ export const ProductForm = (props: { item?: ProductInterface }) => {
     }
   };
 
+  const prioritizeMotor = (t: number) => {
+    setSelectedMotors((prev: number[]) => {
+      return [t, ...prev.filter((s) => s !== t)];
+    });
+  };
+
   const deleteMotor = (t: number) => {
     setSelectedMotors((prev: number[]) => {
       return prev.filter((s) => s !== t);
@@ -170,15 +154,16 @@ export const ProductForm = (props: { item?: ProductInterface }) => {
         isOrig: resp?.is_orig ?? false,
       });
       setPart(resp?.part);
-      setSelectedMotors(
-        resp?.motors.split(", ").map((s) => motorStore.motorId(s) ?? -1) ?? []
-      );
-      setShowMotors(true);
+      if (!!resp?.motors)
+        setSelectedMotors(
+          resp?.motors.split(", ").map((s) => motorStore.motorId(s) ?? -1) ?? []
+        );
     }
   }, [props.item]);
 
+  console.log(selectedMotors);
+
   const getSpareParts = async () => {
-    sparePartStore.deletePartsHistory();
     await sparePartStore.fetchSpareParts();
     setParts(sparePartStore.spareParts);
   };
@@ -334,7 +319,11 @@ export const ProductForm = (props: { item?: ProductInterface }) => {
               }}
               key={`selectedmotor-${s}`}
             >
-              <Text style={{ fontSize: 14 }} onPress={() => deleteMotor(s)}>
+              <Text
+                style={{ fontSize: 14 }}
+                onPress={() => deleteMotor(s)}
+                onLongPress={() => prioritizeMotor(s)}
+              >
                 {motors.find((t) => t.id === s)?.name.replaceAll("_", " ")}
                 {` \u00d7`}
               </Text>
@@ -642,16 +631,6 @@ export const ProductForm = (props: { item?: ProductInterface }) => {
               </Text>
             </View>
           </TouchableOpacity>
-          <View style={{ paddingHorizontal: 10, alignItems: "center" }}>
-            <Text style={{ textAlign: "center", fontFamily: "monospace" }}>
-              {showMotors ? "Show Motors" : "Hide Motors"}
-            </Text>
-            <Switch
-              trackColor={{ false: "gray", true: "teal" }}
-              onValueChange={setShowMotors}
-              value={showMotors}
-            />
-          </View>
         </View>
 
         <View style={{ alignItems: "center" }}>
@@ -661,7 +640,9 @@ export const ProductForm = (props: { item?: ProductInterface }) => {
               : `Details: ${sparePartStore.sparePartName(part)}${
                   product.miscInfo !== "" ? " " + product.miscInfo : ""
                 }${
-                  selectedMotors[0] && showMotors
+                  selectedMotors[0] &&
+                  sparePartStore.spareParts.find((s) => s.id === part)
+                    ?.is_motor_shown
                     ? " " +
                       motorStore
                         .motorName(selectedMotors[0])

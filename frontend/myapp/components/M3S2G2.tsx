@@ -5,13 +5,13 @@ import {
   defaultProduct,
   defaultProductInterface,
 } from "../constants/constants";
-import { M3S2Context } from "../constants/interfaces";
+import { InventoryContext, M3S2Context } from "../constants/interfaces";
 import { ModeItem } from "./M3S2U1";
 
 export const ModeItems = (props: {}) => {
   const modes = ["create", "update", "view"];
-  const { mode, setMode, setPart, setProduct, setSelectedMotors, setItem } =
-    useContext(M3S2Context);
+  const { setPart, setProduct, setSelectedMotors, mode, setMode, setItem } =
+    useContext(InventoryContext);
 
   const clearSelection = () => {
     setSelectedMotors([]);

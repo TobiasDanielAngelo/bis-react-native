@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { ViewProductItem } from "./M3S2U2";
 import {
+  InventoryContext,
   M3S2Context,
   ProductInterface,
   SparePartInterface,
@@ -12,7 +13,8 @@ import { Icon } from "react-native-elements";
 import { FlatList } from "react-native-gesture-handler";
 
 export const ViewProducts = () => {
-  const { setMode, mode, setPart, part, setItem } = useContext(M3S2Context);
+  const { setPart, part, mode, setMode, setItem } =
+    useContext(InventoryContext);
   const { productStore, sparePartStore } = useStore();
   const [products, setProducts] = useState<ProductInterface[]>([]);
   const [productId, setProductId] = useState("-1");
@@ -20,7 +22,6 @@ export const ViewProducts = () => {
   const [categoryOpen, setCategoryOpen] = useState(false);
 
   const getSpareParts = async () => {
-    sparePartStore.deletePartsHistory();
     await sparePartStore.fetchSpareParts();
     setParts(sparePartStore.spareParts);
   };

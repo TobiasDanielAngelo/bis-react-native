@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { Icon, Overlay } from "react-native-elements";
 import { defaultSalesItem } from "../constants/constants";
@@ -7,9 +7,19 @@ import { useStore } from "../stores/Store";
 
 export const SalesItemModal = (props: {}) => {
   const { particularPOSStore } = useStore();
-  const { setSalesItems, setSalesItem, salesItem, customer, popup, setPopup } =
+  const { setSalesItems, setSalesItem, salesItem, popup, setPopup } =
     useContext(M1S1Context);
   const [qty, setQty] = useState("1");
+  const [maxQty, setMaxQty] = useState(0);
+
+  const getMaxQty = async () => {
+    const resp = await particularPOSStore.fetchPOSQuantityOfProduct(
+      salesItem.itemId
+    );
+    setMaxQty(resp.data?.quantity ?? 0);
+  };
+
+  // Add a qty limiter
 
   const onUpdateSales = useCallback(async () => {
     setSalesItems((prev: CustomerSalesItem[]) => {
@@ -37,16 +47,22 @@ export const SalesItemModal = (props: {}) => {
   }, [salesItem]);
 
   const handleChange = useCallback(
-    (qty: any) => {
+    (qty: string) => {
       setQty(
         (isNaN(parseFloat(qty.replace(/[^0-9]/g, "")))
           ? ""
+          : parseInt(qty) > maxQty
+          ? maxQty.toString()
           : qty.replace(/[^0-9]/g, "")
         ).toString()
       );
     },
     [qty]
   );
+
+  useEffect(() => {
+    getMaxQty();
+  }, [salesItem]);
 
   return (
     <>
@@ -98,6 +114,7 @@ export const SalesItemModal = (props: {}) => {
                 }}
                 keyboardType="numeric"
               />
+              <Text>In Stock: {maxQty}</Text>
             </View>
           </View>
           <View

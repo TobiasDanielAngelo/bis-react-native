@@ -7,6 +7,10 @@ import { ProductStore, productStore } from "./ProductStore";
 import { SparePartStore, sparePartStore } from "./SparePartStore";
 import { TransactionStore, transactionStore } from "./TransactionStore";
 import { UserStore, userStore } from "./UserStore";
+import {
+  ParticularPurchaseStore,
+  particularPurchaseStore,
+} from "./ParticularPurchaseStore";
 
 class Store {
   userStore: UserStore;
@@ -17,6 +21,7 @@ class Store {
   transactionStore: TransactionStore;
   categoryStore: CategoryStore;
   particularPOSStore: ParticularPOSStore;
+  particularPurchaseStore: ParticularPurchaseStore;
 
   constructor() {
     this.userStore = userStore;
@@ -27,6 +32,7 @@ class Store {
     this.transactionStore = transactionStore;
     this.categoryStore = categoryStore;
     this.particularPOSStore = particularPOSStore;
+    this.particularPurchaseStore = particularPurchaseStore;
   }
 }
 

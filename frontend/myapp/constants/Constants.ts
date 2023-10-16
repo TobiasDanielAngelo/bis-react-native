@@ -30,6 +30,7 @@ export const defaultPOSItem = {
   id: -1,
   name: "",
   price: 0,
+  quantity: -1,
 } as POSItem;
 
 export const defaultCustomer = {
@@ -51,6 +52,12 @@ export const defaultSalesItem = {
   claimed: false,
 } as CustomerSalesItem;
 
+export const defaultSparePart = {
+  id: -1,
+  name: "",
+  is_motor_shown: true,
+};
+
 export const defaultLaborItem = {
   id: -1,
   custId: -1,
@@ -68,6 +75,15 @@ export const defaultExpense = {
   datetimeTransacted: "",
   categoryId: "",
   receiptId: "",
+};
+
+export const defaultOrder = {
+  id: -1,
+  check: -1,
+  dueDate: "",
+  supplier: "",
+  status: "editing" as "editing" | "processing" | "delivered" | "closed",
+  toPrint: false,
 };
 
 export const defaultUser = {
@@ -102,7 +118,7 @@ export const defaultProductInterface = {
   brand: "",
   part: "",
   motors: "",
-  generic: "",
+  // generic: "",
   datetime_added: "",
   is_active: true,
   location: "",

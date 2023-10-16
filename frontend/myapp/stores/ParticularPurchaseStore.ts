@@ -8,10 +8,10 @@ import {
   _await,
   modelAction,
 } from "mobx-keystone";
-import { POSItem, ParticularTransaction } from "../constants/interfaces";
+import { ParticularTransaction } from "../constants/interfaces";
 
-@model("myApp/ParticularPOS")
-export class ParticularPOS extends Model({
+@model("myApp/ParticularPurchase")
+export class ParticularPurchase extends Model({
   id: prop<string>(""),
   description: prop<string>(""),
   remarks: prop<string>(""),
@@ -41,9 +41,9 @@ export class ParticularPOS extends Model({
   }
 }
 
-@model("myApp/ParticularPOSStore")
-export class ParticularPOSStore extends Model({
-  particulars: prop<ParticularPOS[]>(() => []),
+@model("myApp/ParticularPurchaseStore")
+export class ParticularPurchaseStore extends Model({
+  particulars: prop<ParticularPurchase[]>(() => []),
 }) {
   get allIDs() {
     return this.particulars.map((s) => s.id);
@@ -55,57 +55,8 @@ export class ParticularPOSStore extends Model({
   }
 
   @modelFlow
-  fetchParticularTransactions = _async(function* (this: ParticularPOSStore) {
-    let token: string;
-
-    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
-
-    let response: Response;
-
-    response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/particularpos/`, {
-        method: "GET",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
-    );
-
-    if (!response.ok) {
-      let msg: any = yield* _await(response.json());
-      if (msg.non_field_errors) {
-        return {
-          details: `${msg.non_field_errors}`,
-          ok: false,
-          data: null,
-        };
-      }
-      return { details: `${msg.error}`, ok: false, data: null };
-    }
-
-    let json: ParticularTransaction[];
-    try {
-      const resp = yield* _await(response.json());
-      json = resp;
-    } catch (error) {
-      console.error("Parsing Error", error);
-      return { details: "Parsing Error", ok: false, data: null };
-    }
-
-    json.forEach((s) => {
-      if (!this.allIDs.includes(s.id ?? "-1")) {
-        this.particulars.push(new ParticularPOS(s));
-      }
-    });
-
-    return { details: "", ok: true, data: json };
-  });
-
-  @modelFlow
-  fetchPOSQuantityOfProduct = _async(function* (
-    this: ParticularPOSStore,
-    prodId: number
+  fetchParticularTransactions = _async(function* (
+    this: ParticularPurchaseStore
   ) {
     let token: string;
 
@@ -114,49 +65,7 @@ export class ParticularPOSStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/particularpos/?prod=${prodId}`, {
-        method: "GET",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
-    );
-
-    if (!response.ok) {
-      let msg: any = yield* _await(response.json());
-      if (msg.non_field_errors) {
-        return {
-          details: `${msg.non_field_errors}`,
-          ok: false,
-          data: null,
-        };
-      }
-      return { details: `${msg.error}`, ok: false, data: null };
-    }
-
-    let json: { quantity: number };
-    try {
-      const resp = yield* _await(response.json());
-      json = resp;
-    } catch (error) {
-      console.error("Parsing Error", error);
-      return { details: "Parsing Error", ok: false, data: null };
-    }
-
-    return { details: "", ok: true, data: json };
-  });
-
-  @modelFlow
-  fetchLaborParticulars = _async(function* (this: ParticularPOSStore) {
-    let token: string;
-
-    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
-
-    let response: Response;
-
-    response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/particularpos/?q=Labor`, {
+      fetch(`${process.env["BASE_URL"]}/particularorders/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -188,7 +97,7 @@ export class ParticularPOSStore extends Model({
 
     json.forEach((s) => {
       if (!this.allIDs.includes(s.id ?? "-1")) {
-        this.particulars.push(new ParticularPOS(s));
+        this.particulars.push(new ParticularPurchase(s));
       }
     });
 
@@ -196,8 +105,8 @@ export class ParticularPOSStore extends Model({
   });
 
   @modelFlow
-  addParticularPOS = _async(function* (
-    this: ParticularPOSStore,
+  addParticularPurchase = _async(function* (
+    this: ParticularPurchaseStore,
     details: ParticularTransaction,
     transaction: number
   ) {
@@ -216,7 +125,7 @@ export class ParticularPOSStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/particularpos/`, {
+      fetch(`${process.env["BASE_URL"]}/particularorders/`, {
         method: "POST",
         body: JSON.stringify(particularDetails),
         headers: {
@@ -238,7 +147,7 @@ export class ParticularPOSStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: ParticularPOS;
+    let json: ParticularPurchase;
     try {
       const resp = yield* _await(response.json());
       json = resp;
@@ -247,16 +156,16 @@ export class ParticularPOSStore extends Model({
       return { details: "Parsing Error", ok: false, data: null };
     }
 
-    let particular: ParticularPOS;
+    let particular: ParticularPurchase;
 
-    particular = new ParticularPOS(json);
+    particular = new ParticularPurchase(json);
 
     return { details: "", ok: true, data: particular };
   });
 
   @modelFlow
-  updateParticularPOS = _async(function* (
-    this: ParticularPOSStore,
+  updateParticularPurchase = _async(function* (
+    this: ParticularPurchaseStore,
     pk: string,
     details: ParticularTransaction
   ) {
@@ -267,7 +176,7 @@ export class ParticularPOSStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/particularpos/${pk}/`, {
+      fetch(`${process.env["BASE_URL"]}/particularorders/${pk}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -289,7 +198,7 @@ export class ParticularPOSStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: ParticularPOS;
+    let json: ParticularPurchase;
     try {
       const resp = yield* _await(response.json());
       json = resp;
@@ -306,8 +215,8 @@ export class ParticularPOSStore extends Model({
   });
 
   @modelFlow
-  deleteParticularPOS = _async(function* (
-    this: ParticularPOSStore,
+  deleteParticularPurchase = _async(function* (
+    this: ParticularPurchaseStore,
     pk: string
   ) {
     let token: string;
@@ -317,7 +226,7 @@ export class ParticularPOSStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/particularpos/${pk}/`, {
+      fetch(`${process.env["BASE_URL"]}/particularorders/${pk}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",
@@ -346,4 +255,4 @@ export class ParticularPOSStore extends Model({
   });
 }
 
-export const particularPOSStore = new ParticularPOSStore({});
+export const particularPurchaseStore = new ParticularPurchaseStore({});

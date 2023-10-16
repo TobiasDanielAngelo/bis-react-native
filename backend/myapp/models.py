@@ -29,6 +29,7 @@ class Motor(models.Model):
 
 class SparePart(models.Model):
     name = models.CharField(max_length=30, default="")
+    is_motor_shown = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.name}"

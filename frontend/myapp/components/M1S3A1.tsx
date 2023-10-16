@@ -9,13 +9,17 @@ import {
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { winWidth } from "../constants/constants";
-import { M1S3Context, POSItem } from "../constants/interfaces";
+import {
+  M1S3Context,
+  POSItem,
+  ProductInterface,
+} from "../constants/interfaces";
 import { useStore } from "../stores/Store";
 
 export const ProductSearch = (props: {}) => {
   const inputRef = useRef<TextInput>(null);
 
-  const { productStore } = useStore();
+  const { productStore, sparePartStore } = useStore();
 
   const {
     items,
@@ -27,15 +31,28 @@ export const ProductSearch = (props: {}) => {
     onFocusChange,
   } = useContext(M1S3Context);
 
+  const toProductShortName = (t: ProductInterface) => {
+    return `${sparePartStore.sparePartName(parseInt(t.part))}${
+      t.description !== "" ? " " + t.description : ""
+    }${
+      t.motors !== "" &&
+      sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+        ?.is_motor_shown
+        ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
+        : ""
+    }${t.brand !== "" ? " " + t.brand : ""}${
+      t.is_orig ? " ORIG." : ""
+    }`.toUpperCase();
+  };
   const getProducts = async (query: string) => {
     const resp = await productStore.fetchProductByQuery(query.toUpperCase());
 
     setItems(
       resp.data?.map((s) => ({
         id: parseInt(s.id ?? "-1"),
-        name: s.generic,
+        name: toProductShortName(s),
         price: s.sell_price,
-        remarks: "",
+        quantity: -1,
       })) ?? []
     );
   };

@@ -17,18 +17,11 @@ import { ModeItems } from "./M3S2G2";
 
 export const ProductsView = (props: any) => {
   const { motorStore } = useStore();
-  const [mode, setMode] = useState("");
-  const [part, setPart] = useState(-1);
-  const [product, setProduct] = useState(defaultProduct);
-  const [selectedMotors, setSelectedMotors] = useState<number[]>([]);
-  const [motors, setMotors] = useState<MotorInterface[]>([]);
   const [query, setQuery] = useState("");
   const [focus, setFocused] = useState(false);
-  const [item, setItem] = useState<ProductInterface>(defaultProductInterface);
-  const [items, setItems] = useState<ProductInterface[]>([]);
+  const [motors, setMotors] = useState<MotorInterface[]>([]);
 
   const getMotors = async () => {
-    motorStore.deleteMotorHistory();
     await motorStore.fetchMotors();
     setMotors(motorStore.motors);
   };
@@ -44,27 +37,14 @@ export const ProductsView = (props: any) => {
 
   useEffect(() => {
     getMotors();
-    setMode("");
   }, [props.visible]);
 
   const values = {
     motors: motors,
-    mode: mode,
-    setMode: setMode,
-    part: part,
-    setPart: setPart,
-    product: product,
-    setProduct: setProduct,
-    selectedMotors: selectedMotors,
-    setSelectedMotors: setSelectedMotors,
-    item: item,
-    items: items,
     focus: focus,
     onFocusChange: onFocusChange,
     onQueryChange: onQueryChange,
     query: query,
-    setItem: setItem,
-    setItems: setItems,
   };
 
   return (

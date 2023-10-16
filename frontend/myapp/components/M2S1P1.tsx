@@ -7,12 +7,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import DropDownPicker from "react-native-dropdown-picker";
 import { Icon } from "react-native-elements";
-import { winWidth } from "../constants/constants";
 import { Expense, M2S1Context } from "../constants/interfaces";
-import { useStore } from "../stores/Store";
 import { particularPOSStore } from "../stores/ParticularPOSStore";
+import { useStore } from "../stores/Store";
 import { ExpenseCategorySelector } from "./M2P2";
 
 export const CreateExpenseForm = () => {

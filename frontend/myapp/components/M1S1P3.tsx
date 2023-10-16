@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { Icon, Overlay } from "react-native-elements";
 import { M1S1Context } from "../constants/interfaces";
+
 export const PaymentRequestModal = (props: {}) => {
   const { salesItems, customer, popup, setPopup, togglePayment, currentTotal } =
     useContext(M1S1Context);

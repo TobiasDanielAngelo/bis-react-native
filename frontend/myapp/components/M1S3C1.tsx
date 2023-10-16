@@ -37,6 +37,10 @@ export const RefundView = (props: any) => {
   const [salesItems, setSalesItems] = useState<CustomerSalesItem[]>([]);
   const [date, setDate] = useState(new Date());
 
+  const getCategories = useCallback(async () => {
+    await categoryStore.fetchCategories();
+  }, []);
+
   const getTransactions = useCallback(async () => {
     transactionStore.deleteTransactionHistory();
     setLoading(true);
@@ -130,6 +134,7 @@ export const RefundView = (props: any) => {
   }, []);
 
   useEffect(() => {
+    getCategories();
     setDate(new Date());
   }, [props.visible, currentScreen]);
 

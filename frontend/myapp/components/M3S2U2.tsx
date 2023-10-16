@@ -9,6 +9,18 @@ export const ViewProductItem = (props: {
 }) => {
   const { sparePartStore } = useStore();
 
+  const toShortName = (t: ProductInterface) => {
+    return `${t.description !== "" ? t.description : ""}${
+      t.motors !== "" &&
+      sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+        ?.is_motor_shown
+        ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
+        : ""
+    }${t.brand !== "" ? " " + t.brand : ""}${
+      t.is_orig ? " ORIG." : ""
+    }`.toUpperCase();
+  };
+
   return (
     <View
       style={[
@@ -31,11 +43,7 @@ export const ViewProductItem = (props: {
         }}
       >
         <Text style={styles.mainItemText}>
-          {`${props.product.generic.replace(
-            (sparePartStore.sparePartName(parseInt(props.product.part)) ?? "") +
-              " ",
-            ""
-          )}`}
+          {`${toShortName(props.product)}`}
         </Text>
       </View>
       <View style={{ display: props.selected ? "flex" : "none" }}>
@@ -49,10 +57,10 @@ export const ViewProductItem = (props: {
               }`}
         </Text>
         <Text style={styles.descriptionText}>
-          {`Purchasing @ ${props.product.purchase_price} @ ${props.product.piece_count} ${props.product.unit}`}
+          {`Purchasing @ ${props.product.purchase_price} / ${props.product.piece_count} ${props.product.unit}`}
         </Text>
         <Text style={styles.descriptionText}>
-          {`Selling @ ${props.product.sell_price} @ ${props.product.piece_count} ${props.product.unit}`}
+          {`Selling @ ${props.product.sell_price} / ${props.product.piece_count} ${props.product.unit}`}
         </Text>
         <Text style={styles.descriptionText}>
           {`Located @ Shelf ${props.product.location}`}

@@ -1,10 +1,10 @@
 import { useContext } from "react";
-import { M3S2Context } from "../constants/interfaces";
+import { InventoryContext, M3S2Context } from "../constants/interfaces";
 import { ProductSearch } from "./M3S2A1";
 import { ProductForm } from "./M3S2P1";
 
 export const UpdateProduct = () => {
-  const { item, mode } = useContext(M3S2Context);
+  const { mode, item } = useContext(InventoryContext);
 
   return (
     mode === "update" && (

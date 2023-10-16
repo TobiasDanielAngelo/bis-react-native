@@ -1,3 +1,4 @@
+import { createContext } from "react";
 import {
   defaultCustomer,
   defaultExpense,
@@ -8,7 +9,22 @@ import {
   defaultSalesItem,
   defaultUser,
 } from "./constants";
-import { createContext } from "react";
+
+export interface PurchaseOrder {
+  id: number;
+  check: number;
+  dueDate: string;
+  supplier: string;
+  status: "editing" | "processing" | "delivered" | "closed";
+  toPrint: boolean;
+}
+
+export interface OrderItem {
+  id: number;
+  orderId: number;
+  productId: number;
+  qty: number;
+}
 
 export interface CategoryInterface {
   pk: string;
@@ -60,12 +76,6 @@ export interface Expense {
   categoryId: string;
   receiptId: string;
 }
-export interface Item {
-  id: number;
-  name: string;
-  remarks: string;
-  price: number;
-}
 
 export interface LoginInterface {
   username: string;
@@ -81,6 +91,7 @@ export interface MotorInterface {
 export interface SparePartInterface {
   id: number;
   name: string;
+  is_motor_shown: boolean;
 }
 
 export interface MechanicInterface {
@@ -101,6 +112,7 @@ export interface POSItem {
   id: number;
   name: string;
   price: number;
+  quantity: number;
 }
 export interface ProductInterface {
   id?: string;
@@ -110,7 +122,7 @@ export interface ProductInterface {
   brand: string;
   part: string;
   motors: string;
-  generic: string;
+  // generic: string;
   datetime_added: string;
   is_active: boolean;
   location: string;
@@ -163,6 +175,11 @@ export interface UserInterface {
   isActive: boolean;
 }
 
+export interface ProductQuantified {
+  product: ProductInterface;
+  quantity: number;
+}
+
 export type MainContent = { currentUser: User; currentScreen: string };
 
 export const MainContext = createContext<MainContent>({
@@ -181,7 +198,7 @@ export type M1S1Content = {
   laborItem: CustomerLaborItem;
   salesItems: CustomerSalesItem[];
   laborItems: CustomerLaborItem[];
-  setItems: (t: Item[]) => void;
+  setItems: (t: POSItem[] | ((u: POSItem[]) => POSItem[])) => void;
   setPopup: (t: string) => void;
   onQueryChange: (t: string) => void;
   onFocusChange: (t: boolean) => void;
@@ -219,7 +236,7 @@ export const M1S1Context = createContext<M1S1Content>({
   laborItem: defaultLaborItem,
   salesItems: [],
   laborItems: [],
-  setItems: (t: Item[]) => {},
+  setItems: (t: POSItem[] | ((u: POSItem[]) => POSItem[])) => {},
   setPopup: (t: string) => {},
   onQueryChange: (t: string) => {},
   onFocusChange: (t: boolean) => {},
@@ -407,50 +424,100 @@ export const M2S3Context = createContext<M2S3Content>({
   setPopup: (t: string) => {},
 });
 
-export type M3S2Content = {
+export type InventoryContent = {
   mode: string;
   setMode: (t: string) => void;
-  motors: MotorInterface[];
+  view: string;
+  setView: (t: string) => void;
+  item: ProductInterface;
+  setItem: (
+    t: ProductInterface | ((u: ProductInterface) => ProductInterface)
+  ) => void;
   part: number;
   setPart: (t: any) => void;
   product: typeof defaultProduct;
   setProduct: (t: typeof defaultProduct) => void;
   selectedMotors: number[];
   setSelectedMotors: (t: number[] | ((u: number[]) => number[])) => void;
-  item: ProductInterface;
   items: ProductInterface[];
-  query: string;
-  onQueryChange: (t: string) => void;
-  focus: boolean;
-  onFocusChange: (t: boolean) => void;
-  setItem: (
-    t: ProductInterface | ((u: ProductInterface) => ProductInterface)
-  ) => void;
   setItems: (
     t: ProductInterface[] | ((u: ProductInterface[]) => ProductInterface[])
   ) => void;
 };
 
-export const M3S2Context = createContext<M3S2Content>({
+export const InventoryContext = createContext<InventoryContent>({
   mode: "",
   setMode: (t: string) => {},
-  motors: [],
+  view: "",
+  setView: (t: string) => {},
+  item: defaultProductInterface,
+  setItem: (
+    t: ProductInterface | ((u: ProductInterface) => ProductInterface)
+  ) => {},
   part: -1,
   setPart: (t: any) => {},
   product: defaultProduct,
   setProduct: (t: typeof defaultProduct) => {},
   selectedMotors: [],
   setSelectedMotors: (t: number[] | ((u: number[]) => number[])) => {},
-  item: defaultProductInterface,
   items: [],
+  setItems: (
+    t: ProductInterface[] | ((u: ProductInterface[]) => ProductInterface[])
+  ) => {},
+});
+
+export type M3S1Content = {
+  viewProducts: boolean;
+  popup: string;
+  setPopup: (t: string) => void;
+  loading: boolean;
+  setLoading: (t: boolean) => void;
+  products: ProductQuantified[];
+  part: number;
+  setPart: (t: any) => void;
+  parts: SparePartInterface[];
+  order: number;
+  setOrder: (t: any) => void;
+  orders: PurchaseOrder[];
+  setOrders: (
+    t: PurchaseOrder[] | ((u: PurchaseOrder[]) => PurchaseOrder[])
+  ) => void;
+  orderItems: OrderItem[];
+  setOrderItems: (t: OrderItem[] | ((u: OrderItem[]) => OrderItem[])) => void;
+};
+
+export const M3S1Context = createContext<M3S1Content>({
+  viewProducts: false,
+  popup: "",
+  setPopup: (t: string) => {},
+  loading: false,
+  setLoading: (t: boolean) => {},
+  products: [],
+  part: -1,
+  setPart: (t: number) => {},
+  parts: [],
+  order: -1,
+  setOrder: (t: any) => {},
+  orders: [],
+  setOrders: (
+    t: PurchaseOrder[] | ((u: PurchaseOrder[]) => PurchaseOrder[])
+  ) => {},
+  orderItems: [],
+  setOrderItems: (t: OrderItem[] | ((u: OrderItem[]) => OrderItem[])) => {},
+});
+
+export type M3S2Content = {
+  motors: MotorInterface[];
+  query: string;
+  onQueryChange: (t: string) => void;
+  focus: boolean;
+  onFocusChange: (t: boolean) => void;
+};
+
+export const M3S2Context = createContext<M3S2Content>({
+  motors: [],
   query: "",
   onQueryChange: (t: string) => {},
   focus: false,
   onFocusChange: (t: boolean) => {},
-  setItem: (
-    t: ProductInterface | ((u: ProductInterface) => ProductInterface)
-  ) => {},
-  setItems: (
-    t: ProductInterface[] | ((u: ProductInterface[]) => ProductInterface[])
-  ) => {},
 });

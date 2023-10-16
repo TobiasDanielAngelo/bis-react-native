@@ -14,6 +14,8 @@ from .viewsets import (
     ProductViewSet,
     SparePartViewSet,
     TransactionViewSet,
+    PurchasePartViewSet,
+    PurchaseItemViewSet,
     MyUserViewSet,
 )
 
@@ -28,7 +30,10 @@ router.register(r"expenses", ExpenseViewSet, basename="expense")
 router.register(r"incomes", IncomeViewSet, basename="income")
 router.register(r"mechanics", MechanicViewSet, basename="mechanic")
 router.register(r"sales", PointOfSaleViewSet, basename="sales")
+router.register(r"purchases", PurchasePartViewSet, basename="purchases")
 router.register(r"particularpos", POSItemViewSet, basename="particularpos")
+router.register(r"particularorders", PurchaseItemViewSet, basename="particularorders")
+
 
 urlpatterns = [
     path("", include(router.urls)),

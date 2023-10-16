@@ -28,6 +28,10 @@ export const RedeemView = (props: { visible: boolean }) => {
   const [date, setDate] = useState(new Date());
   const [mechanics, setMechanics] = useState<MechanicInterface[]>([]);
 
+  const getCategories = useCallback(async () => {
+    await categoryStore.fetchCategories();
+  }, []);
+
   const getMechanics = useCallback(async () => {
     setLoading(true);
     await mechanicStore.fetchMechanics();
@@ -104,6 +108,7 @@ export const RedeemView = (props: { visible: boolean }) => {
   };
 
   useEffect(() => {
+    getCategories();
     if (props.visible && currentScreen === "Sales") {
       setLaborer("");
       transactionStore.deleteTransactionHistory();

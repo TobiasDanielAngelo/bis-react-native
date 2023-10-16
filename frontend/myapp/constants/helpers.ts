@@ -1,4 +1,5 @@
 import moment from "moment";
+import { ProductInterface } from "./interfaces";
 
 export const formatDate = (date: Date) => {
   return (
