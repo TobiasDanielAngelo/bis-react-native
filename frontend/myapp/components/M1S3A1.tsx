@@ -41,7 +41,12 @@ export const ProductSearch = (props: {}) => {
         ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
         : ""
     }${t.brand !== "" ? " " + t.brand : ""}${
-      t.is_orig ? " ORIG." : ""
+      t.is_orig
+        ? " ORIG."
+        : sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+            ?.is_semi_shown
+        ? " SEMI."
+        : ""
     }`.toUpperCase();
   };
   const getProducts = async (query: string) => {

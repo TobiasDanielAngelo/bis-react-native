@@ -19,11 +19,15 @@ export const PotentialProductItem = (props: {
     productStore,
     particularPOSStore,
     particularPurchaseStore,
+    motorStore,
   } = useStore();
   const [product, setProduct] = useState<ProductInterface>(
     defaultProductInterface
   );
-  const { setOrderItems } = useContext(M3S1Context);
+  const { setOrderItems, orderItems, orders } = useContext(M3S1Context);
+  const [otherBrands, setOtherBrands] = useState<
+    { prodId: number; brandName: string }[]
+  >([]);
   const [currQty, setCurrQty] = useState(0);
 
   const toProductShortName = (t: ProductInterface) => {
@@ -35,8 +39,19 @@ export const PotentialProductItem = (props: {
         ?.is_motor_shown
         ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
         : ""
-    }${t.brand !== "" ? " " + t.brand : ""}${
-      t.is_orig ? " ORIG." : ""
+    }${
+      t.brand !== "" && props.order.brandType === ""
+        ? " " + t.brand
+        : props.order.brandType === "any"
+        ? " " + otherBrands.map((s) => s.brandName).join("/")
+        : ""
+    }${
+      t.is_orig
+        ? " ORIG."
+        : sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+            ?.is_semi_shown
+        ? " SEMI."
+        : ""
     }`.toUpperCase();
   };
 
@@ -44,6 +59,10 @@ export const PotentialProductItem = (props: {
     const resp = (await productStore.fetchProduct(props.order.productId)).data;
 
     setProduct(resp ?? defaultProductInterface);
+  };
+
+  const getMotors = async () => {
+    await motorStore.fetchMotors();
   };
 
   const getQuantity = async () => {
@@ -67,6 +86,73 @@ export const PotentialProductItem = (props: {
     });
   };
 
+  const getSimilarItem = async () => {
+    const resp = await productStore.fetchProductByProps(
+      "",
+      sparePartStore.sparePartName(parseInt(product.part)),
+      product.motors !== ""
+        ? product.motors.split(", ").map((s) => motorStore.motorId(s) ?? -1)
+        : [],
+      product.description
+    );
+
+    setOtherBrands(
+      resp.data
+        ?.filter((s) => s.is_orig === product.is_orig)
+        .map((s) => ({
+          prodId: parseInt(s.id ?? "-1"),
+          brandName: s.brand,
+        })) ?? []
+    );
+  };
+
+  const getEstimatedPrice = async () => {
+    const resp = await productStore.fetchProduct(props.order.productId);
+
+    setOrderItems((prev: OrderItem[]) => {
+      let targetOrderItem = prev.find((s) => s.id === props.order.id);
+      if (targetOrderItem)
+        targetOrderItem.purchasePrice = resp.data?.purchase_price ?? 0;
+      return [...prev];
+    });
+  };
+
+  const onChangeProduct = async (prodId: number) => {
+    await particularPurchaseStore.updateParticularPurchase(
+      (props.order.id ?? -1).toString(),
+      {
+        remarks:
+          prodId > 0 ? "" : prodId === 0 ? "None" : prodId === -2 ? "Any" : "",
+      }
+    );
+
+    if (prodId > 0)
+      await particularPurchaseStore.updateParticularPurchase(
+        (props.order.id ?? -1).toString(),
+        {
+          remarks:
+            prodId > 0
+              ? ""
+              : prodId === 0
+              ? "None"
+              : prodId === -2
+              ? "Any"
+              : "",
+        }
+      );
+
+    setOrderItems((prev: OrderItem[]) => {
+      let targetOrderItem = prev.find((s) => s.id === props.order.id);
+      if (targetOrderItem) {
+        if (prodId > 0) {
+          targetOrderItem.productId = prodId;
+          targetOrderItem.brandType = "";
+        } else targetOrderItem.brandType = prodId === 0 ? "none" : "any";
+      }
+      return [...prev];
+    });
+  };
+
   const onUpdateQty = async (qty: string) => {
     setOrderItems((prev: OrderItem[]) => {
       let targetOrderItem = prev.find((s) => s.id === props.order.id);
@@ -84,9 +170,17 @@ export const PotentialProductItem = (props: {
   };
 
   useEffect(() => {
+    console.log("BOOM");
+
+    getMotors();
     getProductDetails();
     getQuantity();
-  }, []);
+    getEstimatedPrice();
+  }, [props.order.productId]);
+
+  useEffect(() => {
+    getSimilarItem();
+  }, [product]);
 
   return (
     <View
@@ -94,8 +188,13 @@ export const PotentialProductItem = (props: {
         styles.listItem,
         styles.shadowProp,
         {
-          height: props.selected ? 250 : 180,
+          height: props.selected ? 250 : 220,
           justifyContent: "space-between",
+          backgroundColor:
+            orders.find((s) => s.id === props.order.orderId)?.status ===
+            "editing"
+              ? "white"
+              : "#ddd",
         },
       ]}
     >
@@ -110,6 +209,9 @@ export const PotentialProductItem = (props: {
         )}`}</Text>
       </View>
       <View>
+        <Text style={styles.descriptionText}>
+          P/P : {props.order.purchasePrice}
+        </Text>
         <Text style={styles.descriptionText}>
           In Stock : {currQty} x {product.piece_count} {product.unit}
         </Text>
@@ -143,7 +245,22 @@ export const PotentialProductItem = (props: {
           alignItems: "flex-end",
         }}
       >
-        <Icon name="close" color="gray" onPress={onDeleteOrderItem} />
+        <Icon
+          name="close"
+          color={
+            orders.find((s) => s.id === props.order.orderId)?.status !==
+            "editing"
+              ? "#ddd"
+              : "gray"
+          }
+          onPress={onDeleteOrderItem}
+          disabled={
+            orders.find((s) => s.id === props.order.orderId)?.status !==
+            "editing"
+          }
+          disabledStyle={{ backgroundColor: "#ddd" }}
+        />
+
         <View>
           <Text style={{ color: "gray" }}>To Order:</Text>
           <View style={{ flexDirection: "row" }}>
@@ -159,6 +276,10 @@ export const PotentialProductItem = (props: {
                 height: 30,
               }}
               keyboardType="numeric"
+              editable={
+                orders.find((s) => s.id === props.order.orderId)?.status ===
+                "editing"
+              }
             />
             <Text
               style={{
@@ -170,6 +291,80 @@ export const PotentialProductItem = (props: {
               x {product.piece_count} {product.unit}
             </Text>
           </View>
+        </View>
+      </View>
+      <View
+        style={{
+          display:
+            otherBrands
+              .filter((s) => s.prodId === parseInt(product.id ?? "-1"))
+              .filter((s) => s.brandName !== "").length > 0
+              ? "flex"
+              : "none",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          // justifyContent: "space-between",
+        }}
+      >
+        <View>
+          <Text style={styles.descriptionText}>Other brands:</Text>
+        </View>
+        {otherBrands
+          .filter(
+            (s) =>
+              s.prodId !== parseInt(product.id ?? "-1") ||
+              props.order.brandType !== ""
+          )
+          .map((s) => (
+            <View
+              style={{ marginHorizontal: 5 }}
+              key={`${props.order.id}-${s.prodId}`}
+            >
+              <Text
+                style={{ textDecorationLine: "underline", color: "teal" }}
+                onPress={() => onChangeProduct(s.prodId)}
+                disabled={
+                  orders.find((s) => s.id === props.order.orderId)?.status !==
+                  "editing"
+                }
+              >
+                {s.brandName}
+              </Text>
+            </View>
+          ))}
+        <View
+          style={{
+            marginHorizontal: 5,
+            display: props.order.brandType === "any" ? "none" : "flex",
+          }}
+        >
+          <Text
+            style={{ textDecorationLine: "underline", color: "teal" }}
+            onPress={() => onChangeProduct(-2)}
+            disabled={
+              orders.find((s) => s.id === props.order.orderId)?.status !==
+              "editing"
+            }
+          >
+            *ANY*
+          </Text>
+        </View>
+        <View
+          style={{
+            marginHorizontal: 5,
+            display: props.order.brandType === "none" ? "none" : "flex",
+          }}
+        >
+          <Text
+            style={{ textDecorationLine: "underline", color: "teal" }}
+            onPress={() => onChangeProduct(0)}
+            disabled={
+              orders.find((s) => s.id === props.order.orderId)?.status !==
+              "editing"
+            }
+          >
+            *NONE*
+          </Text>
         </View>
       </View>
     </View>

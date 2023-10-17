@@ -66,8 +66,8 @@ class SparePartAdmin(admin.ModelAdmin):
         return instance.product_count
 
     model = SparePart
-    # list_editable = ("is_motor_shown",)
-    list_display = ("name", "product_count", "is_motor_shown", "id")
+    list_editable = ("is_semi_shown",)
+    list_display = ("name", "product_count", "is_motor_shown", "is_semi_shown", "id")
 
 
 class MechanicAdmin(admin.ModelAdmin):

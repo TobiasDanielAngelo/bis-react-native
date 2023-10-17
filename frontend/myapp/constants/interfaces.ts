@@ -14,6 +14,7 @@ export interface PurchaseOrder {
   id: number;
   check: number;
   dueDate: string;
+  creationDate: string;
   supplier: string;
   status: "editing" | "processing" | "delivered" | "closed";
   toPrint: boolean;
@@ -24,6 +25,8 @@ export interface OrderItem {
   orderId: number;
   productId: number;
   qty: number;
+  purchasePrice: number;
+  brandType: "none" | "any" | "";
 }
 
 export interface CategoryInterface {
@@ -92,6 +95,7 @@ export interface SparePartInterface {
   id: number;
   name: string;
   is_motor_shown: boolean;
+  is_semi_shown: boolean;
 }
 
 export interface MechanicInterface {

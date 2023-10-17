@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   InventoryContext,
   M3S1Context,
@@ -17,12 +17,39 @@ import {
 export const OrderProductItem = (props: {
   productQuantified: ProductQuantified;
 }) => {
-  const { sparePartStore, particularPurchaseStore } = useStore();
+  const { motorStore, sparePartStore, particularPurchaseStore, productStore } =
+    useStore();
 
   const { setView, setMode, setItem, setSelectedMotors, setProduct, setPart } =
     useContext(InventoryContext);
-  const { order, orderItems, setOrderItems } = useContext(M3S1Context);
+  const { order, orderItems, setOrderItems, orders } = useContext(M3S1Context);
+  const [otherBrands, setOtherBrands] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
+
+  const getSimilarItem = async () => {
+    const resp = await productStore.fetchProductByProps(
+      "",
+      sparePartStore.sparePartName(
+        parseInt(props.productQuantified.product.part)
+      ),
+      props.productQuantified.product.motors !== ""
+        ? props.productQuantified.product.motors
+            .split(", ")
+            .map((s) => motorStore.motorId(s) ?? -1)
+        : [],
+      props.productQuantified.product.description
+    );
+
+    setOtherBrands(
+      resp.data
+        ?.filter(
+          (s) =>
+            s.id !== props.productQuantified.product.id &&
+            s.is_orig === props.productQuantified.product.is_orig
+        )
+        .map((s) => s.brand) ?? []
+    );
+  };
 
   const orderHasProduct = !!orderItems.find(
     (s) =>
@@ -49,7 +76,12 @@ export const OrderProductItem = (props: {
         ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
         : ""
     }${t.brand !== "" ? " " + t.brand : ""}${
-      t.is_orig ? " ORIG." : ""
+      t.is_orig
+        ? " ORIG."
+        : sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+            ?.is_semi_shown
+        ? " SEMI."
+        : ""
     }`.toUpperCase();
   };
 
@@ -73,9 +105,15 @@ export const OrderProductItem = (props: {
         productId: parseInt(props.productQuantified.product.id ?? "-1"),
         orderId: order,
         qty: 1,
+        purchasePrice: 0,
+        brandType: "",
       },
     ]);
   };
+
+  useEffect(() => {
+    getSimilarItem();
+  }, []);
 
   return (
     <View
@@ -83,7 +121,7 @@ export const OrderProductItem = (props: {
         styles.listItem,
         styles.shadowProp,
         {
-          height: open ? 200 : 100,
+          height: open ? 230 : 130,
           backgroundColor: orderHasProduct ? "#ddd" : "white",
         },
       ]}
@@ -97,6 +135,16 @@ export const OrderProductItem = (props: {
         <Text style={styles.mainItemText}>
           {`${toProductShortName(props.productQuantified.product)}`}
         </Text>
+        <View
+          style={{
+            display:
+              otherBrands.filter((s) => s !== "").length > 0 ? "flex" : "none",
+          }}
+        >
+          <Text style={styles.descriptionText}>
+            More brands: {otherBrands.filter((s) => s !== "").join(", ")}
+          </Text>
+        </View>
       </View>
       <View>
         <Text style={styles.descriptionText}>
@@ -143,10 +191,21 @@ export const OrderProductItem = (props: {
         />
         <Icon
           name="move-to-inbox"
-          color={orderHasProduct ? "#ddd" : "gray"}
+          color={
+            orderHasProduct
+              ? "#ddd"
+              : orders.find((s) => s.id === order)?.status === "editing"
+              ? "gray"
+              : "white"
+          }
           onPress={onCreateOrderItem}
-          disabled={orderHasProduct}
-          disabledStyle={{ backgroundColor: "#ddd" }}
+          disabled={
+            orderHasProduct ||
+            orders.find((s) => s.id === order)?.status !== "editing"
+          }
+          disabledStyle={{
+            backgroundColor: orderHasProduct ? "#ddd" : "white",
+          }}
         />
       </View>
     </View>

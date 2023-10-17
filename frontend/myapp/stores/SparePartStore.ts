@@ -15,12 +15,14 @@ export class SparePart extends Model({
   id: prop<number>(),
   name: prop<string>(""),
   is_motor_shown: prop<boolean>(true),
+  is_semi_shown: prop<boolean>(false),
 }) {
   get asJson() {
     return {
       id: this.id,
       name: this.name,
       is_motor_shown: this.is_motor_shown,
+      is_semi_shown: this.is_semi_shown,
     };
   }
 }

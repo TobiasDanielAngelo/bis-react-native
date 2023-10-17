@@ -14,10 +14,16 @@ import { OrderProductMatches } from "./M3S1G2";
 import { PurchaseOrderList } from "./M3S1G3";
 import { PurchaseOrderModal } from "./M3S1P1";
 import { StatusOrderBar } from "./M3S1S1";
+import { DeleteOrderModal } from "./M3S1P2";
 
 export const OrderView = (props: { visible: boolean }) => {
-  const { transactionStore, categoryStore, productStore, particularPOSStore } =
-    useStore();
+  const {
+    motorStore,
+    transactionStore,
+    categoryStore,
+    productStore,
+    particularPOSStore,
+  } = useStore();
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState(-1);
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
@@ -34,6 +40,10 @@ export const OrderView = (props: { visible: boolean }) => {
     await sparePartStore.fetchSpareParts();
     setParts(sparePartStore.spareParts);
     setPart(sparePartStore.spareParts[0].id);
+  };
+
+  const getMotors = async () => {
+    await motorStore.fetchMotors();
   };
 
   const getProducts = useCallback(async () => {
@@ -57,7 +67,8 @@ export const OrderView = (props: { visible: boolean }) => {
     transactionStore.deleteTransactionHistory();
     try {
       setLoading(true);
-      await transactionStore.fetchTransactions(`purchases/?mode=edit`);
+      await transactionStore.fetchTransactions(`purchases/?mode=editing`);
+      await transactionStore.fetchTransactions(`purchases/?mode=processing`);
 
       const orderTransactions = transactionStore.transactions.filter(
         (s) => s.category === categoryStore.categoryId("Purchase Parts")
@@ -69,6 +80,7 @@ export const OrderView = (props: { visible: boolean }) => {
           check: parseInt(s.description.split(", ")[3].replace("C#", "")) ?? 0,
           supplier: s.receiver,
           dueDate: new Date(s.description.split(", ")[4]).toDateString(),
+          creationDate: new Date(s.datetime_transacted).toDateString(),
           status: s.description.split(", ")[1].toLowerCase() as
             | "editing"
             | "processing"
@@ -93,9 +105,10 @@ export const OrderView = (props: { visible: boolean }) => {
             productId: parseInt(
               u.part.description?.split("***")[0].replace("PPU", "") ?? "-1"
             ),
-
             orderId: parseInt(u.id),
             qty: u.part.quantity ?? 0,
+            purchasePrice: 0,
+            brandType: u.part.remarks?.toLowerCase() as "" | "none" | "any",
           };
         });
 
@@ -122,6 +135,17 @@ export const OrderView = (props: { visible: boolean }) => {
     setLoading(false);
   };
 
+  const getEstimatedPrice = async (order: OrderItem) => {
+    const resp = await productStore.fetchProduct(order.productId);
+
+    setOrderItems((prev: OrderItem[]) => {
+      let targetOrderItem = prev.find((s) => s.id === order.id);
+      if (targetOrderItem)
+        targetOrderItem.purchasePrice = resp.data?.purchase_price ?? 0;
+      return [...prev];
+    });
+  };
+
   const getCategories = useCallback(async () => {
     await categoryStore.fetchCategories();
   }, []);
@@ -131,10 +155,14 @@ export const OrderView = (props: { visible: boolean }) => {
   }, [part]);
 
   useEffect(() => {
+    setOrder(-1);
     getCategories();
     getSpareParts();
     getPurchaseOrders();
+    getMotors();
   }, [props.visible]);
+
+  useEffect(() => {});
 
   const values = {
     viewProducts: viewProducts,
@@ -158,6 +186,7 @@ export const OrderView = (props: { visible: boolean }) => {
     props.visible && (
       <M3S1Context.Provider value={values}>
         <PurchaseOrderModal />
+        <DeleteOrderModal />
         {viewProducts && <OrderProductMatches />}
         <TouchableOpacity onPress={() => setViewProducts((prev) => !prev)}>
           <View

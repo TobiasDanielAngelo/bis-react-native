@@ -56,6 +56,7 @@ export const defaultSparePart = {
   id: -1,
   name: "",
   is_motor_shown: true,
+  is_semi_shown: false,
 };
 
 export const defaultLaborItem = {

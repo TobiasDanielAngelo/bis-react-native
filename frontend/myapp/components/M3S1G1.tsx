@@ -1,11 +1,11 @@
 import { useContext, useState } from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { Icon } from "react-native-elements";
 import { M3S1Context } from "../constants/interfaces";
 
 export const OrderBar = () => {
-  const { order, setOrder, orders, setPopup, viewProducts } =
+  const { order, setOrder, orders, setPopup, viewProducts, popup } =
     useContext(M3S1Context);
 
   const [open, setOpen] = useState(false);
@@ -28,7 +28,9 @@ export const OrderBar = () => {
         <View style={{ flex: 1, marginHorizontal: 10 }}>
           <DropDownPicker
             items={orders.map((s) => ({
-              label: `PO#${s.id} - ${s.supplier}`,
+              label: `PO#${s.id} - ${s.supplier}${
+                s.status === "editing" ? "" : " (Sent)"
+              }`,
               value: s.id,
               icon: () => <></>,
             }))}
@@ -46,7 +48,11 @@ export const OrderBar = () => {
               borderRadius: 0,
               flex: 1,
               minHeight: 35,
-              // backgroundColor: viewProducts ? "#ddd" : "white",
+              backgroundColor:
+                orders.find((s) => s.id === order)?.status === "editing" ||
+                order === -1
+                  ? "white"
+                  : "#ddd",
             }}
             placeholder="See Orders in Progress..."
             placeholderStyle={{ color: "gray" }}
@@ -56,8 +62,15 @@ export const OrderBar = () => {
         <Icon
           name="delete"
           size={30}
-          color={order === -1 ? "gray" : "teal"}
-          onPress={() => order !== -1 && setPopup("order")}
+          color={
+            order === -1 ||
+            orders.find((s) => s.id === order)?.status !== "editing"
+              ? "gray"
+              : "teal"
+          }
+          disabled={orders.find((s) => s.id === order)?.status !== "editing"}
+          disabledStyle={{ backgroundColor: "lightcyan" }}
+          onLongPress={() => order !== -1 && setPopup("deleteOrder")}
         />
       </View>
     </View>

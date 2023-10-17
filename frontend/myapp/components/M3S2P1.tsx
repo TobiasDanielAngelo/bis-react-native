@@ -161,8 +161,6 @@ export const ProductForm = (props: { item?: ProductInterface }) => {
     }
   }, [props.item]);
 
-  console.log(selectedMotors);
-
   const getSpareParts = async () => {
     await sparePartStore.fetchSpareParts();
     setParts(sparePartStore.spareParts);
@@ -649,7 +647,12 @@ export const ProductForm = (props: { item?: ProductInterface }) => {
                         ?.replaceAll("_", " ")
                     : ""
                 }${product.brand !== "" ? " " + product.brand : ""}${
-                  product.isOrig ? " ORIG." : ""
+                  product.isOrig
+                    ? " ORIG."
+                    : sparePartStore.spareParts.find((s) => s.id === part)
+                        ?.is_semi_shown
+                    ? " SEMI."
+                    : ""
                 }`.toUpperCase()}
           </Text>
         </View>
