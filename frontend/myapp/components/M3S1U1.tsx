@@ -138,8 +138,24 @@ export const PotentialProductItem = (props: {
               : prodId === -2
               ? "Any"
               : "",
+          description: `PPU${prodId}`,
         }
       );
+    else {
+      await particularPurchaseStore.updateParticularPurchase(
+        (props.order.id ?? -1).toString(),
+        {
+          remarks:
+            prodId > 0
+              ? ""
+              : prodId === 0
+              ? "None"
+              : prodId === -2
+              ? "Any"
+              : "",
+        }
+      );
+    }
 
     setOrderItems((prev: OrderItem[]) => {
       let targetOrderItem = prev.find((s) => s.id === props.order.id);
@@ -170,8 +186,6 @@ export const PotentialProductItem = (props: {
   };
 
   useEffect(() => {
-    console.log("BOOM");
-
     getMotors();
     getProductDetails();
     getQuantity();
@@ -296,9 +310,7 @@ export const PotentialProductItem = (props: {
       <View
         style={{
           display:
-            otherBrands
-              .filter((s) => s.prodId === parseInt(product.id ?? "-1"))
-              .filter((s) => s.brandName !== "").length > 0
+            otherBrands.filter((s) => s.brandName !== "").length > 0
               ? "flex"
               : "none",
           flexDirection: "row",

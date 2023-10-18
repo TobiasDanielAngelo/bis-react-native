@@ -26,6 +26,7 @@ export interface OrderItem {
   productId: number;
   qty: number;
   purchasePrice: number;
+  sellPrice: number;
   brandType: "none" | "any" | "";
 }
 
@@ -134,6 +135,22 @@ export interface ProductInterface {
   sell_price: number;
   min_quantity: number;
   is_orig: boolean;
+}
+
+export interface ProductUpdateInterface {
+  piece_count?: number;
+  unit?: string;
+  description?: string;
+  brand?: string;
+  part?: string;
+  motors?: string;
+  datetime_added?: string;
+  is_active?: boolean;
+  location?: string;
+  purchase_price?: number;
+  sell_price?: number;
+  min_quantity?: number;
+  is_orig?: boolean;
 }
 
 export interface TransactionInputInterface {
@@ -524,4 +541,54 @@ export const M3S2Context = createContext<M3S2Content>({
   onQueryChange: (t: string) => {},
   focus: false,
   onFocusChange: (t: boolean) => {},
+});
+
+export type M3S3Content = {
+  search: boolean;
+  setSearch: (t: boolean | ((u: boolean) => boolean)) => void;
+  popup: string;
+  setPopup: (t: string) => void;
+  loading: boolean;
+  setLoading: (t: boolean) => void;
+  query: string;
+  onQueryChange: (t: string) => void;
+  focus: boolean;
+  onFocusChange: (t: boolean) => void;
+  products: ProductQuantified[];
+  part: number;
+  setPart: (t: any) => void;
+  parts: SparePartInterface[];
+  order: number;
+  setOrder: (t: any) => void;
+  orders: PurchaseOrder[];
+  setOrders: (
+    t: PurchaseOrder[] | ((u: PurchaseOrder[]) => PurchaseOrder[])
+  ) => void;
+  orderItems: OrderItem[];
+  setOrderItems: (t: OrderItem[] | ((u: OrderItem[]) => OrderItem[])) => void;
+};
+
+export const M3S3Context = createContext<M3S3Content>({
+  search: false,
+  setSearch: (t: boolean | ((u: boolean) => boolean)) => {},
+  popup: "",
+  setPopup: (t: string) => {},
+  loading: false,
+  setLoading: (t: boolean) => {},
+  query: "",
+  onQueryChange: (t: string) => {},
+  focus: false,
+  onFocusChange: (t: boolean) => {},
+  products: [],
+  part: -1,
+  setPart: (t: number) => {},
+  parts: [],
+  order: -1,
+  setOrder: (t: any) => {},
+  orders: [],
+  setOrders: (
+    t: PurchaseOrder[] | ((u: PurchaseOrder[]) => PurchaseOrder[])
+  ) => {},
+  orderItems: [],
+  setOrderItems: (t: OrderItem[] | ((u: OrderItem[]) => OrderItem[])) => {},
 });

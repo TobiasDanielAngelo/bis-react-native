@@ -106,6 +106,7 @@ export const OrderProductItem = (props: {
         orderId: order,
         qty: 1,
         purchasePrice: 0,
+        sellPrice: 0,
         brandType: "",
       },
     ]);

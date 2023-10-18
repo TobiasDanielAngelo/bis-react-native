@@ -12,14 +12,14 @@ export const ModeItem = (props: {
     <Pressable style={{ flex: 1, padding: 10 }} onPress={props.onPress}>
       <Icon
         name={props.logo}
-        size={props.isLarge ? 50 : 25}
+        size={props.isLarge ? 50 : 40}
         color={props.selected || props.isLarge ? "teal" : "lightblue"}
       />
       <Text
         style={{
           textAlign: "center",
           color: props.selected || props.isLarge ? "teal" : "lightblue",
-          fontSize: props.isLarge ? 13 : 9,
+          fontSize: props.isLarge ? 14 : 11,
         }}
       >
         {props.title}

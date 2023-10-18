@@ -28,9 +28,7 @@ export const OrderBar = () => {
         <View style={{ flex: 1, marginHorizontal: 10 }}>
           <DropDownPicker
             items={orders.map((s) => ({
-              label: `PO#${s.id} - ${s.supplier}${
-                s.status === "editing" ? "" : " (Sent)"
-              }`,
+              label: `PO#${s.id} - ${s.supplier} (${s.status})`,
               value: s.id,
               icon: () => <></>,
             }))}

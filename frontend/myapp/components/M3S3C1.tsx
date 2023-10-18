@@ -1,38 +1,32 @@
 import { useCallback, useEffect, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
-import { Text } from "react-native-elements";
 import {
-  M3S1Context,
+  M3S3Context,
   OrderItem,
   ProductQuantified,
   PurchaseOrder,
   SparePartInterface,
 } from "../constants/interfaces";
 import { useStore } from "../stores/Store";
-import { OrderBar } from "./M3S1G1";
-import { OrderProductMatches } from "./M3S1G2";
-import { PurchaseOrderList } from "./M3S1G3";
-import { PurchaseOrderModal } from "./M3S1P1";
-import { StatusOrderBar } from "./M3S1S1";
-import { DeleteOrderModal } from "./M3S1P2";
+import { OrderBar } from "./M3S3G1";
+import { PurchaseOrderList } from "./M3S3G2";
+import { StatusOrderBar } from "./M3S3S1";
+import { ProductSearch } from "./M3S3A1";
+import { FinishOrderModal } from "./M3S3P1";
 
-export const OrderView = (props: { visible: boolean }) => {
-  const {
-    motorStore,
-    transactionStore,
-    categoryStore,
-    productStore,
-    particularPOSStore,
-  } = useStore();
+export const DeliveryView = (props: { visible: boolean }) => {
+  const { motorStore, transactionStore, categoryStore, productStore } =
+    useStore();
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState(-1);
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [query, setQuery] = useState("");
+  const [focus, setFocused] = useState(false);
   const [popup, setPopup] = useState("");
   const [part, setPart] = useState(-1);
-  const [viewProducts, setViewProducts] = useState(true);
   const [parts, setParts] = useState<SparePartInterface[]>([]);
   const [products, setProducts] = useState<ProductQuantified[]>([]);
+  const [search, setSearch] = useState(false);
 
   const { sparePartStore } = useStore();
 
@@ -64,14 +58,13 @@ export const OrderView = (props: { visible: boolean }) => {
   }, [part]);
 
   const getPurchaseOrders = useCallback(async () => {
-    if (!props.visible) {
-      return;
-    }
+    if (!props.visible) return;
     transactionStore.deleteTransactionHistory();
+
     try {
       setLoading(true);
-      await transactionStore.fetchTransactions(`purchases/?mode=editing`);
       await transactionStore.fetchTransactions(`purchases/?mode=processing`);
+      await transactionStore.fetchTransactions(`purchases/?mode=delivered`);
 
       const orderTransactions = transactionStore.transactions.filter(
         (s) => s.category === categoryStore.categoryId("Purchase Parts")
@@ -125,33 +118,16 @@ export const OrderView = (props: { visible: boolean }) => {
     }
   }, []);
 
-  const getQuantities = async (itemId: number) => {
-    setLoading(true);
-
-    const resp = await particularPOSStore.fetchPOSQuantityOfProduct(itemId);
-
-    // setItems((prev: POSItem[]) => {
-    //   if ((prev.find((s) => s.id === itemId) ?? defaultPOSItem).quantity === -1)
-    //     (prev.find((s) => s.id === itemId) ?? defaultPOSItem).quantity =
-    //       resp.data?.quantity ?? 0;
-    //   return [...prev];
-    // });
-    setLoading(false);
-  };
-
-  const getEstimatedPrice = async (order: OrderItem) => {
-    const resp = await productStore.fetchProduct(order.productId);
-
-    setOrderItems((prev: OrderItem[]) => {
-      let targetOrderItem = prev.find((s) => s.id === order.id);
-      if (targetOrderItem)
-        targetOrderItem.purchasePrice = resp.data?.purchase_price ?? 0;
-      return [...prev];
-    });
-  };
-
   const getCategories = useCallback(async () => {
     await categoryStore.fetchCategories();
+  }, []);
+
+  const onQueryChange = useCallback((q: string) => {
+    setQuery(q);
+  }, []);
+
+  const onFocusChange = useCallback((f: boolean) => {
+    setFocused(f);
   }, []);
 
   useEffect(() => {
@@ -166,8 +142,15 @@ export const OrderView = (props: { visible: boolean }) => {
     getMotors();
   }, [props.visible]);
 
+  useEffect(() => {});
+
   const values = {
-    viewProducts: viewProducts,
+    search: search,
+    setSearch: setSearch,
+    query: query,
+    onQueryChange: onQueryChange,
+    focus: focus,
+    onFocusChange: onFocusChange,
     popup: popup,
     setPopup: setPopup,
     loading: loading,
@@ -186,35 +169,13 @@ export const OrderView = (props: { visible: boolean }) => {
 
   return (
     props.visible && (
-      <M3S1Context.Provider value={values}>
-        <PurchaseOrderModal />
-        <DeleteOrderModal />
-        {viewProducts && <OrderProductMatches />}
-        <TouchableOpacity onPress={() => setViewProducts((prev) => !prev)}>
-          <View
-            style={{
-              borderRadius: 25,
-              marginHorizontal: 50,
-              // marginVertical: 10,
-              borderColor: "gray",
-              backgroundColor: "teal",
-              height: 30,
-            }}
-          >
-            <Text style={{ color: "white", fontSize: 20, textAlign: "center" }}>
-              {viewProducts ? "View Order" : "View Products"}
-            </Text>
-          </View>
-        </TouchableOpacity>
+      <M3S3Context.Provider value={values}>
+        <FinishOrderModal />
         <OrderBar />
-
-        {!viewProducts && (
-          <>
-            <PurchaseOrderList />
-            <StatusOrderBar />
-          </>
-        )}
-      </M3S1Context.Provider>
+        <ProductSearch />
+        <PurchaseOrderList />
+        <StatusOrderBar />
+      </M3S3Context.Provider>
     )
   );
 };

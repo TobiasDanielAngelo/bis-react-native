@@ -8,7 +8,10 @@ import {
   _await,
   modelAction,
 } from "mobx-keystone";
-import { ProductInterface } from "../constants/interfaces";
+import {
+  ProductInterface,
+  ProductUpdateInterface,
+} from "../constants/interfaces";
 
 @model("myApp/Product")
 export class Product extends Model({
@@ -368,7 +371,7 @@ export class ProductStore extends Model({
   updateProduct = _async(function* (
     this: ProductStore,
     pk: string,
-    details: ProductInterface
+    details: ProductUpdateInterface
   ) {
     let token: string;
 
