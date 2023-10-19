@@ -11,9 +11,10 @@ import {
   defaultProductInterface,
 } from "../constants/constants";
 import { DeliveryView } from "./M3S3C1";
+import { CheckView } from "./M3S4C1";
 
 export const InventoryModule = observer(({ navigation }: any) => {
-  const [view, setView] = useState("delivery");
+  const [view, setView] = useState("check");
   const [mode, setMode] = useState("");
   const [item, setItem] = useState<ProductInterface>(defaultProductInterface);
   const [part, setPart] = useState(-1);
@@ -49,6 +50,7 @@ export const InventoryModule = observer(({ navigation }: any) => {
             setProductInputFocus={setProductInputFocus}
           />
           <DeliveryView visible={view === "delivery"} />
+          <CheckView visible={view === "check"} />
         </View>
         <MenuBar
           view={view}

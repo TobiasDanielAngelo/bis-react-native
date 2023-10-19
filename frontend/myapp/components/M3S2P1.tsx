@@ -601,10 +601,11 @@ export const ProductForm = (props: { item?: ProductInterface }) => {
                 padding: 5,
                 marginBottom: 10,
               }}
-              placeholder="... Shelf A or A"
+              placeholder="A for Shelf A"
               autoCapitalize="characters"
               value={product.location}
               onChangeText={(t) => setProduct({ ...product, location: t })}
+              maxLength={1}
             />
           </View>
         </View>

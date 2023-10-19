@@ -181,8 +181,8 @@ class ExpenseViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
     permission_classes = [
-        # AllowAny,
-        IsAuthenticated,
+        AllowAny,
+        # IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -192,10 +192,17 @@ class ExpenseViewSet(viewsets.ModelViewSet):
         ]
         params = self.request.query_params
 
-        if params.get("cat"):
-            queryset = self.filter_queryset(self.get_queryset()).filter(
-                category__title=params["cat"]
-            )
+        if params.get("cat") and params.get("start") and params.get("end"):
+            if params["cat"] == "Lend Money":
+                queryset = self.filter_queryset(self.get_queryset()).filter(
+                    category__title=params["cat"],
+                )
+            else:
+                queryset = self.filter_queryset(self.get_queryset()).filter(
+                    category__title=params["cat"],
+                    datetime_transacted__gte=params["start"],
+                    datetime_transacted__lte=params["end"],
+                )
         elif params.get("date"):
             queryset = self.filter_queryset(self.get_queryset()).filter(
                 category__in=expense_categories,

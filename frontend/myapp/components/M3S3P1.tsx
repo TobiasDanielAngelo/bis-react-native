@@ -8,6 +8,7 @@ import {
   M1S1Context,
   M3S3Context,
   MechanicInterface,
+  OrderItem,
   PurchaseOrder,
   TransactionUpdateInterface,
 } from "../constants/interfaces";
@@ -17,8 +18,9 @@ import { DateSelector } from "./M1S2U2";
 import moment from "moment";
 
 export const FinishOrderModal = (props: {}) => {
-  const { popup, setPopup, order, setOrders } = useContext(M3S3Context);
-  const { transactionStore } = useStore();
+  const { popup, setPopup, order, setOrders, orderItems } =
+    useContext(M3S3Context);
+  const { transactionStore, particularPurchaseStore } = useStore();
   const [checkNum, setCheckNum] = useState("0");
   const [showDate, setShowDate] = useState(false);
   const [date, setDate] = useState(new Date());
@@ -26,6 +28,27 @@ export const FinishOrderModal = (props: {}) => {
   const handleChangeDate = (date: Date) => {
     setDate(date);
     setShowDate(false);
+  };
+
+  const onUpdateOrderAmountBackend = async () => {
+    let certainOrderItems = orderItems.filter((s) => s.orderId === order);
+
+    certainOrderItems.forEach((s) => {
+      updateOrderPriceBackend(s);
+    });
+  };
+
+  const updateOrderPriceBackend = async (orderItem: OrderItem) => {
+    try {
+      await particularPurchaseStore.updateParticularPurchase(
+        orderItem.id.toString(),
+        {
+          unit_amount: orderItem.purchasePrice,
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const onUpdateOrderPrint = async (toPrint: boolean) => {
@@ -65,8 +88,10 @@ export const FinishOrderModal = (props: {}) => {
       description: descDetails.join(", "),
     } as TransactionUpdateInterface);
 
-    if (status === "closed") onUpdateOrderPrint(false);
-
+    if (status === "closed") {
+      onUpdateOrderAmountBackend();
+      onUpdateOrderPrint(false);
+    }
     setPopup("");
   };
 

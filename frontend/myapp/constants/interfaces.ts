@@ -421,6 +421,7 @@ export type M2S2Content = {
   setExpenses: (t: Expense[] | ((u: Expense[]) => Expense[])) => void;
   popup: string;
   setPopup: (t: string) => void;
+  date: Date;
 };
 
 export const M2S2Context = createContext<M2S2Content>({
@@ -430,6 +431,7 @@ export const M2S2Context = createContext<M2S2Content>({
   setExpenses: (t: Expense[] | ((u: Expense[]) => Expense[])) => {},
   popup: "",
   setPopup: (t: string) => {},
+  date: new Date(),
 });
 
 export type M2S3Content = {
@@ -592,3 +594,7 @@ export const M3S3Context = createContext<M3S3Content>({
   orderItems: [],
   setOrderItems: (t: OrderItem[] | ((u: OrderItem[]) => OrderItem[])) => {},
 });
+
+export type M3S4Content = {};
+
+export const M3S4Context = createContext<M3S4Content>({});
