@@ -56,6 +56,7 @@ export const ProductForm = (props: { item?: ProductInterface }) => {
       sell_price: parseFloat(product.packSP),
       min_quantity: parseInt(product.minimum),
       is_orig: product.isOrig,
+      print_count: 0,
     };
 
     try {

@@ -1,55 +1,56 @@
-import { useContext, useState, useEffect } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { useContext, useEffect, useState } from "react";
+import { StyleSheet, View, Text } from "react-native";
 import Dots from "react-native-dots-pagination";
 import { Icon } from "react-native-elements";
-import { M3S1Context } from "../constants/interfaces";
-import { OrderProductItem } from "./M3S1U2";
+import { defaultProductQuantified } from "../constants/constants";
+import {
+  M3S4Context,
+  ProductInterface,
+  ProductQuantified,
+} from "../constants/interfaces";
+import { CountingProductItem } from "./M3S4U1";
 import DropDownPicker from "react-native-dropdown-picker";
+import { useStore } from "../stores/Store";
 
 export const ProductsPlaced = () => {
-  const { parts, setPart, products, loading, part } = useContext(M3S1Context);
+  const { products, productDetails, setProductDetails } =
+    useContext(M3S4Context);
+  const { sparePartStore } = useStore();
 
   const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(false);
 
+  const onChangeProduct = (t: any) => {
+    setProductDetails(products.find((s) => s.product.id === t()));
+  };
+
+  const toProductShortName = (t: ProductInterface) => {
+    return `${sparePartStore.sparePartName(parseInt(t.part))}${
+      t.description !== "" ? " " + t.description : ""
+    }${
+      t.motors !== "" &&
+      sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+        ?.is_motor_shown
+        ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
+        : ""
+    }${t.brand !== "" ? " " + t.brand : ""}${
+      t.is_orig
+        ? " ORIG."
+        : sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+            ?.is_semi_shown
+        ? " SEMI."
+        : ""
+    }`.toUpperCase();
+  };
+
   useEffect(() => {
-    setIndex(parts.map((s) => s.id).indexOf(part));
-  }, [part]);
+    setIndex(
+      products.map((s) => s.product.id).indexOf(productDetails.product.id)
+    );
+  }, [productDetails.product.id]);
 
   return (
-    <View style={{ flex: 1, marginBottom: 10 }}>
-      <View style={{ marginHorizontal: 20 }}>
-        <Text>Item Category</Text>
-        <DropDownPicker
-          items={parts.map((s) => ({
-            label: s.name,
-            value: s.id,
-            icon: () => <Icon name="inventory" size={20} />,
-          }))}
-          multiple={false}
-          setValue={setPart}
-          value={part}
-          open={open}
-          setOpen={setOpen}
-          textStyle={{
-            fontSize: 17,
-          }}
-          flatListProps={{
-            keyboardShouldPersistTaps: "always",
-            nestedScrollEnabled: true,
-          }}
-          listMode="MODAL"
-          style={{
-            borderColor: "#ddd",
-            borderRadius: 0,
-            marginBottom: 5,
-          }}
-          placeholderStyle={{ color: "gray" }}
-          placeholder="Select a part"
-          searchable={true}
-          searchPlaceholder="Search..."
-        />
-      </View>
+    <View style={{ flex: 1, marginBottom: 10, zIndex: -1 }}>
       <View
         style={{
           margin: 10,
@@ -62,7 +63,10 @@ export const ProductsPlaced = () => {
           onPress={
             index > 0
               ? () => {
-                  setPart(parts.find((s, ind) => ind === index - 1)?.id ?? -1);
+                  setProductDetails(
+                    products.find((s, ind) => ind === index - 1) ??
+                      defaultProductQuantified
+                  );
                   setIndex((prev) => prev - 1);
                 }
               : () => {}
@@ -70,7 +74,7 @@ export const ProductsPlaced = () => {
         />
         <View>
           <Dots
-            length={parts.length}
+            length={products.length}
             active={index}
             passiveColor="lightgray"
             activeColor="teal"
@@ -79,23 +83,48 @@ export const ProductsPlaced = () => {
         <Icon
           name="navigate-next"
           onPress={
-            index < parts.length - 1
+            index < products.length - 1
               ? () => {
-                  setPart(parts.find((s, ind) => ind === index + 1)?.id ?? -1);
+                  setProductDetails(
+                    products.find((s, ind) => ind === index + 1) ??
+                      defaultProductQuantified
+                  );
                   setIndex((prev) => prev + 1);
                 }
               : () => {}
           }
         />
       </View>
-      {!loading && (
-        <FlatList
-          data={products}
-          renderItem={({ item }) => (
-            <OrderProductItem productQuantified={item} />
-          )}
+      <View style={{ marginHorizontal: 10 }}>
+        <DropDownPicker
+          items={products.map((s) => ({
+            label: toProductShortName(s.product),
+            value: s.product.id,
+            icon: () => <></>,
+          }))}
+          multiple={false}
+          setValue={onChangeProduct}
+          value={productDetails.product.id ?? "-1"}
+          open={open}
+          setOpen={setOpen}
+          textStyle={{
+            fontSize: 15,
+            fontFamily: "monospace",
+          }}
+          style={{
+            height: 50,
+            borderColor: "#ddd",
+            borderRadius: 0,
+            minHeight: 35,
+          }}
+          listMode="MODAL"
+          placeholder={`See products in this location.`}
+          placeholderStyle={{ color: "gray" }}
+          searchable={true}
+          searchPlaceholder="Search..."
         />
-      )}
+      </View>
+      <CountingProductItem />
     </View>
   );
 };

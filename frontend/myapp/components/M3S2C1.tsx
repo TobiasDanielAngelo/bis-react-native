@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useContext } from "react";
 import { View } from "react-native";
 import {
   defaultProduct,
@@ -6,6 +6,7 @@ import {
 } from "../constants/constants";
 import {
   M3S2Context,
+  MainContext,
   MotorInterface,
   ProductInterface,
 } from "../constants/interfaces";
@@ -20,6 +21,8 @@ export const ProductsView = (props: any) => {
   const [query, setQuery] = useState("");
   const [focus, setFocused] = useState(false);
   const [motors, setMotors] = useState<MotorInterface[]>([]);
+
+  const { currentScreen } = useContext(MainContext);
 
   const getMotors = async () => {
     await motorStore.fetchMotors();
@@ -37,7 +40,7 @@ export const ProductsView = (props: any) => {
 
   useEffect(() => {
     getMotors();
-  }, [props.visible]);
+  }, [props.visible, currentScreen]);
 
   const values = {
     motors: motors,

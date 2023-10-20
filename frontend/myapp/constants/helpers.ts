@@ -1,5 +1,5 @@
 import moment from "moment";
-import { ProductInterface } from "./interfaces";
+import { priceCodes } from "./constants";
 
 export const formatDate = (date: Date) => {
   return (
@@ -11,6 +11,16 @@ export const addDays = (date: Date, days: number) => {
   let result = new Date(date);
   result.setDate(result.getDate() + days);
   return result;
+};
+
+export const priceToCode = (price: number) => {
+  let priceString = Math.floor(price).toString();
+
+  priceCodes.forEach((s) => {
+    priceString = priceString.replaceAll(s.number, s.code);
+  });
+
+  return priceString;
 };
 
 export const isEqualDate = (

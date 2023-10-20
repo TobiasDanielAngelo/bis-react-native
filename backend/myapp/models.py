@@ -53,6 +53,7 @@ class Product(models.Model):
     sell_price = models.DecimalField(default=0, decimal_places=2, max_digits=10)
     min_quantity = models.IntegerField(validators=[MinValueValidator(0)], default=1)
     is_orig = models.BooleanField(default=False)
+    print_count = models.IntegerField(validators=[MinValueValidator(0)], default=0)
 
     def __str__(self):
         return f"{self.generic}"

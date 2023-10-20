@@ -1,44 +1,152 @@
 import { useContext, useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { Icon } from "react-native-elements";
-import { TextInput } from "react-native-gesture-handler";
+import { ScrollView, TextInput } from "react-native-gesture-handler";
 import {
   defaultProduct,
-  defaultProductInterface,
+  defaultProductFullyQuantified,
+  defaultProductQuantified,
 } from "../constants/constants";
+import { priceToCode } from "../constants/helpers";
 import {
   InventoryContext,
-  M3S3Context,
-  OrderItem,
+  M3S4Context,
+  MainContext,
+  ProductFullyQuantified,
   ProductInterface,
 } from "../constants/interfaces";
 import { useStore } from "../stores/Store";
 
-export const PotentialProductItem = (props: {
-  order: OrderItem;
-  selected: boolean;
-}) => {
+export const CountingProductItem = (props: {}) => {
+  const { currentUser } = useContext(MainContext);
+  const [show, setShow] = useState(false);
+  const [editLocation, setEditLocation] = useState(false);
+  const [editQty, setEditQty] = useState(false);
+  const [currQty, setCurrQty] = useState("0");
+  const [location, setLocation] = useState("");
+
+  const { sparePartStore, productStore, particularPOSStore } = useStore();
+
   const {
-    sparePartStore,
-    productStore,
-    particularPOSStore,
-    particularPurchaseStore,
-    motorStore,
-  } = useStore();
-  const [productDetails, setProductDetails] = useState<ProductInterface>(
-    defaultProductInterface
-  );
+    productDetails,
+    setProducts,
+    setProductDetails,
+    loading,
+    setLoading,
+    setPopup,
+    session,
+    sessions,
+  } = useContext(M3S4Context);
+
   const { setView, setMode, setItem, setSelectedMotors, setProduct, setPart } =
     useContext(InventoryContext);
-  const { setOrderItems, orders, search } = useContext(M3S3Context);
-  const [otherBrands, setOtherBrands] = useState<
-    { prodId: number; brandName: string }[]
-  >([]);
-  const [currQty, setCurrQty] = useState(0);
-  const [purchasePrice, setPurchasePrice] = useState("0");
-  const [sellPrice, setSellPrice] = useState("0");
-  const [editMode, setEditMode] = useState(false);
-  const [selected, setSelected] = useState(false);
+
+  const onUpdateProductLocation = async () => {
+    if (
+      location === "" ||
+      !"abcdefghijklmnopqrstuvwxyz".includes(location.toLocaleLowerCase())
+    )
+      return;
+
+    await productStore.updateProduct(productDetails.product.id ?? "-1", {
+      location: location.toUpperCase(),
+    });
+
+    setProducts((prev: ProductFullyQuantified[]) => {
+      (
+        prev.find((s) => s.product.id === productDetails.product.id) ??
+        defaultProductFullyQuantified
+      ).product.location = location.toUpperCase();
+
+      return [...prev];
+    });
+
+    setProductDetails({
+      ...productDetails,
+      location: location.toUpperCase(),
+    });
+
+    setEditLocation(false);
+  };
+
+  const onUpdatePrintCountProduct = async () => {
+    const resp = await productStore.updateProduct(
+      productDetails.product.id ?? "-1",
+      {
+        print_count: 0,
+      }
+    );
+
+    setProducts((prev: ProductFullyQuantified[]) => {
+      (
+        prev.find((s) => s.product.id === productDetails.product.id) ??
+        defaultProductFullyQuantified
+      ).product.print_count = resp.data?.print_count ?? 0;
+
+      return [...prev];
+    });
+
+    setProductDetails({
+      ...productDetails,
+      print_count: 0,
+    });
+  };
+
+  const getQuantity = async () => {
+    setLoading(true);
+    if (productDetails.product.id === "-1") return;
+
+    const resp = await particularPOSStore.fetchPOSQuantityOfProduct(
+      parseInt(productDetails.product.id ?? "-1")
+    );
+
+    setProducts((prev: ProductFullyQuantified[]) => {
+      (
+        prev.find((s) => s.product.id === productDetails.product.id) ??
+        defaultProductFullyQuantified
+      ).quantity = resp.data?.quantity ?? 0;
+      (
+        prev.find((s) => s.product.id === productDetails.product.id) ??
+        defaultProductFullyQuantified
+      ).gained = resp.data?.gained ?? 0;
+      (
+        prev.find((s) => s.product.id === productDetails.product.id) ??
+        defaultProductFullyQuantified
+      ).lost = resp.data?.lost ?? 0;
+      (
+        prev.find((s) => s.product.id === productDetails.product.id) ??
+        defaultProductFullyQuantified
+      ).purchased = resp.data?.purchased ?? 0;
+      (
+        prev.find((s) => s.product.id === productDetails.product.id) ??
+        defaultProductFullyQuantified
+      ).sold = resp.data?.sold ?? 0;
+      (
+        prev.find((s) => s.product.id === productDetails.product.id) ??
+        defaultProductFullyQuantified
+      ).returned = resp.data?.returned ?? 0;
+      return [...prev];
+    });
+
+    setProductDetails({
+      ...productDetails,
+      quantity: resp.data?.quantity ?? 0,
+      gained: resp.data?.gained ?? 0,
+      lost: resp.data?.lost ?? 0,
+      purchased: resp.data?.purchased ?? 0,
+      sold: resp.data?.sold ?? 0,
+      returned: resp.data?.returned ?? 0,
+    });
+
+    setCurrQty((resp.data?.quantity ?? 0).toString());
+    setLoading(false);
+  };
 
   const toProductShortName = (t: ProductInterface) => {
     return `${sparePartStore.sparePartName(parseInt(t.part))}${
@@ -49,13 +157,7 @@ export const PotentialProductItem = (props: {
         ?.is_motor_shown
         ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
         : ""
-    }${
-      t.brand !== "" && props.order.brandType === ""
-        ? " " + t.brand
-        : props.order.brandType === "any"
-        ? " " + otherBrands.map((s) => s.brandName).join("/")
-        : ""
-    }${
+    }${t.brand !== "" ? " " + t.brand : ""}${
       t.is_orig
         ? " ORIG."
         : sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
@@ -65,382 +167,427 @@ export const PotentialProductItem = (props: {
     }`.toUpperCase();
   };
 
-  const getProductDetails = async () => {
-    const resp = (await productStore.fetchProduct(props.order.productId)).data;
-
-    setProductDetails(resp ?? defaultProductInterface);
-  };
-
-  const getMotors = async () => {
-    await motorStore.fetchMotors();
-  };
-
-  const getQuantity = async () => {
-    const resp = await particularPOSStore.fetchPOSQuantityOfProduct(
-      props.order.productId
-    );
-    setCurrQty(resp.data?.quantity ?? 0);
-  };
-
-  const onDeleteOrderItem = async () => {
-    await particularPurchaseStore.deleteParticularPurchase(
-      (props.order.id ?? -1).toString()
-    );
-
-    setOrderItems((prev: OrderItem[]) => {
-      prev.splice(
-        prev.findIndex((s) => s.id === props.order.id),
-        1
-      );
-      return [...prev];
-    });
-  };
-
-  const getSimilarItem = async () => {
-    const resp = await productStore.fetchProductByProps(
-      "",
-      sparePartStore.sparePartName(parseInt(productDetails.part)),
-      productDetails.motors !== ""
-        ? productDetails.motors
-            .split(", ")
-            .map((s) => motorStore.motorId(s) ?? -1)
-        : [],
-      productDetails.description
-    );
-
-    setOtherBrands(
-      resp.data
-        ?.filter((s) => s.is_orig === productDetails.is_orig)
-        .map((s) => ({
-          prodId: parseInt(s.id ?? "-1"),
-          brandName: s.brand,
-        })) ?? []
-    );
-  };
-
   const onDuplicateProduct = () => {
     setSelectedMotors([]);
     setProduct(defaultProduct);
     setPart(-1);
     setMode("create");
     setView("products");
-    setItem(productDetails);
+    setItem(productDetails.product);
   };
 
-  const getEstimatedPrice = async () => {
-    const resp = await productStore.fetchProduct(props.order.productId);
-
-    setOrderItems((prev: OrderItem[]) => {
-      let targetOrderItem = prev.find((s) => s.id === props.order.id);
-      if (targetOrderItem) {
-        targetOrderItem.purchasePrice = resp.data?.purchase_price ?? 0;
-        targetOrderItem.sellPrice = resp.data?.sell_price ?? 0;
-      }
-      return [...prev];
-    });
-
-    setPurchasePrice((resp.data?.purchase_price ?? 0).toString());
-    setSellPrice((resp.data?.sell_price ?? 0).toString());
-  };
-
-  const onUpdateProductPrices = async () => {
-    if (isNaN(parseFloat(purchasePrice)) || isNaN(parseFloat(sellPrice))) {
-      setEditMode(false);
-      return;
-    }
-    if (parseFloat(purchasePrice) < parseFloat(sellPrice)) {
-      await productStore.updateProduct(props.order.productId.toString(), {
-        purchase_price: parseFloat(purchasePrice),
-        sell_price: parseFloat(sellPrice),
-      });
-
-      setOrderItems((prev: OrderItem[]) => {
-        let targetOrderItem = prev.find((s) => s.id === props.order.id);
-        if (targetOrderItem) {
-          targetOrderItem.purchasePrice = parseFloat(purchasePrice);
-          targetOrderItem.sellPrice = parseFloat(sellPrice);
-        }
-        return [...prev];
-      });
-
-      setPurchasePrice((prev) => parseFloat(prev).toFixed(2));
-      setSellPrice((prev) => parseFloat(prev).toFixed(2));
-
-      setEditMode(false);
-    }
-  };
-
-  const onUpdateProduct = () => {
+  const onEditProduct = () => {
     setSelectedMotors([]);
     setProduct(defaultProduct);
     setPart(-1);
     setMode("update");
     setView("products");
-    setItem(productDetails);
+    setItem(productDetails.product);
   };
 
-  const onUpdateQty = async (qty: string) => {
-    setOrderItems((prev: OrderItem[]) => {
-      let targetOrderItem = prev.find((s) => s.id === props.order.id);
-      if (targetOrderItem)
-        targetOrderItem.qty = !isNaN(parseInt(qty)) ? parseInt(qty) : 0;
+  const onCreateSessionItem = async () => {
+    if (productDetails.quantity > parseInt(currQty)) {
+      setEditQty(false);
+    }
+
+    await particularPOSStore.addParticularPOS(
+      {
+        remarks: "",
+        description: `${
+          productDetails.quantity < parseInt(currQty) ? "ADU" : "SBU"
+        }${productDetails.product.id}`,
+        quantity: Math.abs(productDetails.quantity - parseInt(currQty)),
+        unit_amount: 0,
+      },
+      parseInt(session.id)
+    );
+
+    setProductDetails((prev: ProductFullyQuantified) => ({
+      ...productDetails,
+      gained: prev.gained - productDetails.quantity + parseInt(currQty),
+    }));
+
+    setProducts((prev: ProductFullyQuantified[]) => {
+      if (prev.find((s) => s.product.id === productDetails.product.id))
+        (
+          prev.find((s) => s.product.id === productDetails.product.id) ??
+          defaultProductFullyQuantified
+        ).gained =
+          (
+            prev.find((s) => s.product.id === productDetails.product.id) ??
+            defaultProductFullyQuantified
+          ).gained -
+          productDetails.quantity +
+          parseInt(currQty);
+
       return [...prev];
     });
-    if (parseInt(qty) !== 0 && !isNaN(parseInt(qty)))
-      await particularPurchaseStore.updateParticularPurchase(
-        (props.order.id ?? -1).toString(),
-        {
-          quantity: parseInt(qty),
-        }
-      );
+
+    setEditQty(false);
   };
 
   useEffect(() => {
-    getMotors();
-    getProductDetails();
     getQuantity();
-    getEstimatedPrice();
-  }, [props.order.productId]);
-
-  useEffect(() => {
-    getSimilarItem();
-  }, [productDetails]);
+    setLocation(productDetails.product.location);
+  }, [productDetails.product.id]);
 
   return (
-    <View
-      style={[
-        styles.listItem,
-        styles.shadowProp,
-        {
-          height: selected ? 250 : 200,
-          justifyContent: "space-between",
-          backgroundColor:
-            orders.find((s) => s.id === props.order.orderId)?.status ===
-            "delivered"
-              ? "white"
-              : "#ddd",
-          display: search ? "none" : "flex",
-        },
-      ]}
-    >
+    <>
       <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-        }}
+        style={[
+          styles.listItem,
+          styles.shadowProp,
+          {
+            justifyContent: "center",
+            display:
+              loading && productDetails.product.id !== "-1" ? "flex" : "none",
+          },
+        ]}
       >
-        <View style={{ flex: 1 }}>
-          <Text style={styles.mainItemText}>{`${toProductShortName(
-            productDetails
-          )}`}</Text>
-        </View>
-        <Icon
-          name="delete"
-          color={
-            orders.find((s) => s.id === props.order.orderId)?.status !==
-            "delivered"
-              ? "#ddd"
-              : "gray"
-          }
-          onPress={onDeleteOrderItem}
-          disabled={
-            orders.find((s) => s.id === props.order.orderId)?.status !==
-            "delivered"
-          }
-          disabledStyle={{ backgroundColor: "#ddd" }}
-        />
-      </View>
-      <View>
-        <View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={styles.priceText}>P/P : </Text>
-            <TextInput
-              style={[
-                styles.priceText,
-                {
-                  color: editMode
-                    ? parseFloat(purchasePrice) > parseFloat(sellPrice)
-                      ? "red"
-                      : "black"
-                    : "gray",
-                  top: -3,
-                  borderWidth: editMode ? 1 : 0,
-                  width: 90,
-                  borderColor: "gainsboro",
-                  height: 30,
-                  textAlign: "right",
-                  paddingRight: 3,
-                },
-              ]}
-              value={purchasePrice}
-              onChangeText={(amt) =>
-                setPurchasePrice(
-                  (isNaN(parseFloat(amt.replace(/[^.0-9]/g, "")))
-                    ? ""
-                    : amt.replace(/[^.0-9]/g, "")
-                  ).toString()
-                )
-              }
-              editable={editMode}
-            />
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <Text style={styles.priceText}>S/P : </Text>
-            <TextInput
-              style={[
-                styles.priceText,
-                {
-                  color: editMode
-                    ? parseFloat(purchasePrice) > parseFloat(sellPrice)
-                      ? "red"
-                      : "black"
-                    : "gray",
-                  top: -3,
-                  borderWidth: editMode ? 1 : 0,
-                  width: 90,
-                  borderColor: "gainsboro",
-                  height: 30,
-                  textAlign: "right",
-                  paddingRight: 3,
-                },
-              ]}
-              value={sellPrice}
-              onChangeText={(amt) =>
-                setSellPrice(
-                  (isNaN(parseFloat(amt.replace(/[^.0-9]/g, "")))
-                    ? ""
-                    : amt.replace(/[^.0-9]/g, "")
-                  ).toString()
-                )
-              }
-              editable={editMode}
-            />
-          </View>
-        </View>
-      </View>
-      <View style={{ display: selected ? "flex" : "none" }}>
-        <Text style={styles.descriptionText}>
-          {productDetails.motors === ""
-            ? ""
-            : `For motors ${productDetails.motors
-                .replaceAll("_", " ")
-                .substring(0, 35)}${
-                productDetails.motors.length > 35 ? "..." : ""
-              }`}
-        </Text>
-        <Text style={styles.descriptionText}>
-          {`Located @ Shelf ${productDetails.location}`}
-        </Text>
+        <ActivityIndicator size="large" />
       </View>
       <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "flex-end",
-        }}
+        style={[
+          styles.listItem,
+          styles.shadowProp,
+          {
+            justifyContent: "space-between",
+            display:
+              !loading && productDetails.product.id !== "-1" ? "flex" : "none",
+          },
+        ]}
       >
-        {!editMode ? (
-          <>
-            <Icon
-              name={"payments"}
-              color={
-                orders.find((s) => s.id === props.order.orderId)?.status !==
-                "delivered"
-                  ? "#ddd"
-                  : "gray"
-              }
-              onPress={() => setEditMode(true)}
-              disabled={
-                orders.find((s) => s.id === props.order.orderId)?.status !==
-                "delivered"
-              }
-              disabledStyle={{ backgroundColor: "#ddd" }}
-            />
-            {selected && (
-              <>
-                <Icon
-                  name="file-copy"
-                  color="gray"
-                  onPress={onDuplicateProduct}
-                />
-                <Icon name="edit" color="gray" onPress={onUpdateProduct} />
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            <Icon
-              name={"undo"}
-              color={
-                orders.find((s) => s.id === props.order.orderId)?.status !==
-                "delivered"
-                  ? "#ddd"
-                  : "gray"
-              }
-              onPress={() => setEditMode(false)}
-              disabled={
-                orders.find((s) => s.id === props.order.orderId)?.status !==
-                "delivered"
-              }
-              disabledStyle={{ backgroundColor: "#ddd" }}
-            />
-            <Icon
-              name={"check"}
-              color={
-                orders.find((s) => s.id === props.order.orderId)?.status !==
-                "delivered"
-                  ? "#ddd"
-                  : "gray"
-              }
-              onPress={onUpdateProductPrices}
-              disabled={
-                orders.find((s) => s.id === props.order.orderId)?.status !==
-                "delivered"
-              }
-              disabledStyle={{ backgroundColor: "#ddd" }}
-            />
-          </>
-        )}
+        <Text style={styles.mainItemText}>
+          {toProductShortName(productDetails.product)}
+        </Text>
+        <Text
+          onPress={() => setShow((prev) => !prev)}
+          style={{
+            display:
+              productDetails.product.motors.split(", ").length > 10
+                ? "flex"
+                : "none",
+            textAlign: "right",
+            color: "gray",
+          }}
+        >
+          {!show ? "Show More" : "Show Less"}
+        </Text>
+        <ScrollView>
+          <View
+            style={{
+              marginVertical: 1,
+              marginHorizontal: 2,
+              padding: 5,
+              flexDirection: "row",
+              justifyContent: "center",
+              backgroundColor: "lightblue",
+              display:
+                productDetails.product.motors.split(", ").length > 0 &&
+                productDetails.product.motors !== ""
+                  ? "flex"
+                  : "none",
+              flexWrap: "wrap",
+              borderRadius: 20,
+            }}
+          >
+            {(show || productDetails.product.motors.split(", ").length <= 10
+              ? productDetails.product.motors.split(", ")
+              : [
+                  ...productDetails.product.motors.split(", ").slice(0, 10),
+                  "...",
+                ]
+            ).map((s) => (
+              <View
+                style={{
+                  backgroundColor: "lightcyan",
+                  borderRadius: 20,
+                  padding: 5,
+                  margin: 3,
+                }}
+                key={`selectedmotor-${s}`}
+              >
+                <Text style={{ fontSize: 14 }}>{s.replaceAll("_", " ")}</Text>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+        <View style={{ marginVertical: 10 }}>
+          <Text
+            style={[
+              styles.priceText,
+              { display: currentUser.privilege !== "3" ? "flex" : "none" },
+            ]}
+          >
+            {`Purchase Price : ${
+              productDetails.product.purchase_price
+            } (${priceToCode(productDetails.product.purchase_price)})`}
+          </Text>
+          <Text style={styles.priceText}>
+            {`Selling  Price : ${productDetails.product.sell_price}`}
+          </Text>
+        </View>
 
-        <Icon
-          name={selected ? "expand-less" : "expand-more"}
-          color="gray"
-          onPress={() => setSelected((prev) => !prev)}
-        />
-
-        <View>
-          <Text style={{ color: "gray" }}>Count:</Text>
-          <View style={{ flexDirection: "row" }}>
-            <TextInput
-              onChangeText={onUpdateQty}
-              value={`${props.order.qty}`}
-              style={{
-                fontSize: 20,
-                textAlign: "center",
-                borderWidth: 1,
-                borderColor: "grey",
-                width: 80,
-                height: 30,
-              }}
-              keyboardType="numeric"
-              editable={
-                orders.find((s) => s.id === props.order.orderId)?.status ===
-                "delivered"
-              }
-            />
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+          }}
+        >
+          <View>
+            <Text style={{ color: "gray" }}>Location:</Text>
+            <View style={{ flexDirection: "row" }}>
+              <TextInput
+                onChangeText={setLocation}
+                value={location}
+                style={{
+                  fontSize: 20,
+                  textAlign: "center",
+                  borderWidth: editLocation ? 1 : 0,
+                  borderColor: "grey",
+                  width: 50,
+                  height: 30,
+                  marginRight: 5,
+                  color: "black",
+                }}
+                editable={editLocation}
+                maxLength={1}
+              />
+              <Icon
+                name={editLocation ? "check" : "edit"}
+                color={"gray"}
+                onPress={() =>
+                  editLocation
+                    ? onUpdateProductLocation()
+                    : setEditLocation(true)
+                }
+              />
+            </View>
+          </View>
+          <View>
+            <Text style={{ color: "gray" }}>Count:</Text>
+            <View style={{ flexDirection: "row" }}>
+              <TextInput
+                onChangeText={setCurrQty}
+                value={currQty}
+                style={{
+                  fontSize: 25,
+                  textAlign: "center",
+                  borderWidth: editQty ? 1 : 0,
+                  borderColor: "grey",
+                  fontWeight: "bold",
+                  color: "black",
+                  width: 80,
+                  height: 30,
+                }}
+                keyboardType="numeric"
+                editable={editQty}
+              />
+              <Text
+                style={{
+                  fontSize: 18,
+                  textAlign: "center",
+                  marginHorizontal: 10,
+                }}
+              >
+                x {productDetails.product.piece_count}{" "}
+                {productDetails.product.unit}
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View style={{ marginTop: 10 }}>
+          <Text
+            style={{
+              color:
+                productDetails.quantity > parseInt(currQty)
+                  ? "darkred"
+                  : "green",
+              fontSize: 15,
+            }}
+          >
+            {currQty &&
+            productDetails.gained +
+              productDetails.purchased +
+              productDetails.returned -
+              productDetails.sold -
+              productDetails.lost !==
+              parseInt(currQty)
+              ? `This will ${
+                  productDetails.quantity > parseInt(currQty)
+                    ? "subtract"
+                    : "add"
+                } ${Math.abs(
+                  productDetails.quantity - parseInt(currQty)
+                )} items to your inventory.`
+              : ""}
+          </Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            display: currentUser.privilege !== "3" ? "flex" : "none",
+          }}
+        >
+          <View style={{ alignItems: "center" }}>
             <Text
               style={{
-                fontSize: 18,
-                textAlign: "center",
-                marginHorizontal: 10,
+                color: "gray",
+                fontSize: 15,
               }}
             >
-              x {productDetails.piece_count} {productDetails.unit}
+              Sold
+            </Text>
+            <Text>{productDetails.sold}</Text>
+          </View>
+          <View style={{ alignItems: "center" }}>
+            <Text
+              style={{
+                color: "gray",
+                fontSize: 15,
+              }}
+            >
+              Returned
+            </Text>
+            <Text>{productDetails.returned}</Text>
+          </View>
+          <View style={{ alignItems: "center" }}>
+            <Text
+              style={{
+                color: "gray",
+                fontSize: 15,
+              }}
+            >
+              Purchased
+            </Text>
+            <Text>{productDetails.purchased}</Text>
+          </View>
+          <View style={{ alignItems: "center" }}>
+            <Text
+              style={{
+                color: "gray",
+                fontSize: 15,
+              }}
+            >
+              Gained/Lost
+            </Text>
+            <Text
+              style={{
+                color:
+                  productDetails.gained >= productDetails.lost
+                    ? "green"
+                    : "darkred",
+              }}
+            >
+              {productDetails.gained - productDetails.lost}
             </Text>
           </View>
         </View>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: 20,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              flex: 5,
+              justifyContent: "space-between",
+              display: !editQty && !editLocation ? "flex" : "none",
+            }}
+          >
+            <Pressable onPress={onDuplicateProduct}>
+              <Icon name={"file-copy"} color={"gray"} size={30} />
+              <Text style={{ color: "gray" }}>Duplicate</Text>
+            </Pressable>
+            <Pressable onPress={onEditProduct}>
+              <Icon name={"edit"} color={"gray"} size={30} />
+              <Text style={{ color: "gray" }}>Edit this</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() =>
+                productDetails.product.print_count > 0
+                  ? onUpdatePrintCountProduct()
+                  : setPopup("print")
+              }
+            >
+              <Icon
+                name={"print"}
+                color={
+                  productDetails.product.print_count > 0
+                    ? "darkgoldenrod"
+                    : "gray"
+                }
+                size={30}
+              />
+              <Text
+                style={{
+                  color:
+                    productDetails.product.print_count > 0
+                      ? "darkgoldenrod"
+                      : "gray",
+                }}
+              >
+                {productDetails.product.print_count > 0
+                  ? `Queued (${productDetails.product.print_count})`
+                  : `Print Label`}
+              </Text>
+            </Pressable>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              flex: 3,
+              justifyContent: "space-between",
+            }}
+          >
+            <Pressable onPress={() => setEditQty(false)}>
+              <Icon
+                name={"cancel"}
+                color={"darkred"}
+                size={30}
+                style={{
+                  display: editQty ? "flex" : "none",
+                }}
+              />
+              <Text
+                style={{ color: "darkred", display: editQty ? "flex" : "none" }}
+              >
+                Cancel
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() =>
+                editQty ? onCreateSessionItem() : setEditQty(true)
+              }
+              style={{
+                display: session.isOngoing ? "flex" : "none",
+              }}
+            >
+              <Icon
+                name={editQty ? "assignment-turned-in" : "format-list-bulleted"}
+                color={editQty ? "green" : "gray"}
+                size={30}
+              />
+              <Text
+                style={{
+                  color: editQty ? "green" : "gray",
+                }}
+              >
+                {editQty ? "Done!" : "Itemize"}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 
@@ -449,6 +596,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     padding: 10,
     margin: 5,
+    flex: 1,
   },
   shadowProp: {
     shadowColor: "black",

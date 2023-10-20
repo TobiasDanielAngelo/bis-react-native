@@ -127,4 +127,41 @@ export const defaultProductInterface = {
   sell_price: 0,
   min_quantity: 1,
   is_orig: false,
+  print_count: 0,
 };
+
+export const defaultProductQuantified = {
+  product: defaultProductInterface,
+  quantity: 0,
+};
+
+export const defaultSession = {
+  id: "-1",
+  isOngoing: false,
+  location: "",
+  counter: "",
+  lastProdId: -1,
+};
+
+export const defaultProductFullyQuantified = {
+  product: defaultProductInterface,
+  quantity: 0,
+  sold: 0,
+  returned: 0,
+  purchased: 0,
+  gained: 0,
+  lost: 0,
+};
+
+export const priceCodes = [
+  { number: "1", code: "L" },
+  { number: "2", code: "U" },
+  { number: "3", code: "C" },
+  { number: "4", code: "K" },
+  { number: "5", code: "Y" },
+  { number: "6", code: "S" },
+  { number: "7", code: "T" },
+  { number: "8", code: "O" },
+  { number: "9", code: "R" },
+  { number: "0", code: "E" },
+];

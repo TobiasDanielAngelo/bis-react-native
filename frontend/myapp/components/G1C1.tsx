@@ -10,7 +10,7 @@ import { SalesModule } from "./M1C1";
 import { ExpensesModule } from "./M2C1";
 import { InventoryModule } from "./M3C1";
 
-const myFocusScreen = "Expenses";
+const myFocusScreen = "Inventory";
 
 export const HomeView = () => {
   const [currentUser, setCurrentUser] = useState<User>();

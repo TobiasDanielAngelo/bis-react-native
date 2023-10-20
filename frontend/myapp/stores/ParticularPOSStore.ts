@@ -135,7 +135,14 @@ export class ParticularPOSStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: { quantity: number };
+    let json: {
+      quantity: number;
+      sold: number;
+      returned: number;
+      purchased: number;
+      gained: number;
+      lost: number;
+    };
     try {
       const resp = yield* _await(response.json());
       json = resp;

@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useContext } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Text } from "react-native-elements";
 import {
   M3S1Context,
+  MainContext,
   OrderItem,
   ProductQuantified,
   PurchaseOrder,
@@ -33,6 +34,8 @@ export const OrderView = (props: { visible: boolean }) => {
   const [viewProducts, setViewProducts] = useState(true);
   const [parts, setParts] = useState<SparePartInterface[]>([]);
   const [products, setProducts] = useState<ProductQuantified[]>([]);
+
+  const { currentScreen } = useContext(MainContext);
 
   const { sparePartStore } = useStore();
 
@@ -123,7 +126,7 @@ export const OrderView = (props: { visible: boolean }) => {
       setLoading(false);
       console.error(error);
     }
-  }, []);
+  }, [props.visible, currentScreen]);
 
   const getQuantities = async (itemId: number) => {
     setLoading(true);
@@ -152,7 +155,7 @@ export const OrderView = (props: { visible: boolean }) => {
 
   const getCategories = useCallback(async () => {
     await categoryStore.fetchCategories();
-  }, []);
+  }, [props.visible, currentScreen]);
 
   useEffect(() => {
     if (part !== -1) getProducts();
@@ -164,7 +167,7 @@ export const OrderView = (props: { visible: boolean }) => {
     getSpareParts();
     getPurchaseOrders();
     getMotors();
-  }, [props.visible]);
+  }, [props.visible, currentScreen]);
 
   const values = {
     viewProducts: viewProducts,

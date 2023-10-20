@@ -5,8 +5,11 @@ import {
   defaultLaborItem,
   defaultPOSItem,
   defaultProduct,
+  defaultProductFullyQuantified,
   defaultProductInterface,
+  defaultProductQuantified,
   defaultSalesItem,
+  defaultSession,
   defaultUser,
 } from "./constants";
 
@@ -135,6 +138,7 @@ export interface ProductInterface {
   sell_price: number;
   min_quantity: number;
   is_orig: boolean;
+  print_count: number;
 }
 
 export interface ProductUpdateInterface {
@@ -151,6 +155,7 @@ export interface ProductUpdateInterface {
   sell_price?: number;
   min_quantity?: number;
   is_orig?: boolean;
+  print_count?: number;
 }
 
 export interface TransactionInputInterface {
@@ -196,9 +201,26 @@ export interface UserInterface {
   isActive: boolean;
 }
 
+export interface CountSession {
+  id: string;
+  counter: string;
+  isOngoing: boolean;
+  location: string;
+}
+
 export interface ProductQuantified {
   product: ProductInterface;
   quantity: number;
+}
+
+export interface ProductFullyQuantified {
+  product: ProductInterface;
+  quantity: number;
+  sold: number;
+  returned: number;
+  purchased: number;
+  gained: number;
+  lost: number;
 }
 
 export type MainContent = { currentUser: User; currentScreen: string };
@@ -595,6 +617,48 @@ export const M3S3Context = createContext<M3S3Content>({
   setOrderItems: (t: OrderItem[] | ((u: OrderItem[]) => OrderItem[])) => {},
 });
 
-export type M3S4Content = {};
+export type M3S4Content = {
+  popup: string;
+  setPopup: (t: string) => void;
+  products: ProductFullyQuantified[];
+  setProducts: (
+    t:
+      | ProductFullyQuantified[]
+      | ((u: ProductFullyQuantified[]) => ProductFullyQuantified[])
+  ) => void;
+  productDetails: ProductFullyQuantified;
+  setProductDetails: (t: any) => void;
+  loading: boolean;
+  setLoading: (t: boolean) => void;
+  sessions: CountSession[];
+  setSessions: (
+    t: CountSession[] | ((u: CountSession[]) => CountSession[])
+  ) => void;
+  session: CountSession;
+  setSession: (t: CountSession | ((u: CountSession) => CountSession)) => void;
+  location: string;
+  setLocation: (t: string | ((u: string) => string)) => void;
+};
 
-export const M3S4Context = createContext<M3S4Content>({});
+export const M3S4Context = createContext<M3S4Content>({
+  popup: "",
+  setPopup: (t: string) => {},
+  products: [],
+  setProducts: (
+    t:
+      | ProductFullyQuantified[]
+      | ((u: ProductFullyQuantified[]) => ProductFullyQuantified[])
+  ) => {},
+  productDetails: defaultProductFullyQuantified,
+  setProductDetails: (t: any) => {},
+  loading: false,
+  setLoading: (t: boolean) => {},
+  sessions: [],
+  setSessions: (
+    t: CountSession[] | ((u: CountSession[]) => CountSession[])
+  ) => {},
+  session: defaultSession,
+  setSession: (t: CountSession | ((u: CountSession) => CountSession)) => {},
+  location: "",
+  setLocation: (t: string | ((u: string) => string)) => {},
+});

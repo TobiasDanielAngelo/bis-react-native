@@ -99,6 +99,10 @@ class ProductViewSet(viewsets.ModelViewSet):
             queryset = self.filter_queryset(self.get_queryset()).filter(
                 part=params["part"]
             )
+        elif params.get("loc"):
+            queryset = self.filter_queryset(self.get_queryset()).filter(
+                location=params["loc"]
+            )
         else:
             queryset = None
             # queryset = self.filter_queryset(self.get_queryset())
@@ -173,6 +177,11 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("counting"):
+            queryset = queryset.filter(
+                category__title="Inventory Check", description__icontains="Pending"
+            )
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
 
@@ -181,8 +190,8 @@ class ExpenseViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.all()
     permission_classes = [
-        AllowAny,
-        # IsAuthenticated,
+        # AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -310,24 +319,36 @@ class POSItemViewSet(viewsets.ModelViewSet):
                 transaction__category__title="Point of Sales",
                 description__icontains="RSI" + params["prod"],
             )
-            q3 = (
-                self.filter_queryset(self.get_queryset())
-                .filter(
-                    transaction__category__title="Purchase Parts",
-                    description__icontains="PPU" + params["prod"],
-                )
-                .exclude(
-                    transaction__description__icontains="Editing",
-                )
-                .exclude(
-                    transaction__description__icontains="Processing",
-                )
+            q3 = self.filter_queryset(self.get_queryset()).filter(
+                transaction__category__title="Purchase Parts",
+                description__icontains="PPU" + params["prod"],
+                transaction__description__icontains="Closed",
             )
+            q4 = self.filter_queryset(self.get_queryset()).filter(
+                transaction__category__title="Inventory Check",
+                description__icontains="ADU" + params["prod"],
+            )
+            q5 = self.filter_queryset(self.get_queryset()).filter(
+                transaction__category__title="Inventory Check",
+                description__icontains="SBU" + params["prod"],
+            )
+
             qty1 = sum(x.quantity for x in q1)
             qty2 = sum(x.quantity for x in q2)
             qty3 = sum(x.quantity for x in q3)
+            qty4 = sum(x.quantity for x in q4)
+            qty5 = sum(x.quantity for x in q5)
 
-            return response.Response({"quantity": (qty3 + qty2 - qty1)})
+            quantities = {
+                "quantity": (qty3 + qty4 + qty2 - qty5 - qty1),
+                "sold": qty1,
+                "returned": qty2,
+                "purchased": qty3,
+                "gained": qty4,
+                "lost": qty5,
+            }
+
+            return response.Response(quantities)
         elif params.get("q"):
             queryset = self.filter_queryset(self.get_queryset()).filter(
                 transaction__category__title="Point of Sales",
