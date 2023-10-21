@@ -65,11 +65,13 @@ export const ProductSearch = (props: {}) => {
     if (
       orderItems.find(
         (s) =>
-          s.orderId === order && s.productId === parseInt(product.id ?? "-1")
+          s.orderId === order &&
+          s.productId === parseInt(product.id ?? "-1") &&
+          s.brandType === ""
       )
     )
       return;
-    await particularPurchaseStore.addParticularPurchase(
+    const resp = await particularPurchaseStore.addParticularPurchase(
       {
         remarks: "",
         description: `PPU${product.id}***${toProductShortName(product)}`,
@@ -82,7 +84,7 @@ export const ProductSearch = (props: {}) => {
     setOrderItems((prev: OrderItem[]) => [
       ...prev,
       {
-        id: Math.random(),
+        id: parseInt(resp.data?.id ?? "-1"),
         productId: parseInt(product.id ?? "-1"),
         orderId: order,
         qty: 1,

@@ -42,6 +42,48 @@ export class UserStore extends Model({
   }
 
   @modelFlow
+  fetchUser = _async(function* (this: UserStore, userId: string) {
+    let token: string;
+
+    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
+
+    let response: Response;
+
+    response = yield* _await(
+      fetch(`${process.env["BASE_URL"]}/users/?userid=${userId}`, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+    );
+
+    if (!response.ok) {
+      let msg: any = yield* _await(response.json());
+      if (msg.non_field_errors) {
+        return {
+          details: `${msg.non_field_errors}`,
+          ok: false,
+          data: null,
+        };
+      }
+      return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let json: UserInterface;
+    try {
+      const resp = yield* _await(response.json());
+      json = resp[0];
+    } catch (error) {
+      console.error("Parsing Error", error);
+      return { details: "Parsing Error", ok: false, data: null };
+    }
+
+    return { details: "", ok: true, data: json };
+  });
+
+  @modelFlow
   loginUser = _async(function* (this: UserStore, credentials: LoginInterface) {
     let response: Response;
 

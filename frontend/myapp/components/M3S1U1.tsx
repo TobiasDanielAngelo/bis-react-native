@@ -26,7 +26,7 @@ export const PotentialProductItem = (props: {
   );
   const { setOrderItems, orderItems, orders } = useContext(M3S1Context);
   const [otherBrands, setOtherBrands] = useState<
-    { prodId: number; brandName: string }[]
+    { product: ProductInterface; brandName: string }[]
   >([]);
   const [currQty, setCurrQty] = useState(0);
 
@@ -100,7 +100,7 @@ export const PotentialProductItem = (props: {
       resp.data
         ?.filter((s) => s.is_orig === product.is_orig)
         .map((s) => ({
-          prodId: parseInt(s.id ?? "-1"),
+          product: s,
           brandName: s.brand,
         })) ?? []
     );
@@ -117,42 +117,24 @@ export const PotentialProductItem = (props: {
     });
   };
 
-  const onChangeProduct = async (prodId: number) => {
-    await particularPurchaseStore.updateParticularPurchase(
-      (props.order.id ?? -1).toString(),
-      {
-        remarks:
-          prodId > 0 ? "" : prodId === 0 ? "None" : prodId === -2 ? "Any" : "",
-      }
-    );
-
-    if (prodId > 0)
+  const onChangeProduct = async (
+    product: ProductInterface,
+    any: boolean,
+    none: boolean
+  ) => {
+    if (any || none) {
       await particularPurchaseStore.updateParticularPurchase(
         (props.order.id ?? -1).toString(),
         {
-          remarks:
-            prodId > 0
-              ? ""
-              : prodId === 0
-              ? "None"
-              : prodId === -2
-              ? "Any"
-              : "",
-          description: `PPU${prodId}`,
+          remarks: any ? "Any" : "None",
         }
       );
-    else {
+    } else {
       await particularPurchaseStore.updateParticularPurchase(
         (props.order.id ?? -1).toString(),
         {
-          remarks:
-            prodId > 0
-              ? ""
-              : prodId === 0
-              ? "None"
-              : prodId === -2
-              ? "Any"
-              : "",
+          remarks: "",
+          description: `PPU${product.id}***${toProductShortName(product)}`,
         }
       );
     }
@@ -160,10 +142,10 @@ export const PotentialProductItem = (props: {
     setOrderItems((prev: OrderItem[]) => {
       let targetOrderItem = prev.find((s) => s.id === props.order.id);
       if (targetOrderItem) {
-        if (prodId > 0) {
-          targetOrderItem.productId = prodId;
+        if (!any && !none) {
+          targetOrderItem.productId = parseInt(product.id ?? "-1");
           targetOrderItem.brandType = "";
-        } else targetOrderItem.brandType = prodId === 0 ? "none" : "any";
+        } else targetOrderItem.brandType = any ? "any" : "none";
       }
       return [...prev];
     });
@@ -324,17 +306,17 @@ export const PotentialProductItem = (props: {
         {otherBrands
           .filter(
             (s) =>
-              s.prodId !== parseInt(product.id ?? "-1") ||
+              s.product.id !== (product.id ?? "-1") ||
               props.order.brandType !== ""
           )
           .map((s) => (
             <View
               style={{ marginHorizontal: 5 }}
-              key={`${props.order.id}-${s.prodId}`}
+              key={`${props.order.id}-${s.product.id}`}
             >
               <Text
                 style={{ textDecorationLine: "underline", color: "teal" }}
-                onPress={() => onChangeProduct(s.prodId)}
+                onPress={() => onChangeProduct(s.product, false, false)}
                 disabled={
                   orders.find((s) => s.id === props.order.orderId)?.status !==
                   "editing"
@@ -352,7 +334,9 @@ export const PotentialProductItem = (props: {
         >
           <Text
             style={{ textDecorationLine: "underline", color: "teal" }}
-            onPress={() => onChangeProduct(-2)}
+            onPress={() =>
+              onChangeProduct(defaultProductInterface, true, false)
+            }
             disabled={
               orders.find((s) => s.id === props.order.orderId)?.status !==
               "editing"
@@ -369,7 +353,9 @@ export const PotentialProductItem = (props: {
         >
           <Text
             style={{ textDecorationLine: "underline", color: "teal" }}
-            onPress={() => onChangeProduct(0)}
+            onPress={() =>
+              onChangeProduct(defaultProductInterface, false, true)
+            }
             disabled={
               orders.find((s) => s.id === props.order.orderId)?.status !==
               "editing"

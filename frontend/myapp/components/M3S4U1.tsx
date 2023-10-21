@@ -195,7 +195,9 @@ export const CountingProductItem = (props: {}) => {
         remarks: "",
         description: `${
           productDetails.quantity < parseInt(currQty) ? "ADU" : "SBU"
-        }${productDetails.product.id}`,
+        }${productDetails.product.id}***${toProductShortName(
+          productDetails.product
+        )}`,
         quantity: Math.abs(productDetails.quantity - parseInt(currQty)),
         unit_amount: 0,
       },

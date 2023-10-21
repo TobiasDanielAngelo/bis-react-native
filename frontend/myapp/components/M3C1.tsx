@@ -12,9 +12,10 @@ import {
 } from "../constants/constants";
 import { DeliveryView } from "./M3S3C1";
 import { CheckView } from "./M3S4C1";
+import { ReviewView } from "./M3S5C1";
 
 export const InventoryModule = observer(({ navigation }: any) => {
-  const [view, setView] = useState("check");
+  const [view, setView] = useState("history");
   const [mode, setMode] = useState("");
   const [item, setItem] = useState<ProductInterface>(defaultProductInterface);
   const [part, setPart] = useState(-1);
@@ -51,6 +52,7 @@ export const InventoryModule = observer(({ navigation }: any) => {
           />
           <DeliveryView visible={view === "delivery"} />
           <CheckView visible={view === "check"} />
+          <ReviewView visible={view === "history"} />
         </View>
         <MenuBar
           view={view}

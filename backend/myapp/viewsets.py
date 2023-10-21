@@ -164,12 +164,21 @@ class MyUserViewSet(viewsets.ModelViewSet):
 
     queryset = MyUser.objects.all()
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("userid"):
+            print(params["userid"])
+            queryset = queryset.filter(user_id=params["userid"])
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
+
 
 class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
     permission_classes = [
-        # AllowAny,
-        IsAuthenticated,
+        AllowAny,
+        # IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -182,6 +191,21 @@ class TransactionViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(
                 category__title="Inventory Check", description__icontains="Pending"
             )
+        elif params.get("inventory") and params.get("date"):
+            q1 = queryset.filter(
+                category__title="Inventory Check",
+                datetime_transacted__year=(params["date"])[0:4],
+                datetime_transacted__month=(params["date"])[4:6],
+            )
+            q2 = queryset = queryset.filter(
+                category__title="Purchase Parts",
+                datetime_transacted__year=(params["date"])[0:4],
+                datetime_transacted__month=(params["date"])[4:6],
+                description__icontains="Closed",
+            )
+            queryset = q1 | q2
+        else:
+            queryset = None
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
 

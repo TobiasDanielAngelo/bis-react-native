@@ -11,6 +11,32 @@ const { height, width } = Dimensions.get("window");
 export const winHeight = height;
 export const winWidth = width;
 
+export const monthYears = () => {
+  let arr = Array.from(Array(18).keys()).map((s) => 100 * s + 202300);
+  let newArr = [] as number[];
+
+  arr.forEach((s) => {
+    newArr.push(
+      ...Array(12)
+        .fill(s)
+        .map((t, ind) => t + ind + 1)
+    );
+  });
+
+  return newArr;
+};
+
+export const defaultInventoryHistory = {
+  id: -1,
+  type: "" as "count" | "purchase" | "",
+  particulars: [],
+  receiver: "",
+  encoder: "",
+  dateTransacted: "",
+  dueDate: "",
+  checkNum: "",
+};
+
 export const labors = [
   "Labor (Others)",
   "Rebore",

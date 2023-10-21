@@ -31,7 +31,9 @@ export const FinishOrderModal = (props: {}) => {
   };
 
   const onUpdateOrderAmountBackend = async () => {
-    let certainOrderItems = orderItems.filter((s) => s.orderId === order);
+    let certainOrderItems = orderItems.filter(
+      (s) => s.orderId === order && s.brandType === ""
+    );
 
     certainOrderItems.forEach((s) => {
       updateOrderPriceBackend(s);

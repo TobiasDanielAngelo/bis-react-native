@@ -86,7 +86,7 @@ export const OrderProductItem = (props: {
   };
 
   const onCreateOrderItem = async () => {
-    await particularPurchaseStore.addParticularPurchase(
+    const resp = await particularPurchaseStore.addParticularPurchase(
       {
         remarks: "",
         description: `PPU${
@@ -101,7 +101,7 @@ export const OrderProductItem = (props: {
     setOrderItems((prev: OrderItem[]) => [
       ...prev,
       {
-        id: Math.random(),
+        id: parseInt(resp.data?.id ?? "-1"),
         productId: parseInt(props.productQuantified.product.id ?? "-1"),
         orderId: order,
         qty: 1,

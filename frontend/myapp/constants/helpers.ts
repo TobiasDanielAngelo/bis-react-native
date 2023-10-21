@@ -23,6 +23,25 @@ export const priceToCode = (price: number) => {
   return priceString;
 };
 
+export const getMonthName = (month: number, long?: boolean) => {
+  let months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  return long ? months[month - 1] : months[month - 1].substring(0, 3);
+};
+
 export const isEqualDate = (
   datetimeString1: string,
   datetimeString2: string

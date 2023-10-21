@@ -223,6 +223,17 @@ export interface ProductFullyQuantified {
   lost: number;
 }
 
+export interface InventoryHistory {
+  id: number;
+  type: "count" | "purchase" | "";
+  particulars: ParticularTransaction[];
+  receiver: string;
+  encoder: string;
+  dateTransacted: string;
+  dueDate: string;
+  checkNum: string;
+}
+
 export type MainContent = { currentUser: User; currentScreen: string };
 
 export const MainContext = createContext<MainContent>({
@@ -661,4 +672,26 @@ export const M3S4Context = createContext<M3S4Content>({
   setSession: (t: CountSession | ((u: CountSession) => CountSession)) => {},
   location: "",
   setLocation: (t: string | ((u: string) => string)) => {},
+});
+
+export type M3S5Content = {
+  date: number;
+  setDate: (t: number | ((u: number) => number)) => void;
+  transactions: InventoryHistory[];
+  transaction: number;
+  setTransactions: (
+    t: InventoryHistory[] | ((u: InventoryHistory[]) => InventoryHistory[])
+  ) => void;
+  setTransaction: (t: number | ((u: number) => number)) => void;
+};
+
+export const M3S5Context = createContext<M3S5Content>({
+  date: 202301,
+  setDate: (t: number | ((u: number) => number)) => {},
+  transactions: [],
+  transaction: -1,
+  setTransactions: (
+    t: InventoryHistory[] | ((u: InventoryHistory[]) => InventoryHistory[])
+  ) => {},
+  setTransaction: (t: number | ((u: number) => number)) => {},
 });

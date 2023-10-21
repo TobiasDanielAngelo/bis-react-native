@@ -107,7 +107,8 @@ export const DeliveryView = (props: { visible: boolean }) => {
             sellPrice: 0,
             brandType: u.part.remarks?.toLowerCase() as "" | "none" | "any",
           };
-        });
+        })
+        .filter((s) => s.brandType === "");
 
       setOrderItems(particularOrderItems);
 
@@ -116,7 +117,7 @@ export const DeliveryView = (props: { visible: boolean }) => {
       setLoading(false);
       console.error(error);
     }
-  }, []);
+  }, [props.visible]);
 
   const getCategories = useCallback(async () => {
     await categoryStore.fetchCategories();
@@ -141,8 +142,6 @@ export const DeliveryView = (props: { visible: boolean }) => {
     getPurchaseOrders();
     getMotors();
   }, [props.visible]);
-
-  useEffect(() => {});
 
   const values = {
     search: search,
