@@ -27,6 +27,14 @@ class Motor(models.Model):
     maker = models.CharField(max_length=20, default="", blank=True)
 
 
+class Account(models.Model):
+    name = models.CharField(max_length=20, default="")
+    datetime_added = models.DateTimeField(default=timezone.now, blank=True)
+
+    def __str__(self):
+        return f"Acct#{self.pk}"
+
+
 class SparePart(models.Model):
     name = models.CharField(max_length=30, default="")
     is_motor_shown = models.BooleanField(default=True)

@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.db.models import Count
 
 from .models import (
+    Account,
     Category,
     Mechanic,
     Motor,
@@ -25,6 +26,10 @@ class TransactionItemInline(admin.TabularInline):
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("title", "nature", "logo", "pk")
+
+
+class AccountAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "name")
 
 
 class TransactionAdmin(admin.ModelAdmin):
@@ -82,3 +87,4 @@ admin.site.register(MyUser, MyUserAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(Account, AccountAdmin)

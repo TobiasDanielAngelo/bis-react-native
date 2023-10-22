@@ -3,31 +3,33 @@ import re
 from datetime import date
 from functools import reduce
 
-from django.db.models import Q, Value, Case, When, CharField
+from django.db.models import Case, CharField, Q, Value, When
 from django.db.models.functions import Concat
 from knox.auth import TokenAuthentication
 from rest_framework import response, viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .models import (
+    Account,
     Category,
     Mechanic,
     Motor,
+    MyUser,
     Product,
     SparePart,
     Transaction,
-    MyUser,
     TransactionLineItem,
 )
 from .serializers import (
+    AccountSerializer,
     CategorySerializer,
     MechanicSerializer,
     MotorSerializer,
     ProductSerializer,
     SparePartSerializer,
     TransactionItemSerializer,
-    UserSerializer,
     TransactionSerializer,
+    UserSerializer,
 )
 
 
@@ -121,6 +123,17 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
 
 
+class AccountViewSet(viewsets.ModelViewSet):
+    serializer_class = AccountSerializer
+    permission_classes = [
+        IsAuthenticated,
+        # AllowAny,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = Account.objects.all()
+
+
 class MotorViewSet(viewsets.ModelViewSet):
     serializer_class = MotorSerializer
     permission_classes = [
@@ -187,7 +200,14 @@ class TransactionViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         params = self.request.query_params
-        if params.get("counting"):
+        if params.get("transfer") and params.get("date"):
+            queryset = queryset.filter(
+                category__title="Account to Account",
+                datetime_transacted__year=(params["date"])[0:4],
+                datetime_transacted__month=(params["date"])[4:6],
+                datetime_transacted__day=(params["date"])[6:8],
+            )
+        elif params.get("counting"):
             queryset = queryset.filter(
                 category__title="Inventory Check", description__icontains="Pending"
             )

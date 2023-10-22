@@ -4,19 +4,20 @@ from rest_framework.routers import DefaultRouter
 
 from . import views
 from .viewsets import (
+    AccountViewSet,
     CategoryViewSet,
     ExpenseViewSet,
     IncomeViewSet,
     MechanicViewSet,
     MotorViewSet,
+    MyUserViewSet,
     PointOfSaleViewSet,
     POSItemViewSet,
     ProductViewSet,
+    PurchaseItemViewSet,
+    PurchasePartViewSet,
     SparePartViewSet,
     TransactionViewSet,
-    PurchasePartViewSet,
-    PurchaseItemViewSet,
-    MyUserViewSet,
 )
 
 router = DefaultRouter()
@@ -29,6 +30,7 @@ router.register(r"spareparts", SparePartViewSet, basename="sparepart")
 router.register(r"expenses", ExpenseViewSet, basename="expense")
 router.register(r"incomes", IncomeViewSet, basename="income")
 router.register(r"mechanics", MechanicViewSet, basename="mechanic")
+router.register(r"accounts", AccountViewSet, basename="account")
 router.register(r"sales", PointOfSaleViewSet, basename="sales")
 router.register(r"purchases", PurchasePartViewSet, basename="purchases")
 router.register(r"particularpos", POSItemViewSet, basename="particularpos")
