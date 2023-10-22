@@ -28,7 +28,6 @@ import moment from "moment";
 export const InventoryHistoryItem = (props: {
   transaction: InventoryHistory;
 }) => {
-  console.log(props.transaction.id);
   const [username, setUsername] = useState("");
   const { userStore } = useStore();
 

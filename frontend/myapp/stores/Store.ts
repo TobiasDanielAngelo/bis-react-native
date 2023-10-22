@@ -1,16 +1,17 @@
 import { createContext, useContext } from "react";
+import { AccountStore, accountStore } from "./AccountStore";
 import { CategoryStore, categoryStore } from "./CategoryStore";
 import { MechanicStore, mechanicStore } from "./MechanicStore";
 import { MotorStore, motorStore } from "./MotorStore";
 import { ParticularPOSStore, particularPOSStore } from "./ParticularPOSStore";
-import { ProductStore, productStore } from "./ProductStore";
-import { SparePartStore, sparePartStore } from "./SparePartStore";
-import { TransactionStore, transactionStore } from "./TransactionStore";
-import { UserStore, userStore } from "./UserStore";
 import {
   ParticularPurchaseStore,
   particularPurchaseStore,
 } from "./ParticularPurchaseStore";
+import { ProductStore, productStore } from "./ProductStore";
+import { SparePartStore, sparePartStore } from "./SparePartStore";
+import { TransactionStore, transactionStore } from "./TransactionStore";
+import { UserStore, userStore } from "./UserStore";
 
 class Store {
   userStore: UserStore;
@@ -22,6 +23,7 @@ class Store {
   categoryStore: CategoryStore;
   particularPOSStore: ParticularPOSStore;
   particularPurchaseStore: ParticularPurchaseStore;
+  accountStore: AccountStore;
 
   constructor() {
     this.userStore = userStore;
@@ -33,6 +35,7 @@ class Store {
     this.categoryStore = categoryStore;
     this.particularPOSStore = particularPOSStore;
     this.particularPurchaseStore = particularPurchaseStore;
+    this.accountStore = accountStore;
   }
 }
 

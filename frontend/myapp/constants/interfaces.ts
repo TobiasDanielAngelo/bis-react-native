@@ -39,6 +39,13 @@ export interface CategoryInterface {
   title: string;
   logo: string;
 }
+
+export interface AccountInterface {
+  id?: string;
+  name: string;
+  datetime_transacted: string;
+}
+
 export interface Customer {
   id: number;
   name: string;
@@ -184,6 +191,17 @@ export interface TransactionUpdateInterface {
   receiver?: string;
   particular_transaction?: ParticularTransaction[];
 }
+
+export interface Transfer {
+  id: number;
+  datetime_transacted: string;
+  transmitter: string;
+  receiver: string;
+  amount: number;
+  encoder: string;
+  message: string;
+}
+
 export interface User {
   username: string;
   userId: string;
@@ -695,3 +713,47 @@ export const M3S5Context = createContext<M3S5Content>({
   ) => {},
   setTransaction: (t: number | ((u: number) => number)) => {},
 });
+
+export type FinanceContent = {
+  mode: string;
+  setMode: (t: string) => void;
+  view: string;
+  setView: (t: string) => void;
+};
+
+export const FinanceContext = createContext<FinanceContent>({
+  mode: "",
+  setMode: (t: string) => {},
+  view: "",
+  setView: (t: string) => {},
+});
+
+export type M4S1Content = {
+  accounts: AccountInterface[];
+  setAccounts: (
+    t: AccountInterface[] | ((u: AccountInterface[]) => AccountInterface[])
+  ) => void;
+  transfers: Transfer[];
+  setTransfers: (t: Transfer[] | ((u: Transfer[]) => Transfer[])) => void;
+};
+
+export const M4S1Context = createContext<M4S1Content>({
+  accounts: [],
+  setAccounts: (
+    t: AccountInterface[] | ((u: AccountInterface[]) => AccountInterface[])
+  ) => {},
+  transfers: [],
+  setTransfers: (t: Transfer[] | ((u: Transfer[]) => Transfer[])) => {},
+});
+
+export type M4S2Content = {};
+
+export const M4S2Context = createContext<M4S2Content>({});
+
+export type M4S3Content = {};
+
+export const M4S3Context = createContext<M4S3Content>({});
+
+export type M4S4Content = {};
+
+export const M4S4Context = createContext<M4S4Content>({});

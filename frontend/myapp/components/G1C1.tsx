@@ -1,16 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { defaultUser } from "../constants/constants";
 import { MainContext, User } from "../constants/interfaces";
-import { useStore } from "../stores/Store";
 import { Drawer } from "./G1G1";
 import { DrawerActions } from "./G1U1";
 import { SalesModule } from "./M1C1";
 import { ExpensesModule } from "./M2C1";
 import { InventoryModule } from "./M3C1";
+import { FinanceModule } from "./M4C1";
 
-const myFocusScreen = "Inventory";
+const myFocusScreen = "Finance";
 
 export const HomeView = () => {
   const [currentUser, setCurrentUser] = useState<User>();
@@ -71,6 +71,7 @@ export const HomeView = () => {
             <Drawer.Screen name="Expenses" component={ExpensesModule} />
           )}
           <Drawer.Screen name="Inventory" component={InventoryModule} />
+          <Drawer.Screen name="Finance" component={FinanceModule} />
         </Drawer.Navigator>
       </NavigationContainer>
     </MainContext.Provider>
