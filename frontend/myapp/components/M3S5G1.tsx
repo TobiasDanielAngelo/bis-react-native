@@ -34,7 +34,7 @@ export const HistoryBar = () => {
       <View style={{ flex: 4, marginHorizontal: 2 }}>
         <DropDownPicker
           items={monthYears().map((s) => ({
-            label: `${getMonthName(parseInt(s.toString().substring(4, 6)))} '${s
+            label: `${getMonthName(parseInt(s.toString().substring(4, 6)))}-${s
               .toString()
               .substring(2, 4)}`,
             value: s,
@@ -57,6 +57,7 @@ export const HistoryBar = () => {
             flex: 1,
             minHeight: 35,
           }}
+          listMode="MODAL"
           placeholder="See Orders in Progress..."
           placeholderStyle={{ color: "gray" }}
           // disabled={viewProducts}
@@ -65,7 +66,7 @@ export const HistoryBar = () => {
       <View style={{ flex: 6, marginHorizontal: 5 }}>
         <DropDownPicker
           items={transactions.map((s) => ({
-            label: `${s.type === "count" ? "Count #" : "PO #"} ${s.id} ${
+            label: `${s.type === "count" ? "INV CHECK #" : "PO"} ${s.id} ${
               s.type !== "count" ? s.receiver : ""
             }`,
             value: s.id,
@@ -88,6 +89,7 @@ export const HistoryBar = () => {
           }}
           placeholder="View History"
           placeholderStyle={{ color: "gray" }}
+          listMode="MODAL"
           // disabled={viewProducts}
         />
       </View>

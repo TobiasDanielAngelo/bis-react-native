@@ -1,5 +1,7 @@
 import { createContext } from "react";
 import {
+  defaultBills,
+  defaultCoins,
   defaultCustomer,
   defaultExpense,
   defaultLaborItem,
@@ -8,6 +10,7 @@ import {
   defaultProductFullyQuantified,
   defaultProductInterface,
   defaultProductQuantified,
+  defaultReport,
   defaultSalesItem,
   defaultSession,
   defaultUser,
@@ -192,6 +195,35 @@ export interface TransactionUpdateInterface {
   particular_transaction?: ParticularTransaction[];
 }
 
+export interface DurationDays {
+  duration: "5Y" | "2Y" | "1Y" | "1B" | "1Q" | "1M" | "1W" | "3D";
+  days: number;
+  format: string;
+}
+
+export interface DatePrice {
+  date: Date;
+  price: number;
+}
+
+export interface Report {
+  opened: boolean;
+  id: number;
+  pcvId: number;
+  moneyArr: string;
+}
+
+export interface AccountBalance {
+  account: AccountInterface;
+  balance: number;
+}
+
+export interface DatePriceLoading {
+  date: Date;
+  price: number;
+  loading: boolean;
+}
+
 export interface Transfer {
   id: number;
   datetime_transacted: string;
@@ -225,6 +257,10 @@ export interface CountSession {
   isOngoing: boolean;
   location: string;
 }
+
+export type Bills = typeof defaultBills;
+
+export type Coins = typeof defaultCoins;
 
 export interface ProductQuantified {
   product: ProductInterface;
@@ -455,6 +491,10 @@ export type M2S1Content = {
   setViewHistory: (t: boolean | ((u: boolean) => boolean)) => void;
   expenses: Expense[];
   setExpenses: (t: Expense[] | ((u: Expense[]) => Expense[])) => void;
+  accounts: AccountInterface[];
+  setAccounts: (
+    t: AccountInterface[] | ((u: AccountInterface[]) => AccountInterface[])
+  ) => void;
 };
 
 export const M2S1Context = createContext<M2S1Content>({
@@ -463,6 +503,10 @@ export const M2S1Context = createContext<M2S1Content>({
   setViewHistory: (t: boolean | ((u: boolean) => boolean)) => {},
   expenses: [],
   setExpenses: (t: Expense[] | ((u: Expense[]) => Expense[])) => {},
+  accounts: [],
+  setAccounts: (
+    t: AccountInterface[] | ((u: AccountInterface[]) => AccountInterface[])
+  ) => {},
 });
 
 export type M2S2Content = {
@@ -547,6 +591,9 @@ export type M3S1Content = {
   loading: boolean;
   setLoading: (t: boolean) => void;
   products: ProductQuantified[];
+  setProducts: (
+    t: ProductQuantified[] | ((u: ProductQuantified[]) => ProductQuantified[])
+  ) => void;
   part: number;
   setPart: (t: any) => void;
   parts: SparePartInterface[];
@@ -567,6 +614,9 @@ export const M3S1Context = createContext<M3S1Content>({
   loading: false,
   setLoading: (t: boolean) => {},
   products: [],
+  setProducts: (
+    t: ProductQuantified[] | ((u: ProductQuantified[]) => ProductQuantified[])
+  ) => {},
   part: -1,
   setPart: (t: number) => {},
   parts: [],
@@ -746,9 +796,27 @@ export const M4S1Context = createContext<M4S1Content>({
   setTransfers: (t: Transfer[] | ((u: Transfer[]) => Transfer[])) => {},
 });
 
-export type M4S2Content = {};
+export type M4S2Content = {
+  mode: string;
+  setMode: (t: string) => void;
+  report: Report;
+  setReport: (t: Report | ((u: Report) => Report)) => void;
+  bills: Bills;
+  setBills: (t: Bills | ((u: Bills) => Bills)) => void;
+  coins: Coins;
+  setCoins: (t: Coins | ((u: Coins) => Coins)) => void;
+};
 
-export const M4S2Context = createContext<M4S2Content>({});
+export const M4S2Context = createContext<M4S2Content>({
+  mode: "",
+  setMode: (t: string) => {},
+  report: defaultReport,
+  setReport: (t: Report | ((u: Report) => Report)) => {},
+  bills: defaultBills,
+  setBills: (t: Bills | ((u: Bills) => Bills)) => {},
+  coins: defaultCoins,
+  setCoins: (t: Coins | ((u: Coins) => Coins)) => {},
+});
 
 export type M4S3Content = {};
 

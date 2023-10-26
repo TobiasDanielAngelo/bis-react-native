@@ -128,20 +128,6 @@ export const OrderView = (props: { visible: boolean }) => {
     }
   }, [props.visible, currentScreen]);
 
-  const getQuantities = async (itemId: number) => {
-    setLoading(true);
-
-    const resp = await particularPOSStore.fetchPOSQuantityOfProduct(itemId);
-
-    // setItems((prev: POSItem[]) => {
-    //   if ((prev.find((s) => s.id === itemId) ?? defaultPOSItem).quantity === -1)
-    //     (prev.find((s) => s.id === itemId) ?? defaultPOSItem).quantity =
-    //       resp.data?.quantity ?? 0;
-    //   return [...prev];
-    // });
-    setLoading(false);
-  };
-
   const getEstimatedPrice = async (order: OrderItem) => {
     const resp = await productStore.fetchProduct(order.productId);
 
@@ -176,6 +162,7 @@ export const OrderView = (props: { visible: boolean }) => {
     loading: loading,
     setLoading: setLoading,
     products: products,
+    setProducts: setProducts,
     part: part,
     setPart: setPart,
     parts: parts,

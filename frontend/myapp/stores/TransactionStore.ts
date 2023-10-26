@@ -139,6 +139,52 @@ export class TransactionStore extends Model({
   });
 
   @modelFlow
+  fetchOneTransaction = _async(function* (
+    this: TransactionStore,
+    query: string
+  ) {
+    let token: string;
+
+    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
+
+    let response: Response;
+
+    response = yield* _await(
+      fetch(`${process.env["BASE_URL"]}/${query}`, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+    );
+
+    if (!response.ok) {
+      let msg: any = yield* _await(response.json());
+      if (msg.non_field_errors) {
+        return {
+          details: `${msg.non_field_errors}`,
+          ok: false,
+          data: null,
+        };
+      }
+      return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let json: TransactionInterface[];
+    try {
+      const resp = yield* _await(response.json());
+
+      json = resp;
+    } catch (error) {
+      console.error("Parsing Error", error);
+      return { details: "Parsing Error", ok: false, data: null };
+    }
+
+    return { details: "", ok: true, data: json };
+  });
+
+  @modelFlow
   addTransaction = _async(function* (
     this: TransactionStore,
     details: TransactionInputInterface

@@ -17,14 +17,33 @@ import {
 export const OrderProductItem = (props: {
   productQuantified: ProductQuantified;
 }) => {
-  const { motorStore, sparePartStore, particularPurchaseStore, productStore } =
-    useStore();
+  const {
+    motorStore,
+    sparePartStore,
+    particularPurchaseStore,
+    particularPOSStore,
+    productStore,
+  } = useStore();
 
   const { setView, setMode, setItem, setSelectedMotors, setProduct, setPart } =
     useContext(InventoryContext);
-  const { order, orderItems, setOrderItems, orders } = useContext(M3S1Context);
+  const { order, orderItems, setOrderItems, orders, setProducts } =
+    useContext(M3S1Context);
   const [otherBrands, setOtherBrands] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
+
+  const getQuantity = async () => {
+    const resp = await particularPOSStore.fetchPOSQuantityOfProduct(
+      parseInt(props.productQuantified.product.id ?? "-1")
+    );
+    setProducts((prev) => {
+      let targetProduct = prev.find(
+        (s) => s.product.id === props.productQuantified.product.id
+      );
+      if (targetProduct) targetProduct.quantity = resp.data?.quantity ?? 0;
+      return [...prev];
+    });
+  };
 
   const getSimilarItem = async () => {
     const resp = await productStore.fetchProductByProps(
@@ -113,8 +132,9 @@ export const OrderProductItem = (props: {
   };
 
   useEffect(() => {
+    getQuantity();
     getSimilarItem();
-  }, []);
+  }, [props.productQuantified.product.id]);
 
   return (
     <View

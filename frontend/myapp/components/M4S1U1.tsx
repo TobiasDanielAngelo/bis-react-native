@@ -13,12 +13,24 @@ import { accountStore } from "../stores/AccountStore";
 
 export const TransferItem = (props: { transfer: Transfer }) => {
   const [username, setUsername] = useState("");
-  const { accounts } = useContext(M4S1Context);
-  const { userStore } = useStore();
+  const { accounts, setTransfers } = useContext(M4S1Context);
+  const { userStore, transactionStore } = useStore();
 
   const getUsername = async () => {
     const resp = await userStore.fetchUser(props.transfer.encoder);
     setUsername(resp.data?.username.toUpperCase() ?? "");
+  };
+
+  const onDeleteTransfer = async () => {
+    setTransfers((prev: Transfer[]) => {
+      prev.splice(
+        prev.findIndex((s) => s.id === props.transfer.id),
+        1
+      );
+      return [...prev];
+    });
+
+    await transactionStore.deleteTransaction(props.transfer.id.toString());
   };
 
   useEffect(() => {
@@ -67,6 +79,8 @@ export const TransferItem = (props: { transfer: Transfer }) => {
           justifyContent: "space-between",
         }}
       >
+        <Icon name="delete" color="gray" onPress={onDeleteTransfer} />
+
         <Text style={[styles.descriptionText, { fontStyle: "italic" }]}>
           {props.transfer.message.length > 0
             ? `"${props.transfer.message.substring(0, 20)}..."`

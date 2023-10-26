@@ -40,6 +40,7 @@ class TransactionAdmin(admin.ModelAdmin):
         "datetime_transacted",
         "pk",
         "transmitter",
+        "receiver",
     )
     inlines = (TransactionItemInline,)
 

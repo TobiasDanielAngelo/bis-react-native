@@ -3,6 +3,7 @@ import {
   Customer,
   CustomerLaborItem,
   CustomerSalesItem,
+  DurationDays,
   POSItem,
 } from "./interfaces";
 
@@ -51,6 +52,29 @@ export const labors = [
   "Rimatse",
   "General",
 ];
+
+export const defaultBills = {
+  b1000: "",
+  b500: "",
+  b200: "",
+  b100: "",
+  b50: "",
+  b20: "",
+};
+
+export const defaultCoins = {
+  c20: "",
+  c10: "",
+  c5: "",
+  c1: "",
+};
+
+export const defaultReport = {
+  opened: false,
+  id: -1,
+  pcvId: -1,
+  moneyArr: "N, N, N, N, N, N, N, N, N, N",
+};
 
 export const defaultPOSItem = {
   id: -1,
@@ -179,6 +203,11 @@ export const defaultProductFullyQuantified = {
   lost: 0,
 };
 
+export const defaultDatePrice = {
+  date: new Date(),
+  price: -1,
+};
+
 export const priceCodes = [
   { number: "1", code: "L" },
   { number: "2", code: "U" },
@@ -190,4 +219,30 @@ export const priceCodes = [
   { number: "8", code: "O" },
   { number: "9", code: "R" },
   { number: "0", code: "E" },
+];
+
+export const durationDays = [
+  { duration: "5Y", days: 1825, format: "YYYY" },
+  { duration: "2Y", days: 730, format: "MMM 'YY" },
+  { duration: "1Y", days: 365, format: "MMM" },
+  { duration: "1B", days: 180, format: "MMM" },
+  { duration: "1Q", days: 90, format: "M-D" },
+  { duration: "1M", days: 30, format: "M-D" },
+  { duration: "1W", days: 7, format: "DD" },
+  { duration: "3D", days: 3, format: "MM-D hA" },
+] as DurationDays[];
+
+export const suppliers = [
+  "NC Borja",
+  "United Bearing",
+  "Car Depot",
+  "Northern Arrow",
+  "Abergas",
+  "Oceanic",
+  "Jimmy",
+  "Pado",
+  "Long Hair",
+  "Spring",
+  "Rostam",
+  "Autolube",
 ];

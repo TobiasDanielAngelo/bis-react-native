@@ -1,10 +1,54 @@
 import moment from "moment";
-import { priceCodes } from "./constants";
+import { durationDays, priceCodes } from "./constants";
+import { Bills, Coins } from "./interfaces";
+
+export const getDates = (
+  duration: "5Y" | "2Y" | "1Y" | "1B" | "1Q" | "1M" | "1W" | "3D",
+  tune: number
+) => {
+  let start = addDays(
+    new Date(),
+    -(durationDays.find((s) => s.duration === duration)?.days ?? 0)
+  ).getTime();
+  let end = new Date().getTime();
+  let diff = (end - start) / tune;
+
+  return [...Array(tune + 1).keys()]
+    .map((s) => start + (s + 1) * diff)
+    .map((s) => new Date(s));
+};
 
 export const formatDate = (date: Date) => {
   return (
     date.getFullYear() * 1e4 + (date.getMonth() + 1) * 100 + date.getDate() + ""
   );
+};
+
+export const totalBillAmt = (bills: Bills) => {
+  return (
+    1000 * (isNaN(parseInt(bills.b1000)) ? 0 : parseInt(bills.b1000)) +
+    500 * (isNaN(parseInt(bills.b500)) ? 0 : parseInt(bills.b500)) +
+    200 * (isNaN(parseInt(bills.b200)) ? 0 : parseInt(bills.b200)) +
+    100 * (isNaN(parseInt(bills.b100)) ? 0 : parseInt(bills.b100)) +
+    50 * (isNaN(parseInt(bills.b50)) ? 0 : parseInt(bills.b50)) +
+    20 * (isNaN(parseInt(bills.b20)) ? 0 : parseInt(bills.b20))
+  );
+};
+
+export const totalCoinAmt = (coins: Coins) => {
+  return (
+    20 * (isNaN(parseInt(coins.c20)) ? 0 : parseInt(coins.c20)) +
+    10 * (isNaN(parseInt(coins.c10)) ? 0 : parseInt(coins.c10)) +
+    5 * (isNaN(parseInt(coins.c5)) ? 0 : parseInt(coins.c5)) +
+    1 * (isNaN(parseInt(coins.c1)) ? 0 : parseInt(coins.c1))
+  );
+};
+
+export const toMoney = (n: number) => {
+  return n
+    .toFixed(2)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
 export const addDays = (date: Date, days: number) => {

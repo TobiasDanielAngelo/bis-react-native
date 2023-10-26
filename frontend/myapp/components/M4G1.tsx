@@ -25,6 +25,16 @@ export const MenuBar = (props: any) => {
         />
       </TouchableOpacity>
       <TouchableOpacity
+        onPress={() => props.setView("timeline")}
+        style={{ flex: 1 }}
+      >
+        <MenuItem
+          logoName="timeline"
+          label="Timeline"
+          selected={props.view === "timeline"}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
         onPress={() => props.setView("accounts")}
         style={{ flex: 1 }}
       >
@@ -39,7 +49,7 @@ export const MenuBar = (props: any) => {
         style={{ flex: 1 }}
       >
         <MenuItem
-          logoName="timeline"
+          logoName="analytics"
           label="Forecast"
           selected={props.view === "forecast"}
         />

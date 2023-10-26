@@ -24,12 +24,14 @@ export const CheckBar = () => {
     session,
     location,
     setLocation,
+    loading,
   } = useContext(M3S4Context);
   const { currentUser } = useContext(MainContext);
   const { transactionStore, productStore, categoryStore } = useStore();
   const [open, setOpen] = useState(false);
 
-  const onCreateSession = async () => {
+  const onCreateSession = async (load: boolean) => {
+    if (load) return;
     const resp = await transactionStore.addTransaction({
       category: categoryStore.categoryId("Inventory Check") ?? "-1",
       description: `IC #, ${location}, Pending`,
@@ -66,7 +68,9 @@ export const CheckBar = () => {
     });
   };
 
-  const onFinishSession = async () => {
+  const onFinishSession = async (load: boolean) => {
+    if (load) return;
+
     await transactionStore.updateTransaction(session.id, {
       description: `IC #, ${location}, Finished`,
     });
@@ -149,24 +153,29 @@ export const CheckBar = () => {
               flex: 1,
               minHeight: 35,
             }}
-            placeholder="See itemizations in progress..."
+            placeholder="See itemizations..."
             placeholderStyle={{ color: "gray" }}
+            listMode="MODAL"
+            disabled={loading}
+            disabledStyle={{ backgroundColor: "#ddd" }}
           />
         </View>
-        <Icon
-          name={
-            !sessions.find((s) => s.isOngoing && s.location === location)
-              ? "add-circle"
-              : "check-circle"
-          }
-          size={30}
-          color={"teal"}
-          onPress={
-            !sessions.find((s) => s.isOngoing && s.location === location)
-              ? onCreateSession
-              : onFinishSession
-          }
-        />
+        {!loading && (
+          <Icon
+            name={
+              !sessions.find((s) => s.isOngoing && s.location === location)
+                ? "add-circle"
+                : "check-circle"
+            }
+            size={30}
+            color={loading ? "gray" : "teal"}
+            onPress={
+              !sessions.find((s) => s.isOngoing && s.location === location)
+                ? () => onCreateSession(loading)
+                : () => onFinishSession(loading)
+            }
+          />
+        )}
       </View>
     </View>
   );

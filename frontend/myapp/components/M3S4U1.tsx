@@ -99,8 +99,9 @@ export const CountingProductItem = (props: {}) => {
   };
 
   const getQuantity = async () => {
-    setLoading(true);
     if (productDetails.product.id === "-1") return;
+    console.log("BOOMI");
+    setLoading(true);
 
     const resp = await particularPOSStore.fetchPOSQuantityOfProduct(
       parseInt(productDetails.product.id ?? "-1")
@@ -229,6 +230,8 @@ export const CountingProductItem = (props: {}) => {
   };
 
   useEffect(() => {
+    setLoading(false);
+    if (productDetails.product.id === "-1") return;
     getQuantity();
     setLocation(productDetails.product.location);
   }, [productDetails.product.id]);

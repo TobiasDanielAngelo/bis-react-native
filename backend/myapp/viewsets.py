@@ -190,8 +190,8 @@ class MyUserViewSet(viewsets.ModelViewSet):
 class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
     permission_classes = [
-        AllowAny,
-        # IsAuthenticated,
+        # AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -200,7 +200,39 @@ class TransactionViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         params = self.request.query_params
-        if params.get("transfer") and params.get("date"):
+        if params.get("todaysreport"):
+            queryset = queryset.filter(
+                category__title="Cash Report",
+                datetime_transacted__year=(params["date"])[0:4],
+                datetime_transacted__month=(params["date"])[4:6],
+                datetime_transacted__day=(params["date"])[6:8],
+            )
+        elif params.get("cashregister"):
+            in_sales = 0
+            in_labor1 = 0
+            in_labor2 = 0
+            out_labor2 = 0
+            out_gcash = 0
+            out_discount = 0
+            in_pcv = 0
+            out_etc = 0
+
+            q1 = queryset.filter(
+                category__title="Point of Sales",
+                datetime_transacted__year=(params["date"])[0:4],
+                datetime_transacted__month=(params["date"])[4:6],
+                datetime_transacted__day=(params["date"])[6:8],
+            )
+            q2 = queryset.filter(
+                category__title="Account to Account",
+                datetime_transacted__year=(params["date"])[0:4],
+                datetime_transacted__month=(params["date"])[4:6],
+                datetime_transacted__day=(params["date"])[6:8],
+            )
+            for q in q1:
+                print(q)
+
+        elif params.get("transfer") and params.get("date"):
             queryset = queryset.filter(
                 category__title="Account to Account",
                 datetime_transacted__year=(params["date"])[0:4],
@@ -302,6 +334,7 @@ class PointOfSaleViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         params = self.request.query_params
+
         if params.get("date"):
             queryset = self.filter_queryset(self.get_queryset()).filter(
                 category__title="Point of Sales",
@@ -309,7 +342,7 @@ class PointOfSaleViewSet(viewsets.ModelViewSet):
                 datetime_transacted__month=(params["date"])[4:6],
                 datetime_transacted__day=(params["date"])[6:8],
             )
-        if params.get("active"):
+        elif params.get("active"):
             queryset = self.filter_queryset(self.get_queryset()).filter(
                 category=Category.objects.filter(pk=1).first(),
                 description__icontains="Open",
@@ -322,8 +355,8 @@ class PurchasePartViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
     queryset = Transaction.objects.filter(category__title="Purchase Parts")
     permission_classes = [
-        AllowAny,
-        # IsAuthenticated,
+        # AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -343,38 +376,39 @@ class POSItemViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionItemSerializer
     queryset = TransactionLineItem.objects.all()
     permission_classes = [
-        # AllowAny,
-        IsAuthenticated,
+        AllowAny,
+        # IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
     def list(self, request, *args, **kwargs):
         params = self.request.query_params
-        if params.get("prod"):
-            q1 = (
-                self.filter_queryset(self.get_queryset())
-                .filter(
-                    transaction__category__title="Point of Sales",
-                    description__icontains="SKU" + params["prod"],
-                )
-                .exclude(transaction__description__icontains="Not Paid")
-            )
-            q2 = self.filter_queryset(self.get_queryset()).filter(
+        queryset = self.filter_queryset(self.get_queryset())
+        if params.get("cashregister"):
+            queryset = None
+        elif params.get("prod"):
+            q1 = queryset.filter(
                 transaction__category__title="Point of Sales",
-                description__icontains="RSI" + params["prod"],
+                description__icontains="SKU" + params["prod"] + "***",
+            ).exclude(transaction__description__icontains="Not Paid")
+
+            q2 = queryset.filter(
+                transaction__category__title="Point of Sales",
+                description__icontains="RSI" + params["prod"] + "***",
             )
-            q3 = self.filter_queryset(self.get_queryset()).filter(
+            q3 = queryset.filter(
                 transaction__category__title="Purchase Parts",
-                description__icontains="PPU" + params["prod"],
+                description__icontains="PPU" + params["prod"] + "***",
                 transaction__description__icontains="Closed",
+                remarks="",
             )
-            q4 = self.filter_queryset(self.get_queryset()).filter(
+            q4 = queryset.filter(
                 transaction__category__title="Inventory Check",
-                description__icontains="ADU" + params["prod"],
+                description__icontains="ADU" + params["prod"] + "***",
             )
-            q5 = self.filter_queryset(self.get_queryset()).filter(
+            q5 = queryset.filter(
                 transaction__category__title="Inventory Check",
-                description__icontains="SBU" + params["prod"],
+                description__icontains="SBU" + params["prod"] + "***",
             )
 
             qty1 = sum(x.quantity for x in q1)
@@ -391,8 +425,69 @@ class POSItemViewSet(viewsets.ModelViewSet):
                 "gained": qty4,
                 "lost": qty5,
             }
-
             return response.Response(quantities)
+        elif params.get("totalstock") and params.get("date"):
+            print(params["date"])
+            queryset = self.filter_queryset(self.get_queryset()).filter(
+                transaction__datetime_transacted__lt=params["date"]
+            )
+            total = 0
+            all_product_prices = Product.objects.values("sell_price", "pk")
+            for p in all_product_prices:
+                q1 = queryset.filter(
+                    transaction__category__title="Point of Sales",
+                    description__icontains="SKU" + f'{p["pk"]}' + "***",
+                ).exclude(transaction__description__icontains="Not Paid")
+
+                q2 = queryset.filter(
+                    transaction__category__title="Point of Sales",
+                    description__icontains="RSI" + f'{p["pk"]}' + "***",
+                )
+                q3 = queryset.filter(
+                    transaction__category__title="Purchase Parts",
+                    description__icontains="PPU" + f'{p["pk"]}' + "***",
+                    transaction__description__icontains="Closed",
+                    remarks="",
+                )
+                q4 = queryset.filter(
+                    transaction__category__title="Inventory Check",
+                    description__icontains="ADU" + f'{p["pk"]}' + "***",
+                )
+                q5 = queryset.filter(
+                    transaction__category__title="Inventory Check",
+                    description__icontains="SBU" + f'{p["pk"]}' + "***",
+                )
+                qty1 = sum(x.quantity for x in q1)
+                qty2 = sum(x.quantity for x in q2)
+                qty3 = sum(x.quantity for x in q3)
+                qty4 = sum(x.quantity for x in q4)
+                qty5 = sum(x.quantity for x in q5)
+                total += (qty3 + qty4 + qty2 - qty5 - qty1) * p["sell_price"]
+            return response.Response({"total": total})
+        elif params.get("account") and params.get("date"):
+            queryset = self.filter_queryset(self.get_queryset()).filter(
+                transaction__datetime_transacted__lt=params["date"],
+                transaction__category__title="Account to Account",
+            )
+            if params["account"] != "allcash":
+                q1 = queryset.filter(
+                    transaction__transmitter="ACCT" + params["account"],
+                )
+                q2 = queryset.filter(
+                    transaction__receiver="ACCT" + params["account"],
+                )
+            else:
+                q1 = queryset.filter(
+                    transaction__receiver="ACCT11",
+                )
+                q2 = queryset.filter(
+                    transaction__transmitter="ACCT11",
+                )
+            qty1 = sum(x.unit_amount for x in q1)
+            qty2 = sum(x.unit_amount for x in q2)
+
+            return response.Response({"total": qty2 - qty1})
+
         elif params.get("q"):
             queryset = self.filter_queryset(self.get_queryset()).filter(
                 transaction__category__title="Point of Sales",

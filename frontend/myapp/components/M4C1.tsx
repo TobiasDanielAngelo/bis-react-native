@@ -19,12 +19,13 @@ import { CheckView } from "./M3S4C1";
 import { ReviewView } from "./M3S5C1";
 import { TransferView } from "./M4S1C1";
 import { ReportView } from "./M4S2C1";
-import { AccountsView } from "./M4S3C1";
-import { ForecastView } from "./M4S4C1";
+import { TimelineView } from "./M4S3C1";
+import { ForecastView } from "./M4S5C1";
+import { AccountsView } from "./M4S4C1";
 
 export const FinanceModule = observer(({ navigation }: any) => {
-  const [view, setView] = useState("transfer");
-  const [mode, setMode] = useState("");
+  const [view, setView] = useState("report");
+  const [mode, setMode] = useState("end");
 
   const values = {
     view: view,
@@ -40,6 +41,7 @@ export const FinanceModule = observer(({ navigation }: any) => {
           <TransferView visible={view === "transfer"} />
           <ReportView visible={view === "report"} />
           <AccountsView visible={view === "accounts"} />
+          <TimelineView visible={view === "timeline"} />
           <ForecastView visible={view === "forecast"} />
         </View>
         <MenuBar view={view} setView={setView} />

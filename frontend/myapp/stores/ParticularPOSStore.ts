@@ -1,14 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  model,
   Model,
-  modelFlow,
-  prop,
   _async,
   _await,
+  model,
   modelAction,
+  modelFlow,
+  prop,
 } from "mobx-keystone";
-import { POSItem, ParticularTransaction } from "../constants/interfaces";
+import { ParticularTransaction } from "../constants/interfaces";
 
 @model("myApp/ParticularPOS")
 export class ParticularPOS extends Model({
@@ -154,6 +154,151 @@ export class ParticularPOSStore extends Model({
     return { details: "", ok: true, data: json };
   });
 
+  @modelFlow
+  fetchTotalWorthOfProducts = _async(function* (
+    this: ParticularPOSStore,
+    date: Date
+  ) {
+    let token: string;
+
+    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
+
+    let response: Response;
+    response = yield* _await(
+      fetch(
+        `${
+          process.env["BASE_URL"]
+        }/particularpos/?totalstock=1&date=${date.toISOString()}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+    );
+
+    if (!response.ok) {
+      let msg: any = yield* _await(response.json());
+      if (msg.non_field_errors) {
+        return {
+          details: `${msg.non_field_errors}`,
+          ok: false,
+          data: null,
+        };
+      }
+      return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let json: {
+      total: number;
+    };
+    try {
+      const resp = yield* _await(response.json());
+      json = resp;
+    } catch (error) {
+      console.error("Parsing Error", error);
+      return { details: "Parsing Error", ok: false, data: null };
+    }
+
+    return { details: "", ok: true, data: json };
+  });
+
+  @modelFlow
+  fetchAllStatistics = _async(function* (this: ParticularPOSStore) {
+    let token: string;
+
+    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
+
+    let response: Response;
+    response = yield* _await(
+      fetch(`${process.env["BASE_URL"]}/particularpos/?overall=1`, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+    );
+
+    if (!response.ok) {
+      let msg: any = yield* _await(response.json());
+      if (msg.non_field_errors) {
+        return {
+          details: `${msg.non_field_errors}`,
+          ok: false,
+          data: null,
+        };
+      }
+      return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let json: {
+      total: number;
+    };
+    try {
+      const resp = yield* _await(response.json());
+      json = resp;
+    } catch (error) {
+      console.error("Parsing Error", error);
+      return { details: "Parsing Error", ok: false, data: null };
+    }
+
+    return { details: "", ok: true, data: json };
+  });
+
+  @modelFlow
+  fetchAccountBalance = _async(function* (
+    this: ParticularPOSStore,
+    account: string,
+    date: Date
+  ) {
+    let token: string;
+
+    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
+
+    let response: Response;
+    response = yield* _await(
+      fetch(
+        `${
+          process.env["BASE_URL"]
+        }/particularpos/?account=${account}&date=${date.toISOString()}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+    );
+
+    if (!response.ok) {
+      let msg: any = yield* _await(response.json());
+      if (msg.non_field_errors) {
+        return {
+          details: `${msg.non_field_errors}`,
+          ok: false,
+          data: null,
+        };
+      }
+      return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let json: {
+      total: number;
+    };
+    try {
+      const resp = yield* _await(response.json());
+      json = resp;
+    } catch (error) {
+      console.error("Parsing Error", error);
+      return { details: "Parsing Error", ok: false, data: null };
+    }
+
+    return { details: "", ok: true, data: json };
+  });
   @modelFlow
   fetchLaborParticulars = _async(function* (this: ParticularPOSStore) {
     let token: string;

@@ -8,7 +8,7 @@ import { RefundView } from "./M1S3C1";
 import { ReviewView } from "./M1S4C1";
 
 export const SalesModule = observer(({ navigation }: any) => {
-  const [view, setView] = useState("compensate");
+  const [view, setView] = useState("transact");
   const [POSInputFocus, setPOSInputFocus] = useState(false);
   const [refundInputFocus, setRefundInputFocus] = useState(false);
 

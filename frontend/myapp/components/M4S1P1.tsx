@@ -61,7 +61,11 @@ export const TransferForm = () => {
   };
 
   return (
-    <ScrollView keyboardShouldPersistTaps="always">
+    <ScrollView
+      keyboardShouldPersistTaps="always"
+      persistentScrollbar={true}
+      style={{ marginRight: 10 }}
+    >
       <View style={{ flex: 1, justifyContent: "space-between" }}>
         <View style={{ marginHorizontal: 20 }}>
           <Text style={{ fontSize: 20 }}>From: </Text>
@@ -71,7 +75,14 @@ export const TransferForm = () => {
               .map((s) => ({
                 label: s.name,
                 value: s.id ?? "-1",
-                icon: () => <Icon name="account-balance" size={20} />,
+                icon:
+                  s.name === "UNTRACKED"
+                    ? () => <Icon name="disabled-by-default" />
+                    : s.name.split(" ")[0] === "CASH"
+                    ? () => <Icon name="payments" />
+                    : s.name.split(" ")[0] === "COIN"
+                    ? () => <Icon name="monetization-on" />
+                    : () => <Icon name="account-balance" />,
               }))}
             multiple={false}
             setValue={setAccount1}
@@ -103,7 +114,14 @@ export const TransferForm = () => {
               .map((s) => ({
                 label: s.name,
                 value: s.id ?? "-1",
-                icon: () => <Icon name="account-balance" size={20} />,
+                icon:
+                  s.name === "UNTRACKED"
+                    ? () => <Icon name="disabled-by-default" />
+                    : s.name.split(" ")[0] === "CASH"
+                    ? () => <Icon name="payments" />
+                    : s.name.split(" ")[0] === "COIN"
+                    ? () => <Icon name="monetization-on" />
+                    : () => <Icon name="account-balance" />,
               }))}
             multiple={false}
             setValue={setAccount2}

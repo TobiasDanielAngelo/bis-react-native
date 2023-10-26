@@ -13,7 +13,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import { useStore } from "../stores/Store";
 
 export const ProductsPlaced = () => {
-  const { products, productDetails, setProductDetails } =
+  const { products, productDetails, setProductDetails, loading } =
     useContext(M3S4Context);
   const { sparePartStore } = useStore();
 
@@ -71,6 +71,9 @@ export const ProductsPlaced = () => {
                 }
               : () => {}
           }
+          disabled={loading}
+          color={loading ? "gray" : "black"}
+          disabledStyle={{ backgroundColor: "lightcyan" }}
         />
         <View>
           <Dots
@@ -93,6 +96,9 @@ export const ProductsPlaced = () => {
                 }
               : () => {}
           }
+          disabled={loading}
+          color={loading ? "gray" : "black"}
+          disabledStyle={{ backgroundColor: "lightcyan" }}
         />
       </View>
       <View style={{ marginHorizontal: 10 }}>
@@ -122,6 +128,8 @@ export const ProductsPlaced = () => {
           placeholderStyle={{ color: "gray" }}
           searchable={true}
           searchPlaceholder="Search..."
+          disabled={loading}
+          disabledStyle={{ backgroundColor: "#ddd" }}
         />
       </View>
       <CountingProductItem />

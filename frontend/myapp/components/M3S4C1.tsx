@@ -17,7 +17,7 @@ import { LabelPrintModal } from "./M3S4P1";
 export const CheckView = (props: { visible: boolean }) => {
   const { currentScreen } = useContext(MainContext);
   const { sparePartStore, transactionStore, categoryStore } = useStore();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<ProductFullyQuantified[]>([]);
   const [product, setProduct] = useState<ProductFullyQuantified>(
     defaultProductFullyQuantified
@@ -78,6 +78,10 @@ export const CheckView = (props: { visible: boolean }) => {
     location: location,
     setLocation: setLocation,
   };
+
+  useEffect(() => {
+    setProduct(defaultProductFullyQuantified);
+  }, [location]);
 
   useEffect(() => {
     getCategories();

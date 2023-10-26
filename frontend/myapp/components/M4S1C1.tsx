@@ -56,9 +56,11 @@ export const TransferView = (props: { visible: boolean }) => {
   }, []);
 
   useEffect(() => {
-    getAccounts();
-    getTransfersToday();
-    getCategories();
+    if (props.visible) {
+      getAccounts();
+      getTransfersToday();
+      getCategories();
+    }
   }, [props.visible]);
 
   const values = {

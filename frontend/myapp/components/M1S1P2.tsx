@@ -144,7 +144,7 @@ export const LaborItemModal = (props: {}) => {
           >
             <Text>Assigned to: </Text>
             <SelectDropdown
-              data={mechanics}
+              data={mechanics.map((s) => s.name)}
               onSelect={setMechanic}
               defaultValue={mechanic}
             />

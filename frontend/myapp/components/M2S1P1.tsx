@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -12,13 +12,21 @@ import { Expense, M2S1Context } from "../constants/interfaces";
 import { particularPOSStore } from "../stores/ParticularPOSStore";
 import { useStore } from "../stores/Store";
 import { ExpenseCategorySelector } from "./M2P2";
+import DropDownPicker from "react-native-dropdown-picker";
 
 export const CreateExpenseForm = () => {
   const [open, setOpen] = useState(false);
   const { transactionStore, categoryStore } = useStore();
-  const { categories, expenses, viewHistory, setExpenses, setViewHistory } =
-    useContext(M2S1Context);
+  const {
+    categories,
+    expenses,
+    viewHistory,
+    setExpenses,
+    setViewHistory,
+    accounts,
+  } = useContext(M2S1Context);
 
+  const [account, setAccount] = useState(0);
   const [amount, setAmount] = useState("0");
   const [category, setCategory] = useState("-1");
   const [remarks, setRemarks] = useState("");
@@ -33,11 +41,8 @@ export const CreateExpenseForm = () => {
     if (!isNaN(parseFloat(amount)) && parseFloat(amount) !== 0) {
       let newTransaction = {
         category: category,
-        description:
-          remarks === ""
-            ? `Expense ${categories.find((s) => s.pk === category)?.title}`
-            : remarks,
-        transmitter: "DATS",
+        description: "Receipt 12345",
+        transmitter: `ACCT${account}`,
         receiver: spender === "" ? "-" : spender,
         particular_transaction: [],
       };
@@ -47,7 +52,7 @@ export const CreateExpenseForm = () => {
       await particularPOSStore.addParticularPOS(
         {
           description: remarks === "" ? "-" : remarks,
-          remarks: remarks === "" ? "-" : remarks,
+          remarks: "-",
           quantity: 1,
           unit_amount: parseInt(amount),
         },
@@ -77,6 +82,10 @@ export const CreateExpenseForm = () => {
       setViewHistory(true);
     }
   }, [category, spender, remarks, amount, expenses]);
+
+  useEffect(() => {
+    setAccount(10);
+  }, []);
 
   return (
     <>
@@ -181,6 +190,44 @@ export const CreateExpenseForm = () => {
           value={remarks}
           placeholder="Remarks (Optional)"
           onChangeText={(name) => setRemarks(name)}
+        />
+        <Text>Account:</Text>
+        <DropDownPicker
+          items={accounts
+            .filter((s) => !s.name.includes("UNTRACKED"))
+            .map((s) => ({
+              label: s.name,
+              value: parseInt(s.id ?? "-1"),
+              icon:
+                s.name === "UNTRACKED"
+                  ? () => <Icon name="disabled-by-default" />
+                  : s.name.split(" ")[0] === "CASH"
+                  ? () => <Icon name="payments" />
+                  : s.name.split(" ")[0] === "COIN"
+                  ? () => <Icon name="monetization-on" />
+                  : () => <Icon name="account-balance" />,
+            }))}
+          multiple={false}
+          setValue={setAccount}
+          value={account}
+          open={open}
+          setOpen={setOpen}
+          textStyle={{
+            fontSize: 15,
+          }}
+          style={{
+            borderWidth: 1,
+            backgroundColor: "white",
+            width: 300,
+            borderColor: "gainsboro",
+            height: 40,
+            padding: 10,
+            marginBottom: 20,
+          }}
+          placeholder="See all Accounts"
+          placeholderStyle={{ color: "gray" }}
+          dropDownDirection="TOP"
+          listMode="MODAL"
         />
       </ScrollView>
     </>
