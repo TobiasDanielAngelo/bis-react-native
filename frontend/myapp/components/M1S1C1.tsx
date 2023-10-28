@@ -55,6 +55,7 @@ export const POSView = (props: {
   const [loading, setLoading] = useState(false);
   const [items, setitems] = useState<POSItem[]>([]);
   const [popup, setPopup] = useState("");
+  const [refreshCount, setRefreshCount] = useState(0);
 
   const getCategories = useCallback(async () => {
     await categoryStore.fetchCategories();
@@ -249,6 +250,8 @@ export const POSView = (props: {
     setLaborItems: setLaborItems,
     togglePayment: togglePayment,
     currentTotal: currentTotal,
+    refreshCount: refreshCount,
+    setRefreshCount: setRefreshCount,
   };
 
   useEffect(() => {
@@ -258,7 +261,7 @@ export const POSView = (props: {
       transactionStore.deleteTransactionHistory();
       getCustomers();
     }
-  }, [props.visible, currentScreen]);
+  }, [props.visible, currentScreen, refreshCount]);
 
   return (
     props.visible && (

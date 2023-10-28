@@ -144,13 +144,22 @@ export const AccountsView = (props: { visible: boolean }) => {
                 !s.account.name.includes("UNTRACKED")
             )
             .map((s) => (
-              <Text style={{ fontSize: 20 }} key={s.account.id}>{`${
-                s.account.name
-              } - ${
-                s.balance >= 0
-                  ? s.balance.toFixed(2)
-                  : "(" + Math.abs(s.balance).toFixed(2) + ")"
-              }`}</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+                key={s.account.id}
+              >
+                <Text style={{ fontSize: 20 }}>{`${s.account.name}`}</Text>
+                <Text style={{ fontSize: 20 }}>
+                  {`${
+                    s.balance >= 0
+                      ? s.balance.toFixed(2)
+                      : "(" + Math.abs(s.balance).toFixed(2) + ")"
+                  }`}
+                </Text>
+              </View>
             ))}
         </View>
       </View>

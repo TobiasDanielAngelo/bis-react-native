@@ -58,7 +58,7 @@ class MotorAdmin(admin.ModelAdmin):
 
 class MyUserAdmin(admin.ModelAdmin):
     model = MyUser
-    list_display = ("user_id", "username")
+    list_display = ("user_id", "username", "privilege")
 
 
 class SparePartAdmin(admin.ModelAdmin):

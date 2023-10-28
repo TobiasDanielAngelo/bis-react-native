@@ -48,16 +48,18 @@ export const MenuBar = (props: any) => {
           selected={props.view === "return"}
         />
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => props.setView("view")}
-        style={{ flex: 1 }}
-      >
-        <MenuItem
-          logoName="history"
-          label="View"
-          selected={props.view === "view"}
-        />
-      </TouchableOpacity>
+      {currentUser.privilege !== "3" && (
+        <TouchableOpacity
+          onPress={() => props.setView("view")}
+          style={{ flex: 1 }}
+        >
+          <MenuItem
+            logoName="history"
+            label="View"
+            selected={props.view === "view"}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

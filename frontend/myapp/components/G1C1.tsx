@@ -71,7 +71,9 @@ export const HomeView = () => {
             <Drawer.Screen name="Expenses" component={ExpensesModule} />
           )}
           <Drawer.Screen name="Inventory" component={InventoryModule} />
-          <Drawer.Screen name="Finance" component={FinanceModule} />
+          {currentUser?.privilege !== "3" && (
+            <Drawer.Screen name="Finance" component={FinanceModule} />
+          )}
         </Drawer.Navigator>
       </NavigationContainer>
     </MainContext.Provider>

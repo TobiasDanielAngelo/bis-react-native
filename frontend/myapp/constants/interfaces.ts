@@ -331,6 +331,8 @@ export type M1S1Content = {
     paidGCashAmt?: number
   ) => void;
   currentTotal: number;
+  refreshCount: number;
+  setRefreshCount: (t: number | ((u: number) => number)) => void;
 };
 
 export const M1S1Context = createContext<M1S1Content>({
@@ -369,6 +371,8 @@ export const M1S1Context = createContext<M1S1Content>({
     paidGCashAmt?: number
   ) => {},
   currentTotal: 0,
+  refreshCount: 0,
+  setRefreshCount: (t: number | ((u: number) => number)) => {},
 });
 
 export type M1S2Content = {

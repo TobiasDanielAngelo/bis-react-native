@@ -60,7 +60,7 @@ export const TallyMode = (props: { visible: boolean }) => {
     await transactionStore.updateTransaction(report.id.toString(), {
       description: `Report, Closed`,
     });
-    setReport({ ...report, opened: false });
+    setReport(defaultReport);
     setMode("");
   };
 
@@ -77,10 +77,10 @@ export const TallyMode = (props: { visible: boolean }) => {
         }}
         keyboardShouldPersistTaps="always"
       >
-        <Text style={{ textAlign: "center", fontSize: 17, color: "darkred" }}>
+        {/* <Text style={{ textAlign: "center", fontSize: 17, color: "darkred" }}>
           Record shows that this cash/coin breakdown is above/below{" "}
           {`\u20b10.00`} of the recorded sales. Accept?
-        </Text>
+        </Text> */}
         <View
           style={{
             flexDirection: "row",

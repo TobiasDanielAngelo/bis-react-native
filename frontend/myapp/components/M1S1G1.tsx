@@ -1,15 +1,28 @@
 import { useContext } from "react";
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Icon } from "react-native-elements";
 import { defaultCustomer } from "../constants/constants";
 import { M1S1Context } from "../constants/interfaces";
 import { CustomerAvatar } from "./M1S1U1";
 
 export const CustomerQueueBar = () => {
-  const { customers, setCustomer, setPopup } = useContext(M1S1Context);
+  const { customers, setCustomer, setPopup, setRefreshCount } =
+    useContext(M1S1Context);
 
   return (
     <View style={styles.customerQueue}>
+      <Icon
+        name="refresh"
+        size={60}
+        onPress={() => setRefreshCount((prev) => prev + 1)}
+        color="teal"
+      />
       <FlatList
         horizontal={true}
         style={styles.scrollQueue}
@@ -26,7 +39,7 @@ export const CustomerQueueBar = () => {
           setPopup("name");
         }}
       >
-        <Icon name="add" size={60} />
+        <Icon name="add" size={60} color="teal" />
       </TouchableOpacity>
     </View>
   );
