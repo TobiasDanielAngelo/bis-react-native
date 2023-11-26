@@ -1,20 +1,15 @@
 import * as React from "react";
-import { StyleSheet } from "react-native";
+import { StatusBar, StyleSheet, View } from "react-native";
 import { NativeRouter, Route, Routes } from "react-router-native";
-import { HomeView } from "./components/G1C1";
-import { LoginView } from "./components/G0C1";
+import { LoginView } from "./containers/LoginView";
+import { HomeView } from "./containers/HomeView";
 import { StoreContext, createStore } from "./stores/Store";
-import { DummyView } from "./components/G3C1";
 
 export default function App() {
   const store = createStore();
 
-  const dummy = false;
-
-  return dummy ? (
-    <DummyView />
-  ) : (
-    <>
+  return (
+    <View style={styles.main}>
       <StoreContext.Provider value={store}>
         <NativeRouter>
           <Routes>
@@ -24,8 +19,15 @@ export default function App() {
           </Routes>
         </NativeRouter>
       </StoreContext.Provider>
-    </>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  main: {
+    paddingTop: StatusBar.currentHeight,
+    justifyContent: "space-between",
+    flex: 1,
+    backgroundColor: "lightcyan",
+  },
+});

@@ -1,18 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  model,
   Model,
-  modelFlow,
-  prop,
   _async,
   _await,
+  model,
   modelAction,
+  modelFlow,
+  prop,
 } from "mobx-keystone";
-import { MechanicInterface } from "../constants/interfaces";
 
 @model("myApp/Mechanic")
 export class Mechanic extends Model({
-  id: prop<number>(),
+  id: prop<number>(-1),
   name: prop<string>(""),
   color: prop<string>(""),
 }) {
@@ -41,6 +40,12 @@ export class MechanicStore extends Model({
   @modelAction
   mechanicId(name: string) {
     return this.mechanics.find((s) => s.name === name)?.id;
+  }
+
+  @modelAction
+  getItem(id?: number) {
+    if (!id) return;
+    return this.mechanics.find((s) => s.id === id);
   }
 
   @modelFlow
@@ -73,7 +78,7 @@ export class MechanicStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: MechanicInterface[];
+    let json: Mechanic[];
     try {
       const resp = yield* _await(response.json());
       json = resp;

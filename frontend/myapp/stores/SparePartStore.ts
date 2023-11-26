@@ -1,18 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  model,
   Model,
-  modelFlow,
-  prop,
   _async,
   _await,
+  model,
   modelAction,
+  modelFlow,
+  prop,
 } from "mobx-keystone";
-import { SparePartInterface } from "../constants/interfaces";
 
 @model("myApp/SparePart")
 export class SparePart extends Model({
-  id: prop<number>(),
+  id: prop<number>(-1),
   name: prop<string>(""),
   is_motor_shown: prop<boolean>(true),
   is_semi_shown: prop<boolean>(false),
@@ -31,11 +30,6 @@ export class SparePart extends Model({
 export class SparePartStore extends Model({
   spareParts: prop<SparePart[]>(() => []),
 }) {
-  @modelAction
-  deletePartsHistory() {
-    this.spareParts.splice(0, this.spareParts.length);
-  }
-
   get allIDs() {
     return this.spareParts.map((s) => s.id);
   }
@@ -80,7 +74,7 @@ export class SparePartStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: SparePartInterface[];
+    let json: SparePart[];
     try {
       const resp = yield* _await(response.json());
       json = resp;

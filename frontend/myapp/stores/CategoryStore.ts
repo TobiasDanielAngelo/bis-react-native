@@ -1,29 +1,43 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  model,
   Model,
-  modelFlow,
-  prop,
   _async,
   _await,
+  model,
   modelAction,
+  modelFlow,
+  prop,
 } from "mobx-keystone";
-import { CategoryInterface } from "../constants/interfaces";
+
+interface CategoryInterface {
+  id?: number;
+  nature?: string;
+  title?: string;
+  logo?: string;
+}
 
 @model("myApp/Category")
 export class Category extends Model({
-  pk: prop<string>(""),
+  id: prop<number>(-1),
   nature: prop<string>(""),
   title: prop<string>(""),
   logo: prop<string>(""),
 }) {
   get asJson() {
     return {
-      pk: this.pk,
+      id: this.id,
       nature: this.nature,
       title: this.title,
       logo: this.logo,
     };
+  }
+
+  update(details: CategoryInterface) {
+    this.id = details.id ?? this.id;
+    this.nature = details.nature ?? this.nature;
+    this.title = details.title ?? this.title;
+    this.logo = details.logo ?? this.logo;
+    return this;
   }
 }
 
@@ -32,17 +46,12 @@ export class CategoryStore extends Model({
   categories: prop<Category[]>(() => []),
 }) {
   get allIDs() {
-    return this.categories.map((s) => s.pk);
+    return this.categories.map((s) => s.id);
   }
 
   @modelAction
-  categoryName(pk: string) {
-    return this.categories.find((s) => s.pk === pk)?.title;
-  }
-
-  @modelAction
-  categoryId(title: string) {
-    return this.categories.find((s) => s.title === title)?.pk;
+  getItem(id: number) {
+    return this.categories.find((s) => s.id === id);
   }
 
   @modelFlow
@@ -75,7 +84,7 @@ export class CategoryStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: CategoryInterface[];
+    let json: Category[];
     try {
       const resp = yield* _await(response.json());
       json = resp;
@@ -85,8 +94,17 @@ export class CategoryStore extends Model({
     }
 
     json.forEach((s) => {
-      if (!this.allIDs.includes(s.pk)) {
+      if (!this.allIDs.includes(s.id)) {
         this.categories.push(new Category(s));
+      } else {
+        this.categories
+          .find((t) => t.id === s.id ?? -1)
+          ?.update({
+            id: s.id,
+            nature: s.nature,
+            title: s.title,
+            logo: s.logo,
+          });
       }
     });
 

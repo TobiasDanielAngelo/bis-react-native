@@ -1,21 +1,43 @@
 import moment from "moment";
-import { durationDays, priceCodes } from "./constants";
-import { Bills, Coins } from "./interfaces";
+import { defaultBills, defaultCoins, priceCodes } from "./constants";
 
-export const getDates = (
-  duration: "5Y" | "2Y" | "1Y" | "1B" | "1Q" | "1M" | "1W" | "3D",
-  tune: number
+export type Bills = typeof defaultBills;
+
+export type Coins = typeof defaultCoins;
+
+export const popItemFromListState = <T>(
+  itemId: number,
+  setItems: (t: T[] | ((u: T[]) => T[])) => void
 ) => {
-  let start = addDays(
-    new Date(),
-    -(durationDays.find((s) => s.duration === duration)?.days ?? 0)
-  ).getTime();
-  let end = new Date().getTime();
-  let diff = (end - start) / tune;
+  setItems((prev) => prev.filter((s) => s !== itemId));
+};
 
-  return [...Array(tune + 1).keys()]
-    .map((s) => start + (s + 1) * diff)
-    .map((s) => new Date(s));
+export const moveItemToFirstFromListState = <T>(
+  itemId: number,
+  setItems: (t: T[] | ((u: T[]) => T[])) => void
+) => {
+  setItems((prev) => {
+    let item = prev.find((s) => s === itemId);
+    if (item) return [item, ...prev.filter((s) => s !== itemId)];
+    else return [...prev.filter((s) => s !== itemId)];
+  });
+};
+
+export const toNumString = (t: string, withDecimal?: boolean) => {
+  let regex = withDecimal ? /[^.0-9]/g : /[^0-9]/g;
+  return isNaN(parseFloat(t.replace(regex, ""))) ? "" : t.replace(regex, "");
+};
+
+export const toNumber = (t: string) => {
+  return isNaN(parseFloat(t)) ? 0 : parseFloat(t);
+};
+
+export const roundToCash = (t: number) => {
+  return Math.round(t * 100) / 100;
+};
+
+export const totalValue = (numArr?: number[]) => {
+  return numArr?.reduce((a, b) => a + b, 0) ?? 0;
 };
 
 export const formatDate = (date: Date) => {
@@ -45,10 +67,17 @@ export const totalCoinAmt = (coins: Coins) => {
 };
 
 export const toMoney = (n: number) => {
-  return n
-    .toFixed(2)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return n >= 0
+    ? n
+        .toFixed(2)
+        .toString()
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+    : "(" +
+        Math.abs(n)
+          .toFixed(2)
+          .toString()
+          .replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
+        ")";
 };
 
 export const addDays = (date: Date, days: number) => {
@@ -96,14 +125,6 @@ export const isEqualDate = (
   );
 };
 
-export const formatDate2 = (date: Date) => {
-  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-};
-
-export const formatTime = (date: Date) => {
-  return `${date.getHours()}:${date.getMinutes()}`;
-};
-
 export const laborDueToMechanic = (laborType: string, amount: number) => {
   if (laborType === "Rebore")
     return 0.5 * (amount > 300 ? amount - 300 : 0) + 100;
@@ -112,7 +133,7 @@ export const laborDueToMechanic = (laborType: string, amount: number) => {
   return amount;
 };
 
-export const randomNameGen = () => {
+export const randomNameGen = (listed?: boolean) => {
   let firstName = [
     "Nathaniel",
     "James",
@@ -393,7 +414,14 @@ export const randomNameGen = () => {
   let randFirst = Math.floor(Math.random() * firstName.length);
   let randLast = Math.floor(Math.random() * lastName.length);
 
-  return `${firstName[randFirst]}${
-    randFirst + randLast < 30 ? " " + lastName[randLast] : ""
-  } (${address[randFirst + randLast - 1]})`;
+  return listed
+    ? [
+        `${firstName[randFirst]}${
+          randFirst + randLast < 30 ? " " + lastName[randLast] : ""
+        }`,
+        address[randFirst + randLast - 1],
+      ]
+    : `${firstName[randFirst]}${
+        randFirst + randLast < 30 ? " " + lastName[randLast] : ""
+      } (${address[randFirst + randLast - 1]})`;
 };

@@ -12,6 +12,16 @@ from .models import (
     SparePart,
     Transaction,
     TransactionLineItem,
+    Sale,
+    Purchase,
+    PurchaseItem,
+    ReturnedItem,
+    SalesItem,
+    LaborItem,
+    Transaction2,
+    Receivable,
+    Payable,
+    CountItem,
 )
 
 
@@ -22,6 +32,26 @@ class ProductImageInline(admin.TabularInline):
 class TransactionItemInline(admin.TabularInline):
     min_num = 1
     model = TransactionLineItem
+
+
+class SalesItemInline(admin.TabularInline):
+    min_num = 0
+    model = SalesItem
+
+
+class ReturnedItemInline(admin.TabularInline):
+    min_num = 0
+    model = ReturnedItem
+
+
+class LaborItemInline(admin.TabularInline):
+    min_num = 0
+    model = LaborItem
+
+
+class PurchaseItemInline(admin.TabularInline):
+    min_num = 0
+    model = PurchaseItem
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -45,6 +75,19 @@ class TransactionAdmin(admin.ModelAdmin):
     inlines = (TransactionItemInline,)
 
 
+class Transaction2Admin(admin.ModelAdmin):
+    model = Transaction2
+    list_display = (
+        "id",
+        "category",
+        "description",
+        "transmitter",
+        "receiver",
+        "amount",
+        "datetime_transacted",
+    )
+
+
 class ProductAdmin(admin.ModelAdmin):
     model = Product
     list_display = ("part", "generic", "purchase_price", "sell_price", "pk")
@@ -54,6 +97,16 @@ class ProductAdmin(admin.ModelAdmin):
 class MotorAdmin(admin.ModelAdmin):
     model = Motor
     list_display = ("name", "maker")
+
+
+class ReceivableAdmin(admin.ModelAdmin):
+    model = Receivable
+    list_display = ("pk", "borrower_name", "description", "lent_amount")
+
+
+class PayableAdmin(admin.ModelAdmin):
+    model = Payable
+    list_display = ("pk", "lender_name", "description", "borrowed_amount")
 
 
 class MyUserAdmin(admin.ModelAdmin):
@@ -81,6 +134,23 @@ class MechanicAdmin(admin.ModelAdmin):
     list_display = ("name", "color")
 
 
+class SalesAdmin(admin.ModelAdmin):
+    model = Sale
+    list_display = ("customer_name", "pk", "is_active")
+    inlines = (SalesItemInline, LaborItemInline, ReturnedItemInline)
+
+
+class PurchaseAdmin(admin.ModelAdmin):
+    model = Purchase
+    list_display = ("supplier_name", "pk", "is_active")
+    inlines = (PurchaseItemInline,)
+
+
+class CountItemAdmin(admin.ModelAdmin):
+    model = CountItem
+    list_display = ("product", "quantity", "datetime_counted")
+
+
 admin.site.register(Motor, MotorAdmin)
 admin.site.register(Mechanic, MechanicAdmin)
 admin.site.register(SparePart, SparePartAdmin)
@@ -88,4 +158,10 @@ admin.site.register(MyUser, MyUserAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(Transaction2, Transaction2Admin)
 admin.site.register(Account, AccountAdmin)
+admin.site.register(Sale, SalesAdmin)
+admin.site.register(Purchase, PurchaseAdmin)
+admin.site.register(Payable, PayableAdmin)
+admin.site.register(Receivable, ReceivableAdmin)
+admin.site.register(CountItem, CountItemAdmin)

@@ -1,11 +1,12 @@
 import { Dimensions } from "react-native";
-import {
-  Customer,
-  CustomerLaborItem,
-  CustomerSalesItem,
-  DurationDays,
-  POSItem,
-} from "./interfaces";
+
+interface DurationDays {
+  duration: "5Y" | "2Y" | "1Y" | "1B" | "1Q" | "1M" | "1W" | "3D";
+  days: number;
+  format: string;
+}
+
+export const doNothing = () => {};
 
 const { height, width } = Dimensions.get("window");
 
@@ -25,17 +26,6 @@ export const monthYears = () => {
   });
 
   return newArr;
-};
-
-export const defaultInventoryHistory = {
-  id: -1,
-  type: "" as "count" | "purchase" | "",
-  particulars: [],
-  receiver: "",
-  encoder: "",
-  dateTransacted: "",
-  dueDate: "",
-  checkNum: "",
 };
 
 export const labors = [
@@ -69,74 +59,6 @@ export const defaultCoins = {
   c1: "",
 };
 
-export const defaultReport = {
-  opened: false,
-  id: -1,
-  pcvId: -1,
-  moneyArr: "N, N, N, N, N, N, N, N, N, N",
-};
-
-export const defaultPOSItem = {
-  id: -1,
-  name: "",
-  price: 0,
-  quantity: -1,
-} as POSItem;
-
-export const defaultCustomer = {
-  id: -1,
-  name: "",
-  paymentStatus: "not paid",
-  amountPaid: 0,
-  amountPaidGCash: 0,
-  discountSales: 0,
-  toPrint: false,
-  isClosed: false,
-  dateTransacted: "",
-} as Customer;
-
-export const defaultSalesItem = {
-  itemId: -1,
-  custId: -1,
-  qty: 0,
-  claimed: false,
-} as CustomerSalesItem;
-
-export const defaultSparePart = {
-  id: -1,
-  name: "",
-  is_motor_shown: true,
-  is_semi_shown: false,
-};
-
-export const defaultLaborItem = {
-  id: -1,
-  custId: -1,
-  laborer: "",
-  description: "",
-  cost: 0,
-  collected: 0,
-} as CustomerLaborItem;
-
-export const defaultExpense = {
-  id: -1,
-  amount: 0,
-  spender: "",
-  remarks: "",
-  datetimeTransacted: "",
-  categoryId: "",
-  receiptId: "",
-};
-
-export const defaultOrder = {
-  id: -1,
-  check: -1,
-  dueDate: "",
-  supplier: "",
-  status: "editing" as "editing" | "processing" | "delivered" | "closed",
-  toPrint: false,
-};
-
 export const defaultUser = {
   username: "",
   userId: "",
@@ -159,48 +81,6 @@ export const defaultProduct = {
   minimum: "",
   unit: "pc.",
   isOrig: false,
-};
-
-export const defaultProductInterface = {
-  id: "-1",
-  piece_count: 0,
-  unit: "pc.",
-  description: "",
-  brand: "",
-  part: "",
-  motors: "",
-  // generic: "",
-  datetime_added: "",
-  is_active: true,
-  location: "",
-  purchase_price: 0,
-  sell_price: 0,
-  min_quantity: 1,
-  is_orig: false,
-  print_count: 0,
-};
-
-export const defaultProductQuantified = {
-  product: defaultProductInterface,
-  quantity: 0,
-};
-
-export const defaultSession = {
-  id: "-1",
-  isOngoing: false,
-  location: "",
-  counter: "",
-  lastProdId: -1,
-};
-
-export const defaultProductFullyQuantified = {
-  product: defaultProductInterface,
-  quantity: 0,
-  sold: 0,
-  returned: 0,
-  purchased: 0,
-  gained: 0,
-  lost: 0,
 };
 
 export const defaultDatePrice = {

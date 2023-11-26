@@ -1,15 +1,23 @@
 import {
-  model,
   Model,
+  _async,
+  _await,
+  model,
   modelAction,
   modelFlow,
   prop,
-  _async,
-  _await,
 } from "mobx-keystone";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LoginInterface, UserInterface } from "../constants/interfaces";
+
+export interface UserInterface {
+  username: string;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  privilege: string;
+  isActive: boolean;
+}
 
 @model("myApp/User")
 export class User extends Model({
@@ -32,9 +40,19 @@ export class User extends Model({
   }
 }
 
+export const defaultUser = new User({
+  username: "",
+  userId: "",
+  firstName: "",
+  lastName: "",
+  privilege: "",
+  isActive: true,
+});
+
 @model("myApp/UserStore")
 export class UserStore extends Model({
   users: prop<User[]>(() => []),
+  currentUser: prop<User>(() => defaultUser),
 }) {
   @modelAction
   addUser(credentials: UserInterface) {
@@ -84,7 +102,13 @@ export class UserStore extends Model({
   });
 
   @modelFlow
-  loginUser = _async(function* (this: UserStore, credentials: LoginInterface) {
+  loginUser = _async(function* (
+    this: UserStore,
+    credentials: {
+      username: string;
+      password: string;
+    }
+  ) {
     let response: Response;
 
     response = yield* _await(
@@ -187,7 +211,10 @@ export class UserStore extends Model({
         },
       })
     );
+
     if (!response.ok) {
+      AsyncStorage.clear();
+
       let msg = yield* _await(response.json()) as any;
 
       if (msg.non_field_errors) {

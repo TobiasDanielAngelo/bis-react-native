@@ -1,18 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
-  model,
   Model,
-  modelFlow,
-  prop,
   _async,
   _await,
+  model,
   modelAction,
+  modelFlow,
+  prop,
 } from "mobx-keystone";
-import { MotorInterface } from "../constants/interfaces";
 
 @model("myApp/Motor")
 export class Motor extends Model({
-  id: prop<number>(),
+  id: prop<number>(-1),
   name: prop<string>(""),
   maker: prop<string>(""),
 }) {
@@ -41,11 +40,6 @@ export class MotorStore extends Model({
   @modelAction
   motorId(name: string) {
     return this.motors.find((s) => s.name === name)?.id;
-  }
-
-  @modelAction
-  deleteMotorHistory() {
-    this.motors.splice(0, this.motors.length);
   }
 
   @modelFlow
@@ -78,7 +72,7 @@ export class MotorStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: MotorInterface[];
+    let json: Motor[];
     try {
       const resp = yield* _await(response.json());
       json = resp;

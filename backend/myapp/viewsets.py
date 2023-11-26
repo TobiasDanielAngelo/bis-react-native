@@ -3,7 +3,17 @@ import re
 from datetime import date
 from functools import reduce
 
-from django.db.models import Case, CharField, Q, Value, When
+from django.db.models import (
+    Case,
+    CharField,
+    Q,
+    Value,
+    When,
+    Sum,
+    OuterRef,
+    Subquery,
+    IntegerField,
+)
 from django.db.models.functions import Concat
 from knox.auth import TokenAuthentication
 from rest_framework import response, viewsets
@@ -18,7 +28,17 @@ from .models import (
     Product,
     SparePart,
     Transaction,
+    Transaction2,
+    PurchaseItem,
     TransactionLineItem,
+    Sale,
+    Payable,
+    Receivable,
+    Purchase,
+    SalesItem,
+    LaborItem,
+    ReturnedItem,
+    CountItem,
 )
 from .serializers import (
     AccountSerializer,
@@ -28,8 +48,18 @@ from .serializers import (
     ProductSerializer,
     SparePartSerializer,
     TransactionItemSerializer,
+    PurchaseItemSerializer,
+    SalesItemSerializer,
+    LaborItemSerializer,
+    ReturnedItemSerializer,
+    PayableSerializer,
+    ReceivableSerializer,
+    PurchaseSerializer,
     TransactionSerializer,
+    Transaction2Serializer,
     UserSerializer,
+    SaleSerializer,
+    CountItemSerializer,
 )
 
 
@@ -63,51 +93,82 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         params = self.request.query_params
+        queryset = self.filter_queryset(self.get_queryset())
+        q1 = queryset.annotate(r=Sum("sales_product__quantity")).filter(
+            pk=OuterRef("pk")
+        )
+        q2 = queryset.annotate(r=Sum("returned_product__quantity")).filter(
+            pk=OuterRef("pk")
+        )
+        q3 = queryset.annotate(r=Sum("purchase_product__quantity")).filter(
+            pk=OuterRef("pk")
+        )
+        q4 = queryset.annotate(r=Sum("count_product__quantity")).filter(
+            pk=OuterRef("pk")
+        )
+        queryset = queryset.annotate(
+            sold=Subquery(q1.values("r"), output_field=IntegerField()),
+            returned=Subquery(q2.values("r"), output_field=IntegerField()),
+            purchased=Subquery(q3.values("r"), output_field=IntegerField()),
+            counted=Subquery(q4.values("r"), output_field=IntegerField()),
+        )
+        if params.get("get_id_range"):
+            resp = {
+                "max_id": queryset.latest("id").id,
+                "min_id": queryset.earliest("id").id,
+            }
+            return response.Response(resp)
+        if params.get("excl"):
+            list_to_exclude = params["excl"].split(" ")
+            queryset = queryset.exclude(
+                reduce(
+                    operator.or_,
+                    (Q(id=x) for x in list_to_exclude),
+                )
+            )
+        if params.get("incl"):
+            list_to_include = params["incl"].split(" ")
+            queryset = queryset.filter(
+                reduce(
+                    operator.or_,
+                    (Q(id=x) for x in list_to_include),
+                )
+            )
         if params.get("q"):
             if len(f'{params["q"]}') > 4:
                 pattern = r"\W+"
                 list_queries = re.split(pattern, params["q"])
-                print(list_queries)
-                queryset = self.filter_queryset(self.get_queryset()).filter(
+                queryset = queryset.filter(
                     reduce(
                         operator.and_,
                         (Q(name1__icontains=x) for x in list_queries),
                     )
                 )
-            else:
-                queryset = None
-        elif params.get("x"):
+        if params.get("x"):
             pattern = r"\W+"
             list_queries = re.split(pattern, params["x"])
-            queryset = self.filter_queryset(self.get_queryset()).filter(
+            queryset = queryset.filter(
                 reduce(
                     operator.and_,
                     (Q(name2__icontains=x) for x in list_queries),
                 )
             )
-            if params.get("motors"):
-                pattern = r"\W+"
-                list_queries = re.split(pattern, params["motors"])
-                queryset = queryset.filter(
-                    reduce(
-                        operator.or_,
-                        (
-                            Q(motors__icontains=Motor.objects.get(pk=x).name)
-                            for x in list_queries
-                        ),
-                    )
+        if params.get("motors"):
+            pattern = r"\W+"
+            list_queries = re.split(pattern, params["motors"])
+            queryset = queryset.filter(
+                reduce(
+                    operator.or_,
+                    (
+                        Q(motors__icontains=Motor.objects.get(pk=x).name)
+                        for x in list_queries
+                    ),
                 )
-        elif params.get("part"):
-            queryset = self.filter_queryset(self.get_queryset()).filter(
-                part=params["part"]
             )
-        elif params.get("loc"):
-            queryset = self.filter_queryset(self.get_queryset()).filter(
-                location=params["loc"]
-            )
-        else:
-            queryset = None
-            # queryset = self.filter_queryset(self.get_queryset())
+        if params.get("part"):
+            queryset = queryset.filter(part=params["part"])
+        if params.get("loc"):
+            queryset = queryset.filter(location=params["loc"])
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
 
@@ -132,6 +193,46 @@ class AccountViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
 
     queryset = Account.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("end_date"):
+            q1 = queryset.annotate(
+                r=Sum(
+                    "transaction2_transmitter__amount",
+                    filter=Q(
+                        transaction2_transmitter__datetime_transacted__lte=params[
+                            "end_date"
+                        ]
+                    ),
+                ),
+            ).filter(pk=OuterRef("pk"))
+            q2 = queryset.annotate(
+                r=Sum(
+                    "transaction2_receiver__amount",
+                    filter=Q(
+                        transaction2_receiver__datetime_transacted__lte=params[
+                            "end_date"
+                        ]
+                    ),
+                ),
+            ).filter(pk=OuterRef("pk"))
+        else:
+            q1 = queryset.annotate(
+                r=Sum("transaction2_transmitter__amount"),
+            ).filter(pk=OuterRef("pk"))
+            q2 = queryset.annotate(
+                r=Sum("transaction2_receiver__amount"),
+            ).filter(pk=OuterRef("pk"))
+        queryset = queryset.annotate(
+            transmitted=Subquery(q1.values("r"), output_field=IntegerField()),
+            received=Subquery(q2.values("r"), output_field=IntegerField()),
+        )
+        # if params.get("userid"):
+        #     queryset = queryset.filter(user_id=params["userid"])
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
 
 
 class MotorViewSet(viewsets.ModelViewSet):
@@ -181,8 +282,160 @@ class MyUserViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         params = self.request.query_params
         if params.get("userid"):
-            print(params["userid"])
             queryset = queryset.filter(user_id=params["userid"])
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
+
+
+class SaleViewSet(viewsets.ModelViewSet):
+    serializer_class = SaleSerializer
+    permission_classes = [
+        AllowAny,
+        # IsAuthenticated,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = Sale.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("start_date"):
+            queryset.filter(datetime_opened__gte=params["start_date"])
+        if params.get("end_date"):
+            queryset.filter(datetime_opened__lte=params["end_date"])
+        if params.get("is_active"):
+            activity = params["is_active"] == "true"
+            queryset.filter(is_active=activity)
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
+
+
+class PurchaseViewSet(viewsets.ModelViewSet):
+    serializer_class = PurchaseSerializer
+    permission_classes = [
+        # AllowAny,
+        IsAuthenticated,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = Purchase.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("start_date"):
+            queryset.filter(datetime_opened__gte=params["start_date"])
+        if params.get("end_date"):
+            queryset.filter(datetime_opened__lte=params["end_date"])
+        if params.get("is_active"):
+            activity = params["is_active"] == "true"
+            queryset.filter(is_active=activity)
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
+
+
+class PayableViewSet(viewsets.ModelViewSet):
+    serializer_class = PayableSerializer
+    permission_classes = [
+        # AllowAny,
+        IsAuthenticated,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = Payable.objects.all()
+
+
+class ReceivableViewSet(viewsets.ModelViewSet):
+    serializer_class = ReceivableSerializer
+    permission_classes = [
+        # AllowAny,
+        IsAuthenticated,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = Receivable.objects.all()
+
+
+class SalesItemViewSet(viewsets.ModelViewSet):
+    serializer_class = SalesItemSerializer
+    permission_classes = [
+        AllowAny,
+        # IsAuthenticated,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = SalesItem.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("start_date"):
+            queryset.filter(datetime_added__gte=params["start_date"])
+        if params.get("end_date"):
+            queryset.filter(datetime_added__lte=params["end_date"])
+        if params.get("product"):
+            queryset.filter(product=params["product"])
+        if params.get("sale_status"):
+            queryset.filter(sales__status=params["sale_status"])
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
+
+
+class CountItemViewSet(viewsets.ModelViewSet):
+    serializer_class = CountItemSerializer
+    permission_classes = [
+        # AllowAny,
+        IsAuthenticated,
+    ]
+    authentication_classes = (TokenAuthentication,)
+    queryset = CountItem.objects.all()
+
+
+class LaborItemViewSet(viewsets.ModelViewSet):
+    serializer_class = LaborItemSerializer
+    permission_classes = [
+        AllowAny,
+        # IsAuthenticated,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = LaborItem.objects.all()
+
+
+class ReturnedItemViewSet(viewsets.ModelViewSet):
+    serializer_class = ReturnedItemSerializer
+    permission_classes = [
+        # AllowAny,
+        IsAuthenticated,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = ReturnedItem.objects.all()
+
+
+class Transaction2ViewSet(viewsets.ModelViewSet):
+    serializer_class = Transaction2Serializer
+    permission_classes = [
+        AllowAny,
+        # IsAuthenticated,
+    ]
+    authentication_classes = (TokenAuthentication,)
+
+    queryset = Transaction2.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("start_date"):
+            queryset.filter(datetime_transacted__gte=params["start_date"])
+        if params.get("end_date"):
+            queryset.filter(datetime_transacted__lte=params["end_date"])
+        if params.get("is_active"):
+            activity = params["is_active"] == "true"
+            queryset.filter(is_active=activity)
+        if params.get("category"):
+            queryset.filter(category=params["category"])
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
 
@@ -229,8 +482,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
                 datetime_transacted__month=(params["date"])[4:6],
                 datetime_transacted__day=(params["date"])[6:8],
             )
-            for q in q1:
-                print(q)
 
         elif params.get("transfer") and params.get("date"):
             queryset = queryset.filter(
@@ -427,7 +678,6 @@ class POSItemViewSet(viewsets.ModelViewSet):
             }
             return response.Response(quantities)
         elif params.get("totalstock") and params.get("date"):
-            print(params["date"])
             queryset = self.filter_queryset(self.get_queryset()).filter(
                 transaction__datetime_transacted__lt=params["date"]
             )
@@ -497,6 +747,16 @@ class POSItemViewSet(viewsets.ModelViewSet):
             queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
+
+
+class PurchaseItem2ViewSet(viewsets.ModelViewSet):
+    serializer_class = PurchaseItemSerializer
+    queryset = PurchaseItem.objects.all()
+    permission_classes = [
+        # AllowAny,
+        IsAuthenticated,
+    ]
+    authentication_classes = (TokenAuthentication,)
 
 
 class PurchaseItemViewSet(viewsets.ModelViewSet):
