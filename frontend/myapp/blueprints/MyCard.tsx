@@ -108,7 +108,7 @@ export const MyCard = observer(
               )}
               {price || price === 0 ? (
                 <Text style={styles.priceText}>{`\u20b1${toMoney(
-                  parseFloat(`${price}`)
+                  price
                 )}`}</Text>
               ) : null}
             </HView>

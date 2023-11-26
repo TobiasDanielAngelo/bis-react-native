@@ -167,11 +167,11 @@ export const PurchaseDeliveredCard = observer(
     const toProductShortName = (t?: Product, noBrand?: boolean) => {
       return !t
         ? ""
-        : `${sparePartStore.sparePartName(parseInt(t.part))}${
+        : `${sparePartStore.sparePartName(t.part)}${
             t.description !== "" ? " " + t.description : ""
           }${
             t.motors !== "" &&
-            sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+            sparePartStore.spareParts.find((s) => s.id === t.part)
               ?.is_motor_shown
               ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
               : ""
@@ -179,9 +179,8 @@ export const PurchaseDeliveredCard = observer(
             !noBrand
               ? t.is_orig
                 ? " ORIG."
-                : sparePartStore.spareParts.find(
-                    (s) => s.id === parseInt(t.part)
-                  )?.is_semi_shown
+                : sparePartStore.spareParts.find((s) => s.id === t.part)
+                    ?.is_semi_shown
                 ? " SEMI."
                 : ""
               : ""

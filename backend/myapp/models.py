@@ -236,7 +236,6 @@ class Sale(models.Model):
     )
     payment = models.ManyToManyField(
         Transaction,
-        # on_delete=models.SET_NULL,
         blank=True,
         related_name="payment_sales",
     )
@@ -280,7 +279,6 @@ class SalesItem(models.Model):
     )
     description = models.CharField(max_length=50, default="", blank=True)
     unit = models.CharField(max_length=30, default="", blank=True)
-    # quantity = models.IntegerField(validators=[MinValueValidator(0)], default=1)
     quantity = models.DecimalField(
         default=1, decimal_places=2, max_digits=10, validators=[MinValueValidator(0)]
     )
@@ -313,7 +311,6 @@ class ReturnedItem(models.Model):
     product = models.ForeignKey(
         Product, on_delete=models.SET_NULL, related_name="returned_product", null=True
     )
-    # quantity = models.IntegerField(validators=[MinValueValidator(0)], default=1)
     quantity = models.DecimalField(
         default=1, decimal_places=2, max_digits=10, validators=[MinValueValidator(0)]
     )

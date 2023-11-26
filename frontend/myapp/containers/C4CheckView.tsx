@@ -45,7 +45,7 @@ export const C4CheckView = observer((props: { isVisible?: boolean }) => {
   ).sort((a, b) => (a >= b ? 1 : -1));
 
   const currentProducts = productsByLocation
-    .filter((s) => (part === -1 ? true : part === parseInt(s.part)))
+    .filter((s) => (part === -1 ? true : part === s.part))
     .filter((s) =>
       motors.length === 0
         ? true

@@ -110,34 +110,31 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
   };
 
   const toProductShortName = (t: Product) => {
-    return `${sparePartStore.sparePartName(parseInt(t.part))}${
+    return `${sparePartStore.sparePartName(t.part)}${
       t.description !== "" ? " " + t.description : ""
     }${
       t.motors !== "" &&
-      sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
-        ?.is_motor_shown
+      sparePartStore.spareParts.find((s) => s.id === t.part)?.is_motor_shown
         ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
         : ""
     }${t.brand !== "" ? " " + t.brand : ""}${
       t.is_orig
         ? " ORIG."
-        : sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
-            ?.is_semi_shown
+        : sparePartStore.spareParts.find((s) => s.id === t.part)?.is_semi_shown
         ? " SEMI."
         : ""
     }`.toUpperCase();
   };
 
   const toProductName = (t: Product) => {
-    return `${sparePartStore.sparePartName(parseInt(t.part))}${
+    return `${sparePartStore.sparePartName(t.part)}${
       t.description !== "" ? " " + t.description : ""
     }${t.motors !== "" ? " " + t.motors : ""}${
       t.brand !== "" ? " " + t.brand : ""
     }${
       t.is_orig
         ? " ORIG."
-        : sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
-            ?.is_semi_shown
+        : sparePartStore.spareParts.find((s) => s.id === t.part)?.is_semi_shown
         ? " SEMI."
         : ""
     }`.toUpperCase();

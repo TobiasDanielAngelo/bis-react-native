@@ -16,18 +16,17 @@ export const PurchasePickCard = observer(
     const { sparePartStore, purchaseItemStore, productStore } = useStore();
 
     const toProductShortName = (t: Product) => {
-      return `${sparePartStore.sparePartName(parseInt(t.part))}${
+      return `${sparePartStore.sparePartName(t.part)}${
         t.description !== "" ? " " + t.description : ""
       }${
         t.motors !== "" &&
-        sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
-          ?.is_motor_shown
+        sparePartStore.spareParts.find((s) => s.id === t.part)?.is_motor_shown
           ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
           : ""
       }${t.brand !== "" ? " " + t.brand : ""}${
         t.is_orig
           ? " ORIG."
-          : sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+          : sparePartStore.spareParts.find((s) => s.id === t.part)
               ?.is_semi_shown
           ? " SEMI."
           : ""

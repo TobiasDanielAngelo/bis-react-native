@@ -51,15 +51,14 @@ export const C2ProductView = observer((props: { isVisible?: boolean }) => {
   const [focus, setFocus] = useState(false);
 
   const toProductName = (t: Product) => {
-    return `${sparePartStore.sparePartName(parseInt(t.part))}${
+    return `${sparePartStore.sparePartName(t.part)}${
       t.description !== "" ? " " + t.description : ""
     }${t.motors !== "" ? " " + t.motors : ""}${
       t.brand !== "" ? " " + t.brand : ""
     }${
       t.is_orig
         ? " ORIG."
-        : sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
-            ?.is_semi_shown
+        : sparePartStore.spareParts.find((s) => s.id === t.part)?.is_semi_shown
         ? " SEMI."
         : ""
     }`.toUpperCase();
@@ -68,18 +67,17 @@ export const C2ProductView = observer((props: { isVisible?: boolean }) => {
   const toProductShortName = (t?: Product) => {
     return !t
       ? ""
-      : `${sparePartStore.sparePartName(parseInt(t.part))}${
+      : `${sparePartStore.sparePartName(t.part)}${
           t.description !== "" ? " " + t.description : ""
         }${
           t.motors !== "" &&
-          sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
-            ?.is_motor_shown
+          sparePartStore.spareParts.find((s) => s.id === t.part)?.is_motor_shown
             ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
             : ""
         }${t.brand !== "" ? " " + t.brand : ""}${
           t.is_orig
             ? " ORIG."
-            : sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+            : sparePartStore.spareParts.find((s) => s.id === t.part)
                 ?.is_semi_shown
             ? " SEMI."
             : ""
@@ -98,7 +96,7 @@ export const C2ProductView = observer((props: { isVisible?: boolean }) => {
 
   const similarProducts = productStore.products.filter(
     (s) =>
-      parseInt(s.part) === details.part &&
+      s.part === details.part &&
       isSubString(s.brand, details.brand) &&
       isSubString(s.description, details.miscInfo) &&
       (!details.isOrig || s.is_orig === details.isOrig) &&
@@ -119,7 +117,7 @@ export const C2ProductView = observer((props: { isVisible?: boolean }) => {
 
   const onPressResult = (item: Product) => {
     setDetails({
-      part: parseInt(item.part),
+      part: item.part,
       brand: item.brand,
       pieces: item.piece_count.toString(),
       unitPP: toMoney(item.purchase_price / item.piece_count).toString(),

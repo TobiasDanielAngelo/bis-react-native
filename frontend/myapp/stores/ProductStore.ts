@@ -14,7 +14,7 @@ export interface ProductInterface {
   unit?: string;
   description?: string;
   brand?: string;
-  part?: string;
+  part?: number;
   motors?: string;
   datetime_added?: string;
   is_active?: boolean;
@@ -38,7 +38,7 @@ export class Product extends Model({
   unit: prop<string>(""),
   description: prop<string>(""),
   brand: prop<string>(""),
-  part: prop<string>(""),
+  part: prop<number>(-1),
   motors: prop<string>(""),
   datetime_added: prop<string>(""),
   is_active: prop<boolean>(true),

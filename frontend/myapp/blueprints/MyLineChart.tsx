@@ -11,7 +11,7 @@ const defaultDatePrice = {
 
 export const MyLineChart = (props: {
   hidden?: boolean;
-  data: LineChartData;
+  data?: LineChartData;
 }) => {
   const { hidden, data } = props;
   const [dataPoint, setDataPoint] = useState(defaultDatePrice);
@@ -19,32 +19,45 @@ export const MyLineChart = (props: {
   return (
     !hidden && (
       <View style={styles.main}>
-        <LineChart
-          data={data}
-          width={winWidth}
-          height={400}
-          yAxisLabel={`\u20b1`}
-          chartConfig={{
-            backgroundColor: "#dddddd",
-            backgroundGradientFrom: "teal",
-            backgroundGradientTo: "gray",
-            decimalPlaces: 2,
-            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            style: {
+        {!data ? (
+          <></>
+        ) : (
+          <LineChart
+            data={data}
+            width={winWidth}
+            height={400}
+            yAxisLabel={`\u20b1`}
+            chartConfig={{
+              backgroundColor: "#dddddd",
+              backgroundGradientFrom: "teal",
+              backgroundGradientTo: "gray",
+              decimalPlaces: 2,
+              color: (opacity = 1) =>
+                data.datasets[0].data[0] >
+                data.datasets[0].data[data.datasets[0].data.length - 1]
+                  ? "palevioletred"
+                  : "lightgreen",
+              labelColor: (opacity = 1) => "white",
+              scrollableDotStrokeColor: "white",
+              style: {
+                borderRadius: 16,
+              },
+              strokeWidth: 0,
+            }}
+            style={{
+              margin: 10,
               borderRadius: 16,
-            },
-          }}
-          style={{
-            margin: 10,
-            borderRadius: 16,
-          }}
-          xLabelsOffset={20}
-          verticalLabelRotation={270}
-          onDataPointClick={(d) => {
-            setDataPoint({ label: data.labels[d.index], price: d.value });
-          }}
-          bezier
-        />
+            }}
+            withHorizontalLines={false}
+            withVerticalLines={false}
+            xLabelsOffset={20}
+            verticalLabelRotation={270}
+            onDataPointClick={(d) => {
+              setDataPoint({ label: data.labels[d.index], price: d.value });
+            }}
+            bezier
+          />
+        )}
       </View>
     )
   );

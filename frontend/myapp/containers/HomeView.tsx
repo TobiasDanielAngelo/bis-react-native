@@ -11,7 +11,7 @@ import { FinanceModule } from "./D0FinanceModule";
 
 const Drawer = createDrawerNavigator();
 
-const myFocusScreen = "Sales";
+const myFocusScreen = "Finance";
 
 const arrayRange = (start: number, stop: number) =>
   Array.from({ length: stop - start }, (value, index) => start + index);

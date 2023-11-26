@@ -7,7 +7,7 @@ import { ModesBar } from "../blueprints/ModesBar";
 import { MyDropdownPicker } from "../blueprints/MyDropdownPicker";
 import { MyLineChart } from "../blueprints/MyLineChart";
 import { doNothing, durationDays } from "../constants/constants";
-import { addDays } from "../constants/helpers";
+import { addDays, totalValue } from "../constants/helpers";
 import { useStore } from "../stores/Store";
 
 const arrayRange = (start: number, stop: number, step: number = 1) =>
@@ -23,23 +23,44 @@ interface DatePriceLoading {
   loading: boolean;
 }
 
+interface DatePriceXY {
+  date: Date;
+  price: number;
+}
+
+interface AccountTrend {
+  account: number;
+  points: DatePriceXY[];
+}
+
+interface AccountPriceXY {
+  account: number;
+  price: number;
+}
+
+interface PriceTrend {
+  date: Date;
+  points: AccountPriceXY[];
+}
+
+const actions = [
+  { id: 1, name: "arrow-drop-down", label: "5Y", interval: 75 },
+  { id: 2, name: "arrow-drop-down", label: "2Y", interval: 30.0 },
+  { id: 3, name: "arrow-drop-down", label: "1Y", interval: 15.0 },
+  { id: 4, name: "arrow-drop-down", label: "1B", interval: 7.5 },
+  { id: 5, name: "arrow-drop-down", label: "1Q", interval: 4.0 },
+  { id: 6, name: "arrow-drop-down", label: "1M", interval: 1.3 },
+  { id: 7, name: "arrow-drop-down", label: "1W", interval: 0.3 },
+];
+
 export const D3TimelineView = observer((props: { isVisible?: boolean }) => {
   const { isVisible } = props;
   const { accountStore } = useStore();
-  const [showOrders, setShowOrders] = useState(false);
-  const [value, setValue] = useState(-1);
-  const [mode, setMode] = useState(0);
-  const [dataPoints, setDataPoints] = useState<DatePriceLoading[]>([]);
-
-  const actions = [
-    { id: 1, name: "arrow-drop-down", label: "5Y", interval: 75 },
-    { id: 2, name: "arrow-drop-down", label: "2Y", interval: 30.0 },
-    { id: 3, name: "arrow-drop-down", label: "1Y", interval: 15.0 },
-    { id: 4, name: "arrow-drop-down", label: "1B", interval: 7.5 },
-    { id: 5, name: "arrow-drop-down", label: "1Q", interval: 4.0 },
-    { id: 6, name: "arrow-drop-down", label: "1M", interval: 1.3 },
-    { id: 7, name: "arrow-drop-down", label: "1W", interval: 0.3 },
-  ];
+  const [value, setValue] = useState(-3);
+  const [mode, setMode] = useState(6);
+  // const [dataPoints, setDataPoints] = useState<DatePriceLoading[]>([]);
+  // const [dataPoints, setDataPoints] = useState<AccountTrend[]>([]);
+  const [dataPoints, setDataPoints] = useState<PriceTrend[]>([]);
 
   const dates =
     mode !== 0
@@ -52,58 +73,88 @@ export const D3TimelineView = observer((props: { isVisible?: boolean }) => {
           .sort((a, b) => (a.getTime() > b.getTime() ? 1 : -1))
       : [];
 
-  const line = {
-    labels: dataPoints
-      .filter((s) => s.account === value)
-      .sort((a, b) => (a.date.getTime() > b.date.getTime() ? 1 : -1))
-      .map((s) =>
-        moment(s.date).format(
-          durationDays.find((s) => s.duration === actions[mode - 1].label)
-            ?.format
-        )
-      ),
-    datasets: [
-      {
-        data: dataPoints
-          .filter((s) => s.account === value)
+  console.log(dataPoints.map((s) => totalValue(s.points.map((s) => s.price))));
+
+  const dataPointsByAccount =
+    dataPoints && value > 0
+      ? dataPoints
           .sort((a, b) => (a.date.getTime() > b.date.getTime() ? 1 : -1))
-          .map((s) => s.price),
-      },
-    ],
-  };
+          .map((s) => s.points)
+          .flat(1)
+          .filter((s) => s.account === value)
+      : [];
+
+  const dataPointsTotal = dataPoints.map((s) =>
+    totalValue(
+      s.points.filter((u) => ![11, 16].includes(u.account)).map((t) => t.price)
+    )
+  );
+
+  const dataPointsCash = dataPoints.map((s) =>
+    totalValue(
+      s.points
+        .filter((u) => ![11, 14, 16].includes(u.account))
+        .map((t) => t.price)
+    )
+  );
+  const line = dataPointsByAccount
+    ? {
+        labels: dates
+          .sort((a, b) => (a.getTime() > b.getTime() ? 1 : -1))
+          .map((s) =>
+            moment(s).format(
+              durationDays.find((s) => s.duration === actions[mode - 1].label)
+                ?.format
+            )
+          ),
+
+        datasets: [
+          {
+            data:
+              value > 0
+                ? dataPointsByAccount.map((s) => s.price)
+                : value === 0
+                ? dataPointsTotal
+                : dataPointsCash,
+          },
+        ],
+      }
+    : undefined;
 
   const getAccounts = async () => {
-    let dps = [] as DatePriceLoading[];
+    let dps = dates.map((s) => ({
+      date: s,
+      points: [],
+    })) as PriceTrend[];
     for (let i = 0; i < dates.length; i++) {
       const resp = await accountStore.fetchAll({
         endDate: dates[i].toISOString(),
       });
-      resp.data?.forEach((s) =>
-        dps.push({
+      let target = dps.find((s) => s.date === dates[i]);
+      if (target && resp.data)
+        target.points = resp.data.map((s) => ({
           account: s.id,
-          price: (s.received ?? 0) - (s.transmitted ?? 0) ?? 0,
-          date: dates[i],
-          loading: false,
-        })
-      );
+          price: (s.received ?? 0) - (s.transmitted ?? 0),
+        }));
     }
     setDataPoints(dps);
   };
 
   useEffect(() => {
+    let dps = dates.map((s) => ({
+      date: s,
+      points: accountStore.accounts.map((t) => ({ account: t.id, price: -1 })),
+    }));
+    setDataPoints(dps);
     getAccounts();
-    let dp = accountStore.accounts
-      .map((s) =>
-        dates.map((t) => ({
-          account: s.id,
-          date: t,
-          price: -1,
-          loading: true,
-        }))
-      )
-      .flat(1);
-
-    setDataPoints(dp);
+    // let dps = accountStore.accounts.map((s) => ({
+    //   account: s.id,
+    //   points: dates.map((t) => ({
+    //     date: t,
+    //     price: -1,
+    //   })),
+    // }));
+    // setDataPoints(dps);
   }, [mode]);
 
   return (
@@ -111,10 +162,14 @@ export const D3TimelineView = observer((props: { isVisible?: boolean }) => {
       <View style={styles.main}>
         <HView>
           <MyDropdownPicker
-            items={accountStore.accounts.map((s) => ({
-              value: s.id,
-              label: s.name,
-            }))}
+            items={[
+              { value: -1, label: "TOTAL CASH" },
+              { value: 0, label: "TOTAL ASSETS (CASH + STOCKS)" },
+              ...accountStore.accounts.map((s) => ({
+                value: s.id,
+                label: s.name,
+              })),
+            ]}
             value={value}
             setValue={setValue}
             flex
@@ -129,19 +184,7 @@ export const D3TimelineView = observer((props: { isVisible?: boolean }) => {
           noSideBtns
         />
         <View style={styles.body}>
-          <MyLineChart data={line} hidden={value === -1 || mode === 0} />
-          {/* <MyList
-            items={[{ id: 1 }, { id: 2 }]}
-            headNote="Products"
-            flex={2}
-            hidden={showOrders}
-          />
-          <MyList
-            items={[{ id: 1 }, { id: 2 }]}
-            headNote="Order"
-            flex={2}
-            hidden={!showOrders}
-          /> */}
+          <MyLineChart data={line} hidden={value < -2 || mode === 0} />
         </View>
       </View>
     )
