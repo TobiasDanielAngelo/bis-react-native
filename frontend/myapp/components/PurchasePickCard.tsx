@@ -13,7 +13,7 @@ export const PurchasePickCard = observer(
   }) => {
     const { item, hidden, locked, purchaseId } = props;
 
-    const { sparePartStore, purchaseItemStore, product2Store } = useStore();
+    const { sparePartStore, purchaseItemStore, productStore } = useStore();
 
     const toProductShortName = (t: Product) => {
       return `${sparePartStore.sparePartName(parseInt(t.part))}${
@@ -46,7 +46,7 @@ export const PurchasePickCard = observer(
       });
     };
 
-    const similarProducts = product2Store.products.filter(
+    const similarProducts = productStore.products.filter(
       (s) =>
         s.part === item.part &&
         s.description === item.description &&

@@ -146,11 +146,9 @@ export const A5BalanceView = observer((props: { isVisible?: boolean }) => {
 
   useEffect(() => {
     if (isVisible1) {
-      accountStore.fetchAccounts();
+      accountStore.fetchAll();
     }
   }, [isVisible1]);
-
-  console.log(expectedCash, actualCash);
 
   return (
     isVisible && (

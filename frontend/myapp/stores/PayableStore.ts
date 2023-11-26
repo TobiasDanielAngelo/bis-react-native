@@ -37,34 +37,8 @@ export class Payable extends Model({
   user_opener: prop<string>(""),
   user_closer: prop<string>(""),
 }) {
-  get asJson() {
-    return {
-      id: this.id,
-      payment: this.payment,
-      lender_name: this.lender_name,
-      borrowed_amount: this.borrowed_amount,
-      description: this.description,
-      datetime_opened: this.datetime_opened,
-      datetime_due: this.datetime_due,
-      datetime_closed: this.datetime_closed,
-      is_active: this.is_active,
-      user_opener: this.user_opener,
-      user_closer: this.user_closer,
-    };
-  }
-
   update(details: PayableInterface) {
-    this.payment = details.payment ?? this.payment;
-    this.lender_name = details.lender_name ?? this.lender_name;
-    this.borrowed_amount = details.borrowed_amount ?? this.borrowed_amount;
-    (this.description = details.description ?? this.description),
-      (this.datetime_opened = details.datetime_opened ?? this.datetime_opened);
-    this.datetime_due = details.datetime_due ?? this.datetime_due;
-    this.datetime_closed = details.datetime_closed ?? this.datetime_closed;
-    this.is_active = details.is_active ?? this.is_active;
-    this.user_opener = details.user_opener ?? this.user_opener;
-    this.user_closer = details.user_closer ?? this.user_closer;
-    return this;
+    Object.assign(this, details);
   }
 }
 

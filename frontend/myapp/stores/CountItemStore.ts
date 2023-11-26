@@ -1,5 +1,13 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Model, _async, _await, model, modelFlow, prop } from "mobx-keystone";
+import {
+  Model,
+  _async,
+  _await,
+  model,
+  modelAction,
+  modelFlow,
+  prop,
+} from "mobx-keystone";
 
 @model("myApp/CountItem")
 export class CountItem extends Model({
@@ -9,16 +17,18 @@ export class CountItem extends Model({
   datetime_counted: prop<string>(""),
   product: prop<number>(-1),
   user_counter: prop<string>(""),
-}) {
-  get asJson() {
-    return {};
-  }
-}
+}) {}
 
 @model("myApp/CountItemStore")
 export class CountItemStore extends Model({
   countItems: prop<CountItem[]>(() => []),
 }) {
+  @modelAction
+  getItem(id?: number) {
+    if (!id) return;
+    return this.countItems.find((s) => s.id === id);
+  }
+
   @modelFlow
   addItem = _async(function* (
     this: CountItemStore,

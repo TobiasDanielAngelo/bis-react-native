@@ -22,7 +22,7 @@ const submodules = [
 
 export const InventoryModule = observer(() => {
   const [view, setView] = useState(defaultLogo);
-  const { purchaseStore, product2Store } = useStore();
+  const { purchaseStore, productStore } = useStore();
 
   const getPurchases = useCallback(() => {
     purchaseStore.fetchAll({ isActive: true });

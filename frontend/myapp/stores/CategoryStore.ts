@@ -23,21 +23,8 @@ export class Category extends Model({
   title: prop<string>(""),
   logo: prop<string>(""),
 }) {
-  get asJson() {
-    return {
-      id: this.id,
-      nature: this.nature,
-      title: this.title,
-      logo: this.logo,
-    };
-  }
-
   update(details: CategoryInterface) {
-    this.id = details.id ?? this.id;
-    this.nature = details.nature ?? this.nature;
-    this.title = details.title ?? this.title;
-    this.logo = details.logo ?? this.logo;
-    return this;
+    Object.assign(this, details);
   }
 }
 
@@ -55,7 +42,7 @@ export class CategoryStore extends Model({
   }
 
   @modelFlow
-  fetchCategories = _async(function* (this: CategoryStore) {
+  fetchAll = _async(function* (this: CategoryStore) {
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";

@@ -1,5 +1,28 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Model, _async, _await, model, modelFlow, prop } from "mobx-keystone";
+import {
+  Model,
+  _async,
+  _await,
+  model,
+  modelAction,
+  modelFlow,
+  prop,
+} from "mobx-keystone";
+
+export interface SaleItemInterface {
+  id?: number;
+  description?: string;
+  unit?: string;
+  quantity?: number;
+  is_claimed?: boolean;
+  selling_price?: number;
+  datetime_added?: string;
+  datetime_claimed?: string;
+  sales?: number;
+  product?: number;
+  user_adder?: string;
+  user_giver?: string;
+}
 
 @model("myApp/SalesItem")
 export class SalesItem extends Model({
@@ -16,11 +39,19 @@ export class SalesItem extends Model({
   user_adder: prop<string>(""),
   user_giver: prop<string>(""),
 }) {
-  get asJson() {
-    return {};
-  }
-
-  update() {
+  update(details: SaleItemInterface) {
+    this.id = details.id ?? this.id;
+    this.description = details.description ?? this.description;
+    this.unit = details.unit ?? this.unit;
+    this.quantity = details.quantity ?? this.quantity;
+    this.is_claimed = details.is_claimed ?? this.is_claimed;
+    this.selling_price = details.selling_price ?? this.selling_price;
+    this.datetime_added = details.datetime_added ?? this.datetime_added;
+    this.datetime_claimed = details.datetime_claimed ?? this.datetime_claimed;
+    this.sales = details.sales ?? this.sales;
+    this.product = details.product ?? this.product;
+    this.user_adder = details.user_adder ?? this.user_adder;
+    this.user_giver = details.user_giver ?? this.user_giver;
     return this;
   }
 }
@@ -31,6 +62,12 @@ export class SalesItemStore extends Model({
 }) {
   get allIDs() {
     return this.salesItems.map((s) => s.id);
+  }
+
+  @modelAction
+  getItem(id?: number) {
+    if (!id) return;
+    return this.salesItems.find((s) => s.id === id);
   }
 
   @modelFlow

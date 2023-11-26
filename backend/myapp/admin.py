@@ -10,15 +10,13 @@ from .models import (
     Product,
     ProductImageLineItem,
     SparePart,
-    Transaction,
-    TransactionLineItem,
     Sale,
     Purchase,
     PurchaseItem,
     ReturnedItem,
     SalesItem,
     LaborItem,
-    Transaction2,
+    Transaction,
     Receivable,
     Payable,
     CountItem,
@@ -27,11 +25,6 @@ from .models import (
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImageLineItem
-
-
-class TransactionItemInline(admin.TabularInline):
-    min_num = 1
-    model = TransactionLineItem
 
 
 class SalesItemInline(admin.TabularInline):
@@ -65,19 +58,6 @@ class AccountAdmin(admin.ModelAdmin):
 class TransactionAdmin(admin.ModelAdmin):
     model = Transaction
     list_display = (
-        "category",
-        "description",
-        "datetime_transacted",
-        "pk",
-        "transmitter",
-        "receiver",
-    )
-    inlines = (TransactionItemInline,)
-
-
-class Transaction2Admin(admin.ModelAdmin):
-    model = Transaction2
-    list_display = (
         "id",
         "category",
         "description",
@@ -90,7 +70,7 @@ class Transaction2Admin(admin.ModelAdmin):
 
 class ProductAdmin(admin.ModelAdmin):
     model = Product
-    list_display = ("part", "generic", "purchase_price", "sell_price", "pk")
+    list_display = ("part", "purchase_price", "sell_price", "pk")
     inlines = (ProductImageInline,)
 
 
@@ -158,7 +138,6 @@ admin.site.register(MyUser, MyUserAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Transaction, TransactionAdmin)
-admin.site.register(Transaction2, Transaction2Admin)
 admin.site.register(Account, AccountAdmin)
 admin.site.register(Sale, SalesAdmin)
 admin.site.register(Purchase, PurchaseAdmin)

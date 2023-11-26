@@ -19,7 +19,7 @@ const hasIntersect = (arr1: any[], arr2: any[]) => {
 export const C4CheckView = observer((props: { isVisible?: boolean }) => {
   const { isVisible } = props;
 
-  const { product2Store, sparePartStore, motorStore } = useStore();
+  const { productStore, sparePartStore, motorStore } = useStore();
 
   const [location, setLocation] = useState("");
   const [part, setPart] = useState(-1);
@@ -27,10 +27,10 @@ export const C4CheckView = observer((props: { isVisible?: boolean }) => {
   const [index, setIndex] = useState(0);
 
   const allLocations = removeDuplicates(
-    product2Store.products.map((s) => s.location)
+    productStore.products.map((s) => s.location)
   ).sort((a, b) => (a >= b ? 1 : -1));
 
-  const productsByLocation = product2Store.products
+  const productsByLocation = productStore.products
     .filter((s) => s.location === location)
     .sort((a, b) =>
       new Date(a.datetime_updated).getTime() >

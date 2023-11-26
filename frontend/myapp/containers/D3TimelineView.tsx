@@ -75,7 +75,7 @@ export const D3TimelineView = observer((props: { isVisible?: boolean }) => {
   const getAccounts = async () => {
     let dps = [] as DatePriceLoading[];
     for (let i = 0; i < dates.length; i++) {
-      const resp = await accountStore.fetchAccounts({
+      const resp = await accountStore.fetchAll({
         endDate: dates[i].toISOString(),
       });
       resp.data?.forEach((s) =>
@@ -104,7 +104,6 @@ export const D3TimelineView = observer((props: { isVisible?: boolean }) => {
       .flat(1);
 
     setDataPoints(dp);
-    console.log(dp);
   }, [mode]);
 
   return (

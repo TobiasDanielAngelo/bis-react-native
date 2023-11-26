@@ -21,7 +21,8 @@ export const A2CompensateView = observer((props: { isVisible?: boolean }) => {
         return { sale: s, labor: t };
       });
     })
-    .flat(1);
+    .flat(1)
+    .filter((s) => s.sale.is_active);
 
   const totalToReturn = totalValue(
     labors

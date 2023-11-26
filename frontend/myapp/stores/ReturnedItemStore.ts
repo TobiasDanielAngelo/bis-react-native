@@ -1,5 +1,17 @@
 import { Model, model, prop } from "mobx-keystone";
 
+export interface ReturnedItemInterface {
+  id?: number;
+  quantity?: number;
+  description?: string;
+  unit?: string;
+  selling_price?: number;
+  datetime_added?: string;
+  sales?: number;
+  product?: number;
+  user?: string;
+}
+
 @model("myApp/ReturnedItem")
 export class ReturnedItem extends Model({
   id: prop<number>(-1),
@@ -12,7 +24,7 @@ export class ReturnedItem extends Model({
   product: prop<number>(-1),
   user: prop<string>(""),
 }) {
-  get asJson() {
-    return {};
+  update(details: ReturnedItemInterface) {
+    Object.assign(this, details);
   }
 }

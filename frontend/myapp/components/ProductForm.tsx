@@ -52,7 +52,7 @@ export const ProductForm = observer(
       setMotors,
     } = props;
 
-    const { sparePartStore, motorStore, product2Store } = useStore();
+    const { sparePartStore, motorStore, productStore } = useStore();
     const [status, setStatus] = useState({
       message: "",
       status: "",
@@ -193,7 +193,7 @@ export const ProductForm = observer(
         datetime_updated: new Date().toISOString(),
       };
 
-      const resp = await product2Store.addProduct(productDetails);
+      const resp = await productStore.addProduct(productDetails);
       if (!resp.ok) {
         setStatus({
           ...status,
@@ -226,10 +226,7 @@ export const ProductForm = observer(
         is_orig: details.isOrig,
       };
 
-      const resp = await product2Store.updateProduct(
-        details.id,
-        productDetails
-      );
+      const resp = await productStore.updateProduct(details.id, productDetails);
       if (!resp.ok) {
         setStatus({
           ...status,

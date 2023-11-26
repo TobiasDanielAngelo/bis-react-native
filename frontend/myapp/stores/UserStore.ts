@@ -11,42 +11,31 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface UserInterface {
-  username: string;
-  userId: string;
-  firstName: string;
-  lastName: string;
-  privilege: string;
-  isActive: boolean;
+  username?: string;
+  user_id?: string;
+  first_name?: string;
+  last_name?: string;
+  privilege?: string;
+  isActive?: boolean;
 }
 
 @model("myApp/User")
 export class User extends Model({
   username: prop<string>(""),
-  userId: prop<string>(""),
-  firstName: prop<string>(""),
-  lastName: prop<string>(""),
+  user_id: prop<string>(""),
+  first_name: prop<string>(""),
+  last_name: prop<string>(""),
   privilege: prop<string>(""),
-  isActive: prop<boolean>(true),
-}) {
-  get asJson() {
-    return {
-      username: this.username,
-      userId: this.userId,
-      firstName: this.firstName,
-      lastName: this.lastName,
-      privilege: this.privilege,
-      isActive: this.isActive,
-    };
-  }
-}
+  is_active: prop<boolean>(true),
+}) {}
 
 export const defaultUser = new User({
   username: "",
-  userId: "",
-  firstName: "",
-  lastName: "",
+  user_id: "",
+  first_name: "",
+  last_name: "",
   privilege: "",
-  isActive: true,
+  is_active: true,
 });
 
 @model("myApp/UserStore")
@@ -54,11 +43,6 @@ export class UserStore extends Model({
   users: prop<User[]>(() => []),
   currentUser: prop<User>(() => defaultUser),
 }) {
-  @modelAction
-  addUser(credentials: UserInterface) {
-    this.users.push(new User(credentials));
-  }
-
   @modelFlow
   fetchUser = _async(function* (this: UserStore, userId: string) {
     let token: string;
@@ -89,7 +73,7 @@ export class UserStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: UserInterface;
+    let json: User;
     try {
       const resp = yield* _await(response.json());
       json = resp[0];
@@ -134,7 +118,7 @@ export class UserStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: UserInterface;
+    let json: User;
     try {
       const resp = yield* _await(response.json());
       json = resp.user;
@@ -145,13 +129,9 @@ export class UserStore extends Model({
       return { details: "Parsing Error", ok: false, data: null };
     }
 
-    let user: User;
+    this.currentUser = new User(json);
 
-    user = new User(json);
-
-    this.users.push(user);
-
-    return { details: "", ok: true, data: user };
+    return { details: "", ok: true, data: this.currentUser };
   });
 
   @modelFlow
@@ -227,7 +207,7 @@ export class UserStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: UserInterface;
+    let json: User;
     try {
       const resp = yield* _await(response.json());
       json = resp.user;
@@ -236,13 +216,9 @@ export class UserStore extends Model({
       return { details: "Parsing Error", ok: false, data: null };
     }
 
-    let user: User;
+    this.currentUser = new User(json);
 
-    user = new User(json);
-
-    if (!this.users.includes(user)) this.users.push(user);
-
-    return { details: "", ok: true, data: user };
+    return { details: "", ok: true, data: this.currentUser };
   });
 }
 

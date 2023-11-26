@@ -15,13 +15,13 @@ export const PurchaseChosenCard = observer(
   (props: { hidden?: boolean; item: PurchaseItem; locked?: boolean }) => {
     const { item, hidden, locked } = props;
 
-    const { product2Store, sparePartStore, purchaseStore } = useStore();
+    const { productStore, sparePartStore, purchaseStore } = useStore();
     const [isVisible1, setVisible1] = useState(false);
     const [value, setValue] = useState("0");
 
-    const product = product2Store.getItem(item.product);
+    const product = productStore.getItem(item.product);
 
-    const similarProducts = product2Store.products.filter(
+    const similarProducts = productStore.products.filter(
       (s) =>
         s.part === product?.part &&
         s.description === product.description &&
@@ -78,7 +78,7 @@ export const PurchaseChosenCard = observer(
     };
 
     const onPressBrand = (newId: number) => {
-      const newProduct = product2Store.getItem(newId);
+      const newProduct = productStore.getItem(newId);
       if (!newProduct) return;
       purchaseStore.updateItemParticularPurchase(
         {

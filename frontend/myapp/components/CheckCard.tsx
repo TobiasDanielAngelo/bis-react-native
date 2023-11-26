@@ -23,7 +23,7 @@ export const CheckCard = observer(
     const { item, hidden, locked, noActions } = props;
     const {
       sparePartStore,
-      product2Store,
+      productStore,
       countItemStore,
       motorStore,
       transactionStore,
@@ -78,12 +78,12 @@ export const CheckCard = observer(
 
     const onPressCheck1 = () => {
       if (details.location.length !== 1) return;
-      product2Store.updateProduct(item.id, { location: details.location });
+      productStore.updateProduct(item.id, { location: details.location });
     };
 
     const onPressCheck2 = () => {
       if (isNaN(parseFloat(details.toPrint))) return;
-      product2Store.updateProduct(item.id, {
+      productStore.updateProduct(item.id, {
         print_count: toNumber(details.toPrint),
       });
     };
@@ -94,7 +94,7 @@ export const CheckCard = observer(
         quantity: toNumber(details.quantity) - netQty,
         product: item.id,
       });
-      product2Store.updateProduct(item.id, {
+      productStore.updateProduct(item.id, {
         datetime_updated: new Date().toISOString(),
       });
       if (toNumber(details.quantity) > netQty) {
@@ -120,7 +120,7 @@ export const CheckCard = observer(
     };
 
     const onPressRefresh = () => {
-      product2Store.fetchProduct(item.id);
+      productStore.fetchProduct(item.id);
       setDetails({ ...details, quantity: "" });
     };
 

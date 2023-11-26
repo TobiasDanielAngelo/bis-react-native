@@ -15,16 +15,7 @@ export class SparePart extends Model({
   name: prop<string>(""),
   is_motor_shown: prop<boolean>(true),
   is_semi_shown: prop<boolean>(false),
-}) {
-  get asJson() {
-    return {
-      id: this.id,
-      name: this.name,
-      is_motor_shown: this.is_motor_shown,
-      is_semi_shown: this.is_semi_shown,
-    };
-  }
-}
+}) {}
 
 @model("myApp/SparePartStore")
 export class SparePartStore extends Model({
@@ -32,6 +23,12 @@ export class SparePartStore extends Model({
 }) {
   get allIDs() {
     return this.spareParts.map((s) => s.id);
+  }
+
+  @modelAction
+  getItem(id?: number) {
+    if (!id) return;
+    return this.spareParts.find((s) => s.id === id);
   }
 
   @modelAction
@@ -45,7 +42,7 @@ export class SparePartStore extends Model({
   }
 
   @modelFlow
-  fetchSpareParts = _async(function* (this: SparePartStore) {
+  fetchAll = _async(function* (this: SparePartStore) {
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";

@@ -41,7 +41,6 @@ export const MyLineChart = (props: {
           xLabelsOffset={20}
           verticalLabelRotation={270}
           onDataPointClick={(d) => {
-            console.log(d.value, data.labels[d.index]);
             setDataPoint({ label: data.labels[d.index], price: d.value });
           }}
           bezier

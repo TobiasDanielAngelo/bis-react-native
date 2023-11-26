@@ -22,8 +22,6 @@ export const C5HistoryView = observer((props: { isVisible?: boolean }) => {
   const [order, setOrder] = useState(-1);
   const [index, setIndex] = useState(0);
 
-  console.log(month);
-
   const currentOrder = purchaseStore.getItem(order);
   const purchaseItems = currentOrder?.purchase_item;
 

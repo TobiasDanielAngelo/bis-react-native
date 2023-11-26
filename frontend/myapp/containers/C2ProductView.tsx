@@ -40,7 +40,7 @@ const hasIntersect = (arr1: any[], arr2: any[]) => {
 
 export const C2ProductView = observer((props: { isVisible?: boolean }) => {
   const { isVisible } = props;
-  const { product2Store, sparePartStore } = useStore();
+  const { productStore, sparePartStore } = useStore();
   const [value, setValue] = useState("");
   const [index, setIndex] = useState(0);
   const [mode, setMode] = useState(0);
@@ -86,7 +86,7 @@ export const C2ProductView = observer((props: { isVisible?: boolean }) => {
         }`.toUpperCase();
   };
 
-  const productMatches = product2Store.products.filter((s: Product) => {
+  const productMatches = productStore.products.filter((s: Product) => {
     if (query === "") {
       return;
     } else if (isSubString(toProductName(s), query)) {
@@ -96,7 +96,7 @@ export const C2ProductView = observer((props: { isVisible?: boolean }) => {
     }
   });
 
-  const similarProducts = product2Store.products.filter(
+  const similarProducts = productStore.products.filter(
     (s) =>
       parseInt(s.part) === details.part &&
       isSubString(s.brand, details.brand) &&

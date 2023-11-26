@@ -1,5 +1,20 @@
 import { Model, model, prop } from "mobx-keystone";
 
+export interface PurchaseItemInterface {
+  id?: number;
+  purchase?: number;
+  product?: number;
+  description?: string;
+  unit?: string;
+  quantity?: number;
+  is_valid?: boolean;
+  purchase_price?: number;
+  user_adder?: string;
+  user_giver?: string;
+  datetime_added?: string;
+  datetime_claimed?: string;
+}
+
 @model("myApp/PurchaseItem")
 export class PurchaseItem extends Model({
   id: prop<number>(-1),
@@ -15,11 +30,7 @@ export class PurchaseItem extends Model({
   datetime_added: prop<string>(""),
   datetime_claimed: prop<string>(""),
 }) {
-  get asJson() {
-    return {};
-  }
-
-  update() {
-    return this;
+  update(details: PurchaseItemInterface) {
+    Object.assign(this, details);
   }
 }

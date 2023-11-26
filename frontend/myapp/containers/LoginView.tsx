@@ -34,7 +34,7 @@ export const LoginView = () => {
       setLoading(false);
       navigate("/home");
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

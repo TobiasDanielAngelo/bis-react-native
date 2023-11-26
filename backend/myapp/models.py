@@ -1,9 +1,9 @@
-from django.db import models
+import uuid
+
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
-from django.core.exceptions import ValidationError
+from django.db import models
 from django.utils import timezone
-import uuid
 
 
 class MyUser(AbstractUser):
@@ -56,7 +56,6 @@ class Product(models.Model):
         SparePart, on_delete=models.CASCADE, related_name="product_part", null=True
     )
     motors = models.CharField(max_length=1000, default="", blank=True)
-    generic = models.CharField(max_length=200, default="", blank=True)
     datetime_added = models.DateTimeField(default=timezone.now, blank=True)
     is_active = models.BooleanField(default=True)
     location = models.CharField(max_length=30)
@@ -68,8 +67,7 @@ class Product(models.Model):
     datetime_updated = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        # return f"{self.pk}"
-        return f"{self.generic}"
+        return f"{self.part} {self.description} {self.brand} {'ORIG.' if self.is_orig else 'SEMI.'} {self.motors[0:5]}"
 
 
 class ProductImageLineItem(models.Model):
@@ -106,60 +104,23 @@ class Transaction(models.Model):
         null=True,
     )
     encoder = models.ForeignKey(
-        MyUser, on_delete=models.SET_NULL, null=True, related_name="transaction_encoder"
-    )
-    datetime_transacted = models.DateTimeField(default=timezone.now)
-    description = models.CharField(max_length=200, default="")
-    transmitter = models.CharField(max_length=30)
-    receiver = models.CharField(max_length=30)
-
-    def __str__(self):
-        return f"{self.description}"
-
-
-class TransactionLineItem(models.Model):
-    transaction = models.ForeignKey(
-        Transaction, on_delete=models.CASCADE, related_name="particular_transaction"
-    )
-    description = models.CharField(max_length=200, default="")
-    remarks = models.CharField(max_length=200, default="", blank=True)
-    # quantity = models.IntegerField(validators=[MinValueValidator(0)], default=1)
-    quantity = models.DecimalField(
-        default=1, decimal_places=2, max_digits=10, validators=[MinValueValidator(0)]
-    )
-    unit_amount = models.DecimalField(
-        max_digits=15, decimal_places=2, validators=[MinValueValidator(0)]
-    )
-
-    def __str__(self):
-        return "%d of %s @ %.2f" % (self.quantity, self.description, self.unit_amount)
-
-
-class Transaction2(models.Model):
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.SET_NULL,
-        related_name="transaction2_category",
-        null=True,
-    )
-    encoder = models.ForeignKey(
         MyUser,
         on_delete=models.SET_NULL,
         null=True,
-        related_name="transaction2_encoder",
+        related_name="transaction_encoder",
     )
     description = models.CharField(max_length=200, default="")
     transmitter = models.ForeignKey(
         Account,
         on_delete=models.SET_NULL,
-        related_name="transaction2_transmitter",
+        related_name="transaction_transmitter",
         blank=True,
         null=True,
     )
     receiver = models.ForeignKey(
         Account,
         on_delete=models.SET_NULL,
-        related_name="transaction2_receiver",
+        related_name="transaction_receiver",
         blank=True,
         null=True,
     )
@@ -201,7 +162,7 @@ class Purchase(models.Model):
 
 class Receivable(models.Model):
     payment = models.ManyToManyField(
-        Transaction2,
+        Transaction,
         blank=True,
         related_name="payment_receivable",
     )
@@ -235,7 +196,7 @@ class Receivable(models.Model):
 
 class Payable(models.Model):
     payment = models.ManyToManyField(
-        Transaction2,
+        Transaction,
         blank=True,
         related_name="payment_payable",
     )
@@ -274,7 +235,7 @@ class Sale(models.Model):
         ("3", "paid"),
     )
     payment = models.ManyToManyField(
-        Transaction2,
+        Transaction,
         # on_delete=models.SET_NULL,
         blank=True,
         related_name="payment_sales",

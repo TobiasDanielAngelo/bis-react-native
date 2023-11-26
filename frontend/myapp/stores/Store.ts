@@ -5,7 +5,7 @@ import { CountItemStore, countItemStore } from "./CountItemStore";
 import { MechanicStore, mechanicStore } from "./MechanicStore";
 import { MotorStore, motorStore } from "./MotorStore";
 import { PayableStore, payableStore } from "./PayableStore";
-import { ProductStore, product2Store } from "./ProductStore";
+import { ProductStore, productStore } from "./ProductStore";
 import { PurchaseStore, purchaseStore } from "./PurchaseStore";
 import { ReceivableStore, receivableStore } from "./ReceivableStore";
 import { SalesItemStore, salesItemStore } from "./SalesItemStore";
@@ -17,7 +17,7 @@ import { UserStore, userStore } from "./UserStore";
 class Store {
   userStore: UserStore;
   motorStore: MotorStore;
-  product2Store: ProductStore;
+  productStore: ProductStore;
   sparePartStore: SparePartStore;
   mechanicStore: MechanicStore;
   transactionStore: TransactionStore;
@@ -33,7 +33,7 @@ class Store {
   constructor() {
     this.userStore = userStore;
     this.motorStore = motorStore;
-    this.product2Store = product2Store;
+    this.productStore = productStore;
     this.sparePartStore = sparePartStore;
     this.mechanicStore = mechanicStore;
     this.transactionStore = transactionStore;

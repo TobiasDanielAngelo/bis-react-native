@@ -9,7 +9,7 @@ import {
   prop,
 } from "mobx-keystone";
 
-export interface Transaction2Interface {
+export interface TransactionInterface {
   id?: number;
   description?: string;
   amount?: number;
@@ -20,8 +20,8 @@ export interface Transaction2Interface {
   receiver?: number;
 }
 
-@model("myApp/Transaction2")
-export class Transaction2 extends Model({
+@model("myApp/Transaction")
+export class Transaction extends Model({
   id: prop<number>(-1),
   description: prop<string>(""),
   amount: prop<number>(0),
@@ -31,35 +31,14 @@ export class Transaction2 extends Model({
   transmitter: prop<number>(-1),
   receiver: prop<number>(-1),
 }) {
-  get asJson() {
-    return {
-      id: this.id,
-      description: this.description,
-      amount: this.amount,
-      datetime_transacted: this.datetime_transacted,
-      category: this.category,
-      encoder: this.encoder,
-      transmitter: this.transmitter,
-      receiver: this.receiver,
-    };
-  }
-
-  update(details: Transaction2Interface) {
-    this.description = details.description ?? this.description;
-    this.amount = details.amount ?? this.amount;
-    this.datetime_transacted =
-      details.datetime_transacted ?? this.datetime_transacted;
-    this.category = details.category ?? this.category;
-    this.encoder = details.encoder ?? this.encoder;
-    this.transmitter = details.transmitter ?? this.transmitter;
-    this.receiver = details.receiver ?? this.receiver;
-    return this;
+  update(details: TransactionInterface) {
+    Object.assign(this, details);
   }
 }
 
 @model("myApp/TransactionStore")
 export class TransactionStore extends Model({
-  transactions: prop<Transaction2[]>(() => []),
+  transactions: prop<Transaction[]>(() => []),
 }) {
   get allIDs() {
     return this.transactions.map((s) => s.id);
@@ -105,7 +84,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/transactions2/${query}`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -126,7 +105,7 @@ export class TransactionStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: Transaction2[];
+    let json: Transaction[];
     try {
       const resp = yield* _await(response.json());
 
@@ -138,7 +117,7 @@ export class TransactionStore extends Model({
 
     json.forEach((s) => {
       if (!this.allIDs.includes(s.id)) {
-        this.transactions.push(new Transaction2(s));
+        this.transactions.push(new Transaction(s));
       } else {
         this.transactions
           .find((t) => t.id === s.id)
@@ -166,7 +145,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/transactions2/?ids=${ids.join("+")}`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/?ids=${ids.join("+")}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -187,7 +166,7 @@ export class TransactionStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: Transaction2[];
+    let json: Transaction[];
     try {
       const resp = yield* _await(response.json());
 
@@ -199,7 +178,7 @@ export class TransactionStore extends Model({
 
     json.forEach((s) => {
       if (!this.allIDs.includes(s.id)) {
-        this.transactions.push(new Transaction2(s));
+        this.transactions.push(new Transaction(s));
       } else {
         this.transactions
           .find((t) => t.id === s.id)
@@ -250,7 +229,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/transactions2/`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/`, {
         method: "POST",
         body: JSON.stringify(transactionDetails),
         headers: {
@@ -272,7 +251,7 @@ export class TransactionStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: Transaction2;
+    let json: Transaction;
     try {
       const resp = yield* _await(response.json());
       json = resp;
@@ -281,9 +260,9 @@ export class TransactionStore extends Model({
       return { details: "Parsing Error", ok: false, data: null };
     }
 
-    let transaction: Transaction2;
+    let transaction: Transaction;
 
-    transaction = new Transaction2(json);
+    transaction = new Transaction(json);
 
     this.transactions.push(transaction);
 
@@ -294,7 +273,7 @@ export class TransactionStore extends Model({
   updateItem = _async(function* (
     this: TransactionStore,
     transactionId: number,
-    details: Transaction2Interface
+    details: TransactionInterface
   ) {
     let token: string;
 
@@ -303,7 +282,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/transactions2/${transactionId}/`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/${transactionId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -325,7 +304,7 @@ export class TransactionStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
-    let json: Transaction2;
+    let json: Transaction;
     try {
       const resp = yield* _await(response.json());
       json = resp;
@@ -353,7 +332,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/transactions2/${transactionId}/`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/${transactionId}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

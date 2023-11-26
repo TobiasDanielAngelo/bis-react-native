@@ -25,22 +25,8 @@ export class Account extends Model({
   transmitted: prop<number>(0),
   received: prop<number>(0),
 }) {
-  get asJson() {
-    return {
-      id: this.id,
-      name: this.name,
-      datetime_added: this.datetime_added,
-      transmitted: this.transmitted,
-      received: this.received,
-    };
-  }
-
   update(details: AccountInterface) {
-    this.id = details.id ?? this.id;
-    this.name = details.name ?? this.name;
-    this.datetime_added = details.datetime_added ?? this.datetime_added;
-    this.transmitted = details.transmitted ?? this.transmitted;
-    this.received = details.received ?? this.received;
+    Object.assign(this, details);
   }
 }
 
@@ -59,7 +45,7 @@ export class AccountStore extends Model({
   }
 
   @modelFlow
-  fetchAccounts = _async(function* (
+  fetchAll = _async(function* (
     this: AccountStore,
     filters?: {
       startDate?: string;

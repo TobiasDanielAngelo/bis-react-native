@@ -14,15 +14,7 @@ export class Mechanic extends Model({
   id: prop<number>(-1),
   name: prop<string>(""),
   color: prop<string>(""),
-}) {
-  get asJson() {
-    return {
-      id: this.id,
-      name: this.name,
-      color: this.color,
-    };
-  }
-}
+}) {}
 
 @model("myApp/MechanicStore")
 export class MechanicStore extends Model({

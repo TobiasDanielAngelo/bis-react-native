@@ -36,7 +36,7 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
   const {
     purchaseStore,
     sparePartStore,
-    product2Store,
+    productStore,
     payableStore,
     transactionStore,
   } = useStore();
@@ -74,12 +74,12 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
   const totalAmountStock = totalValue(
     purchaseItems?.map((s) =>
       Math.round(
-        (product2Store.getItem(s.product)?.sell_price ?? 0) * s.quantity
+        (productStore.getItem(s.product)?.sell_price ?? 0) * s.quantity
       )
     )
   );
 
-  const productMatches = product2Store.products
+  const productMatches = productStore.products
     .filter((s: Product) => {
       if (query === "") {
         return;

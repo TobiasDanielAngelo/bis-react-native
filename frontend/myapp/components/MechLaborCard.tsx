@@ -62,7 +62,7 @@ export const MechLaborCard = observer(
               type: "sub",
             },
           ]}
-          price={item.labor.amount_received}
+          price={item.labor.amount_owed - item.labor.amount_returned}
           hidden={hidden}
           actions={[
             {

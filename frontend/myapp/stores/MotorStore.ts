@@ -14,15 +14,7 @@ export class Motor extends Model({
   id: prop<number>(-1),
   name: prop<string>(""),
   maker: prop<string>(""),
-}) {
-  get asJson() {
-    return {
-      id: this.id,
-      name: this.name,
-      maker: this.maker,
-    };
-  }
-}
+}) {}
 
 @model("myApp/MotorStore")
 export class MotorStore extends Model({
@@ -30,6 +22,12 @@ export class MotorStore extends Model({
 }) {
   get allIDs() {
     return this.motors.map((s) => s.id);
+  }
+
+  @modelAction
+  getItem(id?: number) {
+    if (!id) return;
+    return this.motors.find((s) => s.id === id);
   }
 
   @modelAction

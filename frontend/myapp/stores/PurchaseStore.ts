@@ -8,7 +8,7 @@ import {
   modelFlow,
   prop,
 } from "mobx-keystone";
-import { PurchaseItem } from "./PurchaseItemStore";
+import { PurchaseItem, PurchaseItemInterface } from "./PurchaseItemStore";
 
 export interface PurchaseInterface {
   id?: number;
@@ -36,69 +36,22 @@ export class Purchase extends Model({
   user_closer: prop<string>(""),
   purchase_item: prop<PurchaseItem[]>(),
 }) {
-  get asJson() {
-    return {
-      id: this.id,
-      supplier_name: this.supplier_name,
-      to_print: this.to_print,
-      status: this.status,
-      datetime_opened: this.datetime_opened,
-      datetime_closed: this.datetime_closed,
-      is_active: this.is_active,
-      user_adder: this.user_adder,
-      user_closer: this.user_closer,
-      purchase_item: this.purchase_item,
-    };
-  }
-
   update(details: PurchaseInterface) {
-    this.id = details.id ?? this.id;
-    this.supplier_name = details.supplier_name ?? this.supplier_name;
-    this.to_print = details.to_print ?? this.to_print;
-    this.status = details.status ?? this.status;
-    this.datetime_opened = details.datetime_opened ?? this.datetime_opened;
-    this.datetime_closed = details.datetime_closed ?? this.datetime_closed;
-    this.is_active = details.is_active ?? this.is_active;
-    this.user_adder = details.user_adder ?? this.user_adder;
-    this.user_closer = details.user_closer ?? this.user_closer;
-    this.purchase_item = details.purchase_item ?? this.purchase_item;
-
-    return this;
+    Object.assign(this, details);
   }
 
   updateParticularPurchase(
-    details: {
-      quantity?: number;
-      is_valid?: boolean;
-      datetime_claimed?: string;
-      user_giver?: string;
-      product?: number;
-      description?: string;
-      unit?: string;
-      purchase_price?: number;
-    },
+    details: PurchaseItemInterface,
     purchaseItemId: number
   ) {
     let purchaseItem = this.purchase_item.find((s) => s.id === purchaseItemId);
     if (purchaseItem) {
-      purchaseItem.quantity = details.quantity ?? purchaseItem.quantity;
-      purchaseItem.is_valid = details.is_valid ?? purchaseItem.is_valid;
-      purchaseItem.datetime_claimed =
-        details.datetime_claimed ?? purchaseItem.datetime_claimed;
-      purchaseItem.user_giver = details.user_giver ?? purchaseItem.user_giver;
-      purchaseItem.product = details.product ?? purchaseItem.product;
-      purchaseItem.description =
-        details.description ?? purchaseItem.description;
-      purchaseItem.unit = details.unit ?? purchaseItem.unit;
-      purchaseItem.purchase_price =
-        details.purchase_price ?? purchaseItem.purchase_price;
+      Object.assign(purchaseItem, details);
     }
-    return this;
   }
 
   addParticularPurchase(details: PurchaseItem) {
     this.purchase_item.push(details);
-    return this;
   }
 
   deleteParticularPurchase(purchaseItemId: number) {
@@ -106,7 +59,6 @@ export class Purchase extends Model({
       this.purchase_item.findIndex((s) => s.id === purchaseItemId),
       1
     );
-    return this;
   }
 }
 
@@ -156,7 +108,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases2/${query}`, {
+      fetch(`${process.env["BASE_URL"]}/purchases/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -190,20 +142,7 @@ export class PurchaseStore extends Model({
       if (!this.allIDs.includes(s.id ?? -1)) {
         this.purchases.push(new Purchase(s));
       } else {
-        this.purchases
-          .find((t) => t.id === s.id ?? -1)
-          ?.update({
-            id: s.id,
-            status: s.status,
-            to_print: s.to_print,
-            supplier_name: s.supplier_name,
-            datetime_opened: s.datetime_opened,
-            datetime_closed: s.datetime_closed,
-            is_active: s.is_active,
-            user_adder: s.user_adder,
-            user_closer: s.user_closer,
-            purchase_item: s.purchase_item,
-          });
+        this.purchases.find((t) => t.id === s.id ?? -1)?.update(s);
       }
     });
 
@@ -219,7 +158,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases2/${id}/`, {
+      fetch(`${process.env["BASE_URL"]}/purchases/${id}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -252,20 +191,7 @@ export class PurchaseStore extends Model({
     if (!this.allIDs.includes(id ?? -1)) {
       this.purchases.push(new Purchase(json));
     } else {
-      this.purchases
-        .find((t) => t.id === id ?? -1)
-        ?.update({
-          id: json.id,
-          status: json.status,
-          to_print: json.to_print,
-          supplier_name: json.supplier_name,
-          datetime_opened: json.datetime_opened,
-          datetime_closed: json.datetime_closed,
-          is_active: json.is_active,
-          user_adder: json.user_adder,
-          user_closer: json.user_closer,
-          purchase_item: json.purchase_item,
-        });
+      this.purchases.find((t) => t.id === id ?? -1)?.update(json);
     }
 
     return { details: "", ok: true, data: json };
@@ -288,7 +214,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases2/`, {
+      fetch(`${process.env["BASE_URL"]}/purchases/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -332,26 +258,9 @@ export class PurchaseStore extends Model({
   updateItem = _async(function* (
     this: PurchaseStore,
     purchaseId: number,
-    details: {
-      status?: string;
-      supplier_name?: string;
-      datetime_closed?: string;
-      is_active?: boolean;
-      user_validator?: string;
-      user_closer?: string;
-      to_print?: boolean;
-    }
+    details: PurchaseInterface
   ) {
-    this.purchases
-      .find((s) => purchaseId === s.id ?? -1)
-      ?.update({
-        status: details.status,
-        supplier_name: details.supplier_name,
-        datetime_closed: details.datetime_closed,
-        is_active: details.is_active,
-        user_closer: details.user_closer,
-        to_print: details.to_print,
-      });
+    this.purchases.find((s) => purchaseId === s.id ?? -1)?.update(details);
 
     let token: string;
 
@@ -360,7 +269,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases2/${purchaseId}/`, {
+      fetch(`${process.env["BASE_URL"]}/purchases/${purchaseId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -403,7 +312,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases2/${purchaseId}/`, {
+      fetch(`${process.env["BASE_URL"]}/purchases/${purchaseId}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",
@@ -434,14 +343,7 @@ export class PurchaseStore extends Model({
   @modelFlow
   addItemParticularPurchase = _async(function* (
     this: PurchaseStore,
-    details: {
-      description: string;
-      unit: string;
-      purchase_price: number;
-      product: number;
-      purchase: number;
-      quantity: number;
-    }
+    details: PurchaseItemInterface
   ) {
     let token: string;
 
@@ -497,16 +399,7 @@ export class PurchaseStore extends Model({
   @modelFlow
   updateItemParticularPurchase = _async(function* (
     this: PurchaseStore,
-    details: {
-      quantity?: number;
-      is_valid?: boolean;
-      datetime_claimed?: string;
-      user_giver?: string;
-      product?: number;
-      description?: string;
-      unit?: string;
-      purchase_price?: number;
-    },
+    details: PurchaseItemInterface,
     purchaseId: number,
     purchaseItemId: number
   ) {

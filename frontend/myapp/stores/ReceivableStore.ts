@@ -37,33 +37,8 @@ export class Receivable extends Model({
   user_opener: prop<string>(""),
   user_closer: prop<string>(""),
 }) {
-  get asJson() {
-    return {
-      id: this.id,
-      payment: this.payment,
-      borrower_name: this.borrower_name,
-      description: this.description,
-      lent_amount: this.lent_amount,
-      datetime_opened: this.datetime_opened,
-      datetime_due: this.datetime_due,
-      datetime_closed: this.datetime_closed,
-      is_active: this.is_active,
-      user_opener: this.user_opener,
-      user_closer: this.user_closer,
-    };
-  }
-
   update(details: ReceivableInterface) {
-    this.payment = details.payment ?? this.payment;
-    this.borrower_name = details.borrower_name ?? this.borrower_name;
-    this.lent_amount = details.lent_amount ?? this.lent_amount;
-    this.description = details.description ?? this.description;
-    this.datetime_opened = details.datetime_opened ?? this.datetime_opened;
-    this.datetime_due = details.datetime_due ?? this.datetime_due;
-    this.datetime_closed = details.datetime_closed ?? this.datetime_closed;
-    this.is_active = details.is_active ?? this.is_active;
-    this.user_opener = details.user_opener ?? this.user_opener;
-    this.user_closer = details.user_closer ?? this.user_closer;
+    Object.assign(this, details);
     return this;
   }
 }
@@ -148,21 +123,7 @@ export class ReceivableStore extends Model({
       if (!this.allIDs.includes(s.id ?? -1)) {
         this.receivables.push(new Receivable(s));
       } else {
-        this.receivables
-          .find((t) => t.id === s.id ?? -1)
-          ?.update({
-            id: s.id,
-            payment: s.payment,
-            borrower_name: s.borrower_name,
-            lent_amount: s.lent_amount,
-            datetime_opened: s.datetime_opened,
-            description: s.description,
-            datetime_due: s.datetime_due,
-            datetime_closed: s.datetime_closed,
-            is_active: s.is_active,
-            user_opener: s.user_opener,
-            user_closer: s.user_closer,
-          });
+        this.receivables.find((t) => t.id === s.id ?? -1)?.update(s);
       }
     });
 
@@ -211,21 +172,7 @@ export class ReceivableStore extends Model({
     if (!this.allIDs.includes(id ?? -1)) {
       this.receivables.push(new Receivable(json));
     } else {
-      this.receivables
-        .find((t) => t.id === id ?? -1)
-        ?.update({
-          id: json.id,
-          payment: json.payment,
-          borrower_name: json.borrower_name,
-          lent_amount: json.lent_amount,
-          description: json.description,
-          datetime_opened: json.datetime_opened,
-          datetime_due: json.datetime_due,
-          datetime_closed: json.datetime_closed,
-          is_active: json.is_active,
-          user_opener: json.user_opener,
-          user_closer: json.user_closer,
-        });
+      this.receivables.find((t) => t.id === id ?? -1)?.update(json);
     }
 
     return { details: "", ok: true, data: json };
@@ -234,12 +181,7 @@ export class ReceivableStore extends Model({
   @modelFlow
   addItem = _async(function* (
     this: ReceivableStore,
-    details: {
-      borrower_name: string;
-      lent_amount: number;
-      description: string;
-      datetime_due: string;
-    }
+    details: ReceivableInterface
   ) {
     const user = JSON.parse(
       (yield* _await(AsyncStorage.getItem("@currentUser"))) ?? ""
@@ -301,33 +243,9 @@ export class ReceivableStore extends Model({
   updateItem = _async(function* (
     this: ReceivableStore,
     receivableId: number,
-    details: {
-      payment?: number[];
-      borrower_name?: string;
-      lent_amount?: number;
-      description?: string;
-      datetime_opened?: string;
-      datetime_due?: string;
-      datetime_closed?: string;
-      is_active?: boolean;
-      user_opener?: string;
-      user_closer?: string;
-    }
+    details: ReceivableInterface
   ) {
-    this.receivables
-      .find((s) => receivableId === s.id ?? -1)
-      ?.update({
-        payment: details.payment,
-        borrower_name: details.borrower_name,
-        lent_amount: details.lent_amount,
-        description: details.description,
-        datetime_opened: details.datetime_opened,
-        datetime_due: details.datetime_due,
-        datetime_closed: details.datetime_closed,
-        is_active: details.is_active,
-        user_opener: details.user_opener,
-        user_closer: details.user_closer,
-      });
+    this.receivables.find((s) => receivableId === s.id ?? -1)?.update(details);
 
     let token: string;
 

@@ -10,25 +10,6 @@ import {
 } from "mobx-keystone";
 
 export interface ProductInterface {
-  id?: string;
-  piece_count: number;
-  unit: string;
-  description: string;
-  brand: string;
-  part: string;
-  motors: string;
-  datetime_added: string;
-  datetime_updated: string;
-  is_active: boolean;
-  location: string;
-  purchase_price: number;
-  sell_price: number;
-  min_quantity: number;
-  is_orig: boolean;
-  print_count: number;
-}
-
-export interface ProductUpdateInterface {
   piece_count?: number;
   unit?: string;
   description?: string;
@@ -73,51 +54,8 @@ export class Product extends Model({
   returned: prop<number>(0),
   counted: prop<number>(0),
 }) {
-  get asJson() {
-    return {
-      id: this.id,
-      piece_count: this.piece_count,
-      unit: this.unit,
-      description: this.description,
-      brand: this.brand,
-      part: this.part,
-      motors: this.motors,
-      datetime_added: this.datetime_added,
-      is_active: this.is_active,
-      location: this.location,
-      purchase_price: this.purchase_price,
-      sell_price: this.sell_price,
-      min_quantity: this.min_quantity,
-      is_orig: this.is_orig,
-      print_count: this.print_count,
-      datetime_updated: this.datetime_updated,
-      sold: this.sold,
-      returned: this.returned,
-      purchased: this.purchased,
-      counted: this.counted,
-    };
-  }
-
-  update(details: ProductUpdateInterface) {
-    this.piece_count = details.piece_count ?? this.piece_count;
-    this.unit = details.unit ?? this.unit;
-    this.description = details.description ?? this.description;
-    this.brand = details.brand ?? this.brand;
-    this.part = details.part ?? this.part;
-    this.motors = details.motors ?? this.motors;
-    this.datetime_added = details.datetime_added ?? this.datetime_added;
-    this.is_active = details.is_active ?? this.is_active;
-    this.location = details.location ?? this.location;
-    this.purchase_price = details.purchase_price ?? this.purchase_price;
-    this.sell_price = details.sell_price ?? this.sell_price;
-    this.min_quantity = details.min_quantity ?? this.min_quantity;
-    this.is_orig = details.is_orig ?? this.is_orig;
-    this.print_count = details.print_count ?? this.print_count;
-    this.datetime_updated = details.datetime_updated ?? this.datetime_updated;
-    this.sold = details.sold ?? this.sold;
-    this.returned = details.returned ?? this.returned;
-    this.purchased = details.purchased ?? this.purchased;
-    this.counted = details.counted ?? this.counted;
+  update(details: ProductInterface) {
+    Object.assign(this, details);
   }
 }
 
@@ -333,7 +271,7 @@ export class ProductStore extends Model({
   updateProduct = _async(function* (
     this: ProductStore,
     id: number,
-    details: ProductUpdateInterface
+    details: ProductInterface
   ) {
     let product = this.getItem(id);
 
@@ -384,4 +322,4 @@ export class ProductStore extends Model({
   });
 }
 
-export const product2Store = new ProductStore({});
+export const productStore = new ProductStore({});

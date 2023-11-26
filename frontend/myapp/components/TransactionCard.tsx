@@ -1,12 +1,12 @@
 import { observer } from "mobx-react-lite";
 import moment from "moment";
 import { MyCard } from "../blueprints/MyCard";
-import { Transaction2 } from "../stores/TransactionStore";
+import { Transaction } from "../stores/TransactionStore";
 
 export const TransactionCard = observer(
   (props: {
     hidden?: boolean;
-    item: Transaction2;
+    item: Transaction;
     locked?: boolean;
     hasDescription?: boolean;
     negative?: boolean;

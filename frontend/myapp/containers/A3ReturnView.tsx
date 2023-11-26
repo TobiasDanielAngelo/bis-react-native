@@ -1,18 +1,19 @@
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import { MyDatePicker } from "../blueprints/MyDatePicker";
+import { MyList } from "../blueprints/MyList";
 import { SearchBar } from "../blueprints/SearchBar";
 import { SearchResultList } from "../blueprints/SearchResultList";
-import { ReturnList } from "../components/ReturnList";
+import { ReturnCard } from "../components/ReturnCard";
 import { addDays } from "../constants/helpers";
-import { useStore } from "../stores/Store";
 import { Product } from "../stores/ProductStore";
+import { useStore } from "../stores/Store";
 
 export const A3ReturnView = observer((props: { isVisible?: boolean }) => {
   const { isVisible } = props;
 
-  const { product2Store, sparePartStore, salesItemStore, saleStore } =
+  const { productStore, sparePartStore, salesItemStore, saleStore } =
     useStore();
 
   const [date, setDate] = useState(new Date());
@@ -21,23 +22,25 @@ export const A3ReturnView = observer((props: { isVisible?: boolean }) => {
   const [focus, setFocus] = useState(false);
   const [item, setItem] = useState<Product>();
 
-  const toProductShortName = (t: Product) => {
-    return `${sparePartStore.sparePartName(parseInt(t.part))}${
-      t.description !== "" ? " " + t.description : ""
-    }${
-      t.motors !== "" &&
-      sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
-        ?.is_motor_shown
-        ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
-        : ""
-    }${t.brand !== "" ? " " + t.brand : ""}${
-      t.is_orig
-        ? " ORIG."
-        : sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
-            ?.is_semi_shown
-        ? " SEMI."
-        : ""
-    }`.toUpperCase();
+  const toProductShortName = (t?: Product) => {
+    return !t
+      ? ""
+      : `${sparePartStore.sparePartName(parseInt(t.part))}${
+          t.description !== "" ? " " + t.description : ""
+        }${
+          t.motors !== "" &&
+          sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+            ?.is_motor_shown
+            ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
+            : ""
+        }${t.brand !== "" ? " " + t.brand : ""}${
+          t.is_orig
+            ? " ORIG."
+            : sparePartStore.spareParts.find((s) => s.id === parseInt(t.part))
+                ?.is_semi_shown
+            ? " SEMI."
+            : ""
+        }`.toUpperCase();
   };
 
   const onPressResult = (t: Product) => {
@@ -66,7 +69,7 @@ export const A3ReturnView = observer((props: { isVisible?: boolean }) => {
     .filter((s) => s.product === item?.id)
     .filter((s) => saleStore.getItem(s.sales)?.status !== "1");
 
-  const productMatches = product2Store.products.filter((s: Product) => {
+  const productMatches = productStore.products.filter((s: Product) => {
     if (query === "") {
       return;
     } else if (
@@ -112,11 +115,16 @@ export const A3ReturnView = observer((props: { isVisible?: boolean }) => {
         />
 
         <View style={styles.body}>
-          <ReturnList
-            items={returnableItems}
-            title={item ? `Results for ${toProductShortName(item)}` : ""}
-            hidden={showSearchBar}
-          />
+          <MyList
+            hidden={showSearchBar || !item}
+            headNote={`Results for ${toProductShortName(item)}`}
+          >
+            <FlatList
+              data={returnableItems}
+              renderItem={({ item }) => <ReturnCard item={item} />}
+              keyboardShouldPersistTaps="always"
+            />
+          </MyList>
         </View>
         <View style={styles.bar}>
           <MyDatePicker

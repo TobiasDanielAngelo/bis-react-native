@@ -8,9 +8,9 @@ import {
   modelFlow,
   prop,
 } from "mobx-keystone";
-import { LaborItem } from "./LaborItemStore";
-import { ReturnedItem } from "./ReturnedItemStore";
-import { SalesItem } from "./SalesItemStore";
+import { LaborItem, LaborItemInterface } from "./LaborItemStore";
+import { ReturnedItem, ReturnedItemInterface } from "./ReturnedItemStore";
+import { SaleItemInterface, SalesItem } from "./SalesItemStore";
 
 export interface SaleInterface {
   id?: number;
@@ -48,106 +48,34 @@ export class Sale extends Model({
   labor_item: prop<LaborItem[]>(),
   returned_item: prop<ReturnedItem[]>(),
 }) {
-  get asJson() {
-    return {
-      id: this.id,
-      payment: this.payment,
-      status: this.status,
-      customer_name: this.customer_name,
-      datetime_opened: this.datetime_opened,
-      datetime_closed: this.datetime_closed,
-      is_active: this.is_active,
-      discount: this.discount,
-      user_adder: this.user_adder,
-      user_validator: this.user_validator,
-      user_closer: this.user_closer,
-      sales_item: this.sales_item,
-      labor_item: this.labor_item,
-      returned_item: this.returned_item,
-    };
-  }
-
   update(details: SaleInterface) {
-    this.payment = details.payment ?? this.payment;
-    this.to_print = details.to_print ?? this.to_print;
-    this.status = details.status ?? this.status;
-    this.customer_name = details.customer_name ?? this.customer_name;
-    this.datetime_opened = details.datetime_opened ?? this.datetime_opened;
-    this.datetime_closed = details.datetime_closed ?? this.datetime_closed;
-    this.is_active = details.is_active ?? this.is_active;
-    this.discount = details.discount ?? this.discount;
-    this.user_adder = details.user_adder ?? this.user_adder;
-    this.user_validator = details.user_validator ?? this.user_validator;
-    this.user_closer = details.user_closer ?? this.user_closer;
-    this.sales_item = details.sales_item ?? this.sales_item;
-    this.labor_item = details.labor_item ?? this.labor_item;
-    this.returned_item = details.returned_item ?? this.returned_item;
-    return this;
+    Object.assign(this, details);
   }
 
-  updateParticularSale(
-    details: {
-      quantity?: number;
-      is_claimed?: boolean;
-      datetime_claimed?: string;
-      user_giver?: string;
-    },
-    salesItemId: number
-  ) {
+  updateParticularSale(details: SaleItemInterface, salesItemId: number) {
     let salesItem = this.sales_item.find((s) => s.id === salesItemId);
     if (salesItem) {
-      salesItem.quantity = details.quantity ?? salesItem.quantity;
-      salesItem.is_claimed = details.is_claimed ?? salesItem.is_claimed;
-      salesItem.datetime_claimed =
-        details.datetime_claimed ?? salesItem.datetime_claimed;
-      salesItem.user_giver = details.user_giver ?? salesItem.user_giver;
+      Object.assign(salesItem, details);
     }
-    return this;
+  }
+
+  updateParticularLabor(details: LaborItemInterface, laborItemId: number) {
+    let laborItem = this.labor_item.find((s) => s.id === laborItemId);
+    if (laborItem) {
+      Object.assign(laborItem, details);
+    }
   }
 
   addParticularSale(details: SalesItem) {
     this.sales_item.push(details);
-    return this;
   }
 
   addParticularLabor(details: LaborItem) {
     this.labor_item.push(details);
-    return this;
   }
 
   addParticularReturn(details: ReturnedItem) {
     this.returned_item.push(details);
-    return this;
-  }
-
-  updateParticularLabor(
-    details: {
-      labor_name?: string;
-      is_done?: boolean;
-      amount_received?: number;
-      amount_returned?: number;
-      amount_owed?: number;
-      datetime_done?: string;
-      mechanic?: number;
-      user_giver?: string;
-    },
-    laborItemId: number
-  ) {
-    let laborItem = this.labor_item.find((s) => s.id === laborItemId);
-    if (laborItem) {
-      laborItem.labor_name = details.labor_name ?? laborItem.labor_name;
-      laborItem.is_done = details.is_done ?? laborItem.is_done;
-      laborItem.amount_received =
-        details.amount_received ?? laborItem.amount_received;
-      laborItem.amount_returned =
-        details.amount_returned ?? laborItem.amount_returned;
-      laborItem.amount_owed = details.amount_owed ?? laborItem.amount_owed;
-      laborItem.datetime_done =
-        details.datetime_done ?? laborItem.datetime_done;
-      laborItem.mechanic = details.mechanic ?? laborItem.mechanic;
-      laborItem.user_giver = details.user_giver ?? laborItem.user_giver;
-    }
-    return this;
   }
 
   deleteParticularSale(salesItemId: number) {
@@ -155,7 +83,6 @@ export class Sale extends Model({
       this.sales_item.findIndex((s) => s.id === salesItemId),
       1
     );
-    return this;
   }
 
   deleteParticularLabor(laborItemId: number) {
@@ -163,7 +90,6 @@ export class Sale extends Model({
       this.labor_item.findIndex((s) => s.id === laborItemId),
       1
     );
-    return this;
   }
 }
 
@@ -213,7 +139,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/sales2/${query}`, {
+      fetch(`${process.env["BASE_URL"]}/sales/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -247,25 +173,7 @@ export class SaleStore extends Model({
       if (!this.allIDs.includes(s.id ?? -1)) {
         this.sales.push(new Sale(s));
       } else {
-        this.sales
-          .find((t) => t.id === s.id ?? -1)
-          ?.update({
-            id: s.id,
-            to_print: s.to_print,
-            status: s.status,
-            payment: s.payment,
-            customer_name: s.customer_name,
-            datetime_opened: s.datetime_opened,
-            datetime_closed: s.datetime_closed,
-            is_active: s.is_active,
-            discount: s.discount,
-            user_adder: s.user_adder,
-            user_validator: s.user_validator,
-            user_closer: s.user_closer,
-            sales_item: s.sales_item,
-            labor_item: s.labor_item,
-            returned_item: s.returned_item,
-          });
+        this.sales.find((t) => t.id === s.id ?? -1)?.update(s);
       }
     });
 
@@ -281,7 +189,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/sales2/${id}/`, {
+      fetch(`${process.env["BASE_URL"]}/sales/${id}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -314,25 +222,7 @@ export class SaleStore extends Model({
     if (!this.allIDs.includes(id ?? -1)) {
       this.sales.push(new Sale(json));
     } else {
-      this.sales
-        .find((t) => t.id === id ?? -1)
-        ?.update({
-          id: json.id,
-          to_print: json.to_print,
-          status: json.status,
-          payment: json.payment,
-          customer_name: json.customer_name,
-          datetime_opened: json.datetime_opened,
-          datetime_closed: json.datetime_closed,
-          is_active: json.is_active,
-          discount: json.discount,
-          user_adder: json.user_adder,
-          user_validator: json.user_validator,
-          user_closer: json.user_closer,
-          sales_item: json.sales_item,
-          labor_item: json.labor_item,
-          returned_item: json.returned_item,
-        });
+      this.sales.find((t) => t.id === id ?? -1)?.update(json);
     }
 
     return { details: "", ok: true, data: json };
@@ -355,7 +245,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/sales2/`, {
+      fetch(`${process.env["BASE_URL"]}/sales/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -399,31 +289,9 @@ export class SaleStore extends Model({
   updateItem = _async(function* (
     this: SaleStore,
     saleId: number,
-    details: {
-      to_print?: boolean;
-      payment?: number[];
-      status?: string;
-      customer_name?: string;
-      datetime_closed?: string;
-      is_active?: boolean;
-      discount?: number;
-      user_validator?: string;
-      user_closer?: string;
-    }
+    details: SaleInterface
   ) {
-    this.sales
-      .find((s) => saleId === s.id ?? -1)
-      ?.update({
-        to_print: details.to_print,
-        payment: details.payment,
-        status: details.status,
-        customer_name: details.customer_name,
-        datetime_closed: details.datetime_closed,
-        is_active: details.is_active,
-        discount: details.discount,
-        user_validator: details.user_validator,
-        user_closer: details.user_closer,
-      });
+    this.sales.find((s) => saleId === s.id ?? -1)?.update(details);
 
     let token: string;
 
@@ -432,7 +300,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/sales2/${saleId}/`, {
+      fetch(`${process.env["BASE_URL"]}/sales/${saleId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -469,14 +337,7 @@ export class SaleStore extends Model({
   @modelFlow
   addItemParticularSale = _async(function* (
     this: SaleStore,
-    details: {
-      description: string;
-      unit: string;
-      selling_price: number;
-      product: number;
-      sales: number;
-      quantity: number;
-    }
+    details: SaleItemInterface
   ) {
     let token: string;
 
@@ -532,14 +393,7 @@ export class SaleStore extends Model({
   @modelFlow
   addItemParticularLabor = _async(function* (
     this: SaleStore,
-    details: {
-      labor_name: string;
-      amount_received: number;
-      amount_returned: number;
-      amount_owed: number;
-      sales: number;
-      mechanic: number;
-    }
+    details: LaborItemInterface
   ) {
     let token: string;
 
@@ -591,15 +445,7 @@ export class SaleStore extends Model({
   @modelFlow
   addItemParticularReturn = _async(function* (
     this: SaleStore,
-    details: {
-      quantity: number;
-      selling_price: number;
-      unit: string;
-      description: string;
-      datetime_added: string;
-      sales: number;
-      product: number;
-    }
+    details: ReturnedItemInterface
   ) {
     let token: string;
 
@@ -651,14 +497,7 @@ export class SaleStore extends Model({
   @modelFlow
   updateItemParticularSale = _async(function* (
     this: SaleStore,
-    details: {
-      quantity?: number;
-      is_claimed?: boolean;
-      datetime_claimed?: string;
-      user_giver?: string;
-      to_print?: boolean;
-      payment?: number[];
-    },
+    details: SaleItemInterface,
     salesId: number,
     salesItemId: number
   ) {
@@ -712,16 +551,7 @@ export class SaleStore extends Model({
   @modelFlow
   updateItemParticularLabor = _async(function* (
     this: SaleStore,
-    details: {
-      labor_name?: string;
-      is_done?: boolean;
-      amount_received?: number;
-      amount_returned?: number;
-      amount_owed?: number;
-      datetime_done?: string;
-      mechanic?: number;
-      user_giver?: string;
-    },
+    details: LaborItemInterface,
     salesId: number,
     laborItemId: number
   ) {

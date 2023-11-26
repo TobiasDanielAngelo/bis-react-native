@@ -208,7 +208,8 @@ export const SalesStatusBar = observer(
 
     const onPressStar = async (t: number, amountReturned: number) => {
       if (!sale?.id) return;
-      await saleStore.updateItemParticularLabor(
+      console.log("BOOOM", t, amountReturned);
+      saleStore.updateItemParticularLabor(
         { amount_returned: amountReturned },
         sale?.id,
         t

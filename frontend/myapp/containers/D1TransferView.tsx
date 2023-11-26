@@ -94,9 +94,6 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
     setDetails(defaultDetails);
   };
 
-  console.log(transfersToday.map((s) => s.category));
-  console.log(accountStore.accounts.map((s) => s.id));
-
   return (
     isVisible && (
       <View style={styles.main}>
@@ -168,7 +165,7 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
         <MyStatusBar
           action1={{
             name: "refresh",
-            onPress: () => accountStore.fetchAccounts(),
+            onPress: () => accountStore.fetchAll(),
           }}
         />
       </View>

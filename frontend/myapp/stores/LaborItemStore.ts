@@ -1,5 +1,20 @@
 import { Model, model, prop } from "mobx-keystone";
 
+export interface LaborItemInterface {
+  id?: number;
+  labor_name?: string;
+  is_done?: boolean;
+  amount_received?: number;
+  amount_returned?: number;
+  amount_owed?: number;
+  datetime_added?: string;
+  datetime_done?: string;
+  sales?: number;
+  mechanic?: number;
+  user_adder?: string;
+  user_giver?: string;
+}
+
 @model("myApp/LaborItem")
 export class LaborItem extends Model({
   id: prop<number>(-1),
@@ -15,11 +30,8 @@ export class LaborItem extends Model({
   user_adder: prop<string>(""),
   user_giver: prop<string>(""),
 }) {
-  get asJson() {
-    return {};
-  }
-
-  update() {
+  update(details: LaborItemInterface) {
+    Object.assign(this, details);
     return this;
   }
 }

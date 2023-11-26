@@ -18,7 +18,7 @@ import { Product } from "../stores/ProductStore";
 
 export const A1TransactView = observer((props: { isVisible?: boolean }) => {
   const { isVisible } = props;
-  const { saleStore, mechanicStore, sparePartStore, product2Store } =
+  const { saleStore, mechanicStore, sparePartStore, productStore, userStore } =
     useStore();
   const [selectedItem, setSelectedItem] = useState(-1);
   const [showSearchBar, setShowSearchBar] = useState(false);
@@ -163,7 +163,7 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
     setShowSearchBar(false);
   };
 
-  const productMatches = product2Store.products
+  const productMatches = productStore.products
     .filter((s) => !sale?.sales_item.map((t) => t.product).includes(s.id))
     .filter((s: Product) => {
       if (query === "") {
@@ -200,6 +200,8 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
     setShowSearchBar(false);
     setQuery("");
   }, [sale?.id]);
+
+  console.log(sale?.sales_item.map((s) => s.is_claimed));
 
   return (
     isVisible && (

@@ -35,7 +35,7 @@ const defaultProduct = {
 
 export const C1OrderView = observer((props: { isVisible?: boolean }) => {
   const { isVisible } = props;
-  const { sparePartStore, product2Store } = useStore();
+  const { sparePartStore, productStore } = useStore();
   const [showOrders, setShowOrders] = useState(true);
   const [part, setPart] = useState(-1);
   const [order, setOrder] = useState(-1);
@@ -51,7 +51,7 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
   const [details, setDetails] = useState(defaultProduct);
   const [motors, setMotors] = useState<number[]>([]);
 
-  const productMatches = product2Store.products.filter(
+  const productMatches = productStore.products.filter(
     (s) => parseInt(s.part) === part
   );
 

@@ -3,7 +3,6 @@ import json
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
-from .encoders import DecimalEncoder
 from .models import (
     Account,
     Category,
@@ -12,11 +11,9 @@ from .models import (
     MyUser,
     Product,
     SparePart,
-    Transaction,
     Receivable,
     Payable,
-    Transaction2,
-    TransactionLineItem,
+    Transaction,
     SalesItem,
     LaborItem,
     ReturnedItem,
@@ -137,12 +134,6 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class TransactionItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TransactionLineItem
-        fields = "__all__"
-
-
 class CountItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CountItem
@@ -218,15 +209,13 @@ class PurchaseSerializer(serializers.ModelSerializer):
         ]
 
 
-class Transaction2Serializer(serializers.ModelSerializer):
+class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Transaction2
+        model = Transaction
         fields = "__all__"
 
 
 class ReceivableSerializer(serializers.ModelSerializer):
-    # payment = Transaction2Serializer(many=True, required=False)
-
     class Meta:
         model = Receivable
         fields = [
@@ -245,8 +234,6 @@ class ReceivableSerializer(serializers.ModelSerializer):
 
 
 class PayableSerializer(serializers.ModelSerializer):
-    # payment = Transaction2Serializer(many=True, required=False)
-
     class Meta:
         model = Payable
         fields = [
@@ -262,56 +249,3 @@ class PayableSerializer(serializers.ModelSerializer):
             "user_opener",
             "user_closer",
         ]
-
-
-class TransactionSerializer(serializers.ModelSerializer):
-    particular_transaction = TransactionItemSerializer(many=True)
-
-    class Meta:
-        model = Transaction
-        fields = [
-            "pk",
-            "category",
-            "encoder",
-            "datetime_transacted",
-            "description",
-            "transmitter",
-            "receiver",
-            "particular_transaction",
-        ]
-
-    def create(self, validated_data):
-        transaction_item_data = validated_data.pop("particular_transaction")
-        transaction = Transaction.objects.create(**validated_data)
-        obj = json.loads(json.dumps(transaction_item_data, cls=DecimalEncoder))
-        for t in obj:
-            TransactionLineItem.objects.create(
-                transaction=transaction,
-                description=t["description"],
-                remarks=t["remarks"],
-                quantity=t["quantity"],
-                unit_amount=t["unit_amount"],
-            )
-        return transaction
-
-    def update(self, instance, validated_data):
-        instance.category = validated_data.get("category") or instance.category
-        instance.encoder = validated_data.get("encoder") or instance.encoder
-        instance.description = validated_data.get("description") or instance.description
-        instance.transmitter = validated_data.get("transmitter") or instance.transmitter
-        instance.receiver = validated_data.get("receiver") or instance.receiver
-        instance.save()
-        if validated_data.get("particular_transaction") is not None:
-            transaction_item_data = validated_data.pop("particular_transaction")
-            obj = json.loads(json.dumps(transaction_item_data, cls=DecimalEncoder))
-            if transaction_item_data is not None:
-                TransactionLineItem.objects.filter(transaction=instance).delete()
-                for t in obj:
-                    TransactionLineItem.objects.create(
-                        transaction=instance,
-                        description=t["description"],
-                        remarks=t["remarks"],
-                        quantity=t["quantity"],
-                        unit_amount=t["unit_amount"],
-                    )
-        return instance
