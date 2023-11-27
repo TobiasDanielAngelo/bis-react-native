@@ -20,8 +20,6 @@ export const SalesAndLaborList = observer(
   (props: { sale?: SaleInterface; hidden?: boolean }) => {
     const { sale, hidden } = props;
 
-    console.log(sale?.sales_item?.map((s) => s.is_claimed));
-
     const data = useMemo(
       () => [
         {

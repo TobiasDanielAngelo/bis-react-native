@@ -73,7 +73,9 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
   const totalAmountStock = totalValue(
     purchaseItems?.map((s) =>
       Math.round(
-        (productStore.getItem(s.product)?.sell_price ?? 0) * s.quantity
+        ((productStore.getItem(s.product)?.sell_price ?? 0) /
+          (productStore.getItem(s.product)?.piece_count ?? 1)) *
+          s.quantity
       )
     )
   );

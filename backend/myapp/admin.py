@@ -111,7 +111,7 @@ class SparePartAdmin(admin.ModelAdmin):
 
 class MechanicAdmin(admin.ModelAdmin):
     model = Mechanic
-    list_display = ("name", "color")
+    list_display = ("name", "color", "id")
 
 
 class SalesAdmin(admin.ModelAdmin):

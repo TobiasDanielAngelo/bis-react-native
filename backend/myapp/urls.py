@@ -18,7 +18,7 @@ from .viewsets import (
     ReturnedItemViewSet,
     PayableViewSet,
     ReceivableViewSet,
-    PurchaseItem2ViewSet,
+    PurchaseItemViewSet,
     PurchaseViewSet,
     CountItemViewSet,
 )
@@ -37,7 +37,7 @@ router.register(r"sales_items", SalesItemViewSet, basename="sales_items")
 router.register(r"count_items", CountItemViewSet, basename="count_items")
 router.register(r"labor_items", LaborItemViewSet, basename="labor_items")
 router.register(r"returned_items", ReturnedItemViewSet, basename="returned_items")
-router.register(r"purchase_items", PurchaseItem2ViewSet, basename="purchase_items")
+router.register(r"purchase_items", PurchaseItemViewSet, basename="purchase_items")
 router.register(r"transactions", TransactionViewSet, basename="transactions")
 router.register(r"payables", PayableViewSet, basename="payables")
 router.register(r"receivables", ReceivableViewSet, basename="receivables")

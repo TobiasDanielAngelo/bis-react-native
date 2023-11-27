@@ -13,6 +13,9 @@ import { SaleStore, saleStore } from "./SalesStore";
 import { SparePartStore, sparePartStore } from "./SparePartStore";
 import { TransactionStore, transactionStore } from "./TransactionStore";
 import { UserStore, userStore } from "./UserStore";
+import { LaborItemStore, laborItemStore } from "./LaborItemStore";
+import { ReturnedItemStore, returnedItemStore } from "./ReturnedItemStore";
+import { PurchaseItemStore, purchaseItemStore } from "./PurchaseItemStore";
 
 class Store {
   userStore: UserStore;
@@ -25,6 +28,9 @@ class Store {
   accountStore: AccountStore;
   saleStore: SaleStore;
   salesItemStore: SalesItemStore;
+  laborItemStore: LaborItemStore;
+  purchaseItemStore: PurchaseItemStore;
+  returnedItemStore: ReturnedItemStore;
   payableStore: PayableStore;
   receivableStore: ReceivableStore;
   purchaseStore: PurchaseStore;
@@ -41,6 +47,9 @@ class Store {
     this.accountStore = accountStore;
     this.saleStore = saleStore;
     this.salesItemStore = salesItemStore;
+    this.laborItemStore = laborItemStore;
+    this.returnedItemStore = returnedItemStore;
+    this.purchaseItemStore = purchaseItemStore;
     this.payableStore = payableStore;
     this.receivableStore = receivableStore;
     this.purchaseStore = purchaseStore;

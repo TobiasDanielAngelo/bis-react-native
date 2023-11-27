@@ -4,27 +4,86 @@ import { StyleSheet, View } from "react-native";
 import { HView } from "../blueprints/HView";
 import { ModesBar } from "../blueprints/ModesBar";
 import { MyForm } from "../blueprints/MyForm";
+import { MyList } from "../blueprints/MyList";
 import { MyOverlay } from "../blueprints/MyOverlay";
 import { MyStatusBar } from "../blueprints/MyStatusBar";
 import { MyText } from "../blueprints/MyText";
 import { MyTextInput } from "../blueprints/MyTextInput";
-import { toNumString } from "../constants/helpers";
 import { defaultBills, defaultCoins } from "../constants/constants";
-import { toMoney, totalBillAmt, totalCoinAmt } from "../constants/helpers";
+import {
+  toMoney,
+  toNumString,
+  totalBillAmt,
+  totalCoinAmt,
+} from "../constants/helpers";
 import { accountStore } from "../stores/AccountStore";
 import { useStore } from "../stores/Store";
+import { countItemStore } from "../stores/CountItemStore";
+import { MyCard } from "../blueprints/MyCard";
+
+const actions = [
+  { id: 1, name: "arrow-drop-down", label: "5Y", interval: 1800 },
+  { id: 2, name: "arrow-drop-down", label: "2Y", interval: 730 },
+  { id: 3, name: "arrow-drop-down", label: "1Y", interval: 365 },
+  { id: 4, name: "arrow-drop-down", label: "1Q", interval: 90 },
+  { id: 5, name: "arrow-drop-down", label: "1M", interval: 30 },
+  { id: 6, name: "arrow-drop-down", label: "1W", interval: 7 },
+  { id: 7, name: "arrow-drop-down", label: "1D", interval: 1 },
+];
 
 export const A5BalanceView = observer((props: { isVisible?: boolean }) => {
   const { isVisible } = props;
 
-  const { transactionStore } = useStore();
+  const {
+    transactionStore,
+    salesItemStore,
+    laborItemStore,
+    returnedItemStore,
+    purchaseItemStore,
+    saleStore,
+  } = useStore();
 
   const [isVisible1, setVisible1] = useState(false);
   const [isVisible2, setVisible2] = useState(false);
   const [isVisible3, setVisible3] = useState(false);
   const [mode, setMode] = useState(0);
+  const [range, setRange] = useState(1);
   const [bills, setBills] = useState(defaultBills);
   const [coins, setCoins] = useState(defaultCoins);
+  const [salesItemDetails, setSalesItemDetails] = useState<{
+    gross_sales_from_goods_paid: number;
+    gross_sales_from_goods_unpaid: number;
+    gross_sales_from_goods_validating: number;
+    sales_profit_from_goods_paid: number;
+    sales_profit_from_goods_unpaid: number;
+    sales_profit_from_goods_validating: number;
+  }>();
+  const [laborItemDetails, setLaborItemDetails] = useState<{
+    owed_labor: number;
+    returned_labor: number;
+    receive_labor_paid: number;
+    receive_labor_unpaid: number;
+    receive_labor_validating: number;
+  }>();
+  const [returnedItemDetails, setReturnedItemDetails] = useState<{
+    returned_sales_from_goods: number;
+  }>();
+  const [salesDetails, setSalesDetails] = useState<{
+    total_discount: number;
+  }>();
+  const [purchaseItemDetails, setPurchaseDetails] = useState<{
+    total_purchased_goods_cost: number;
+    total_purchased_goods_worth: number;
+  }>();
+  const [countItemDetails, setCountItemDetails] = useState<{
+    lost_gained_goods: number;
+  }>();
+  const [transactionDetails, setTransactionDetails] = useState<{
+    adjustments_added: number;
+    adjustments_deducted: number;
+    operating_expenses: number;
+    other_incomes: number;
+  }>();
 
   const expectedCash =
     (accountStore.getItem(10)?.received ?? 0) -
@@ -144,11 +203,57 @@ export const A5BalanceView = observer((props: { isVisible?: boolean }) => {
     onPressClear();
   };
 
+  const getAnalytics = async () => {
+    const r1 = await salesItemStore.fetchAnalytics({
+      range: actions[range - 1].label,
+    });
+    const r2 = await laborItemStore.fetchAnalytics({
+      range: actions[range - 1].label,
+    });
+    const r3 = await returnedItemStore.fetchAnalytics({
+      range: actions[range - 1].label,
+    });
+    const r4 = await purchaseItemStore.fetchAnalytics({
+      range: actions[range - 1].label,
+    });
+    const r5 = await countItemStore.fetchAnalytics({
+      range: actions[range - 1].label,
+    });
+    const r6 = await saleStore.fetchAnalytics({
+      range: actions[range - 1].label,
+    });
+    const r7 = await transactionStore.fetchAnalytics({
+      range: actions[range - 1].label,
+    });
+
+    if (
+      !r1.data ||
+      !r2.data ||
+      !r3.data ||
+      !r4.data ||
+      !r5.data ||
+      !r6.data ||
+      !r7.data
+    )
+      return;
+    setSalesItemDetails(r1.data);
+    setLaborItemDetails(r2.data);
+    setReturnedItemDetails(r3.data);
+    setPurchaseDetails(r4.data);
+    setCountItemDetails(r5.data);
+    setSalesDetails(r6.data);
+    setTransactionDetails(r7.data);
+  };
+
   useEffect(() => {
     if (isVisible1) {
       accountStore.fetchAll();
     }
   }, [isVisible1]);
+
+  useEffect(() => {
+    getAnalytics();
+  }, [range]);
 
   return (
     isVisible && (
@@ -302,6 +407,265 @@ export const A5BalanceView = observer((props: { isVisible?: boolean }) => {
               />
             </MyForm>
           </HView>
+          <MyList hidden={mode !== 4} scrollable>
+            <ModesBar
+              actions={actions}
+              mode={range}
+              setMode={setRange}
+              noSideBtns
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                { id: 2, text: "Gross Sales from Goods (Paid)", type: "main" },
+              ]}
+              price={salesItemDetails?.gross_sales_from_goods_paid}
+              hidden={!salesItemDetails?.gross_sales_from_goods_paid}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Gross Sales from Goods (Validating)",
+                  type: "main",
+                },
+              ]}
+              price={salesItemDetails?.gross_sales_from_goods_validating}
+              hidden={!salesItemDetails?.gross_sales_from_goods_validating}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Gross Sales from Goods (Unpaid)",
+                  type: "main",
+                },
+              ]}
+              price={salesItemDetails?.gross_sales_from_goods_unpaid}
+              hidden={!salesItemDetails?.gross_sales_from_goods_unpaid}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Profit from Goods (Paid)",
+                  type: "main",
+                },
+              ]}
+              price={salesItemDetails?.sales_profit_from_goods_paid}
+              hidden={!salesItemDetails?.sales_profit_from_goods_paid}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Profit from Goods (Validating)",
+                  type: "main",
+                },
+              ]}
+              price={salesItemDetails?.sales_profit_from_goods_validating}
+              hidden={!salesItemDetails?.sales_profit_from_goods_validating}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Profit from Goods (Unpaid)",
+                  type: "main",
+                },
+              ]}
+              price={salesItemDetails?.sales_profit_from_goods_unpaid}
+              hidden={!salesItemDetails?.sales_profit_from_goods_unpaid}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Gross Sales from Labor (Paid)",
+                  type: "main",
+                },
+              ]}
+              price={laborItemDetails?.receive_labor_paid}
+              hidden={!laborItemDetails?.receive_labor_paid}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Gross Sales from Labor (Validating)",
+                  type: "main",
+                },
+              ]}
+              price={laborItemDetails?.receive_labor_validating}
+              hidden={!laborItemDetails?.receive_labor_validating}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Gross Sales from Labor (Unpaid)",
+                  type: "main",
+                },
+              ]}
+              price={laborItemDetails?.receive_labor_unpaid}
+              hidden={!laborItemDetails?.receive_labor_unpaid}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Total Labor Cost",
+                  type: "main",
+                },
+              ]}
+              price={laborItemDetails && -laborItemDetails.owed_labor}
+              hidden={!laborItemDetails?.owed_labor}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Total Labor Unclaimed by Mechanic",
+                  type: "main",
+                },
+              ]}
+              price={
+                (laborItemDetails?.owed_labor ?? 0) -
+                (laborItemDetails?.returned_labor ?? 0)
+              }
+              hidden={
+                (laborItemDetails?.owed_labor ?? 0) -
+                  (laborItemDetails?.returned_labor ?? 0) ===
+                0
+              }
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Total Discount Given",
+                  type: "main",
+                },
+              ]}
+              price={salesDetails?.total_discount}
+              hidden={!salesDetails?.total_discount}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Refunded Goods",
+                  type: "main",
+                },
+              ]}
+              price={
+                returnedItemDetails &&
+                -returnedItemDetails?.returned_sales_from_goods
+              }
+              hidden={!returnedItemDetails?.returned_sales_from_goods}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Total Added/Purchased Goods",
+                  type: "main",
+                },
+              ]}
+              price={purchaseItemDetails?.total_purchased_goods_cost}
+              hidden={!purchaseItemDetails?.total_purchased_goods_cost}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Estimated Profit from Added Goods",
+                  type: "main",
+                },
+              ]}
+              price={
+                (purchaseItemDetails?.total_purchased_goods_worth ?? 0) -
+                (purchaseItemDetails?.total_purchased_goods_cost ?? 0)
+              }
+              hidden={!purchaseItemDetails?.total_purchased_goods_worth}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Adjustments (Untracked)",
+                  type: "main",
+                },
+              ]}
+              price={
+                (transactionDetails?.adjustments_added ?? 0) -
+                (transactionDetails?.adjustments_deducted ?? 0)
+              }
+              hidden={
+                !transactionDetails?.adjustments_added &&
+                !transactionDetails?.adjustments_deducted
+              }
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Operating Expenses",
+                  type: "main",
+                },
+              ]}
+              price={
+                transactionDetails && -transactionDetails?.operating_expenses
+              }
+              hidden={!transactionDetails?.operating_expenses}
+              unit=" "
+            />
+            <MyCard
+              item={{ id: 1 }}
+              details={[
+                {
+                  id: 2,
+                  text: "Other Incomes",
+                  type: "main",
+                },
+              ]}
+              price={transactionDetails?.other_incomes}
+              hidden={!transactionDetails?.other_incomes}
+              unit=" "
+            />
+          </MyList>
         </View>
         <MyStatusBar />
       </View>

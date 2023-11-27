@@ -16,7 +16,7 @@ export const PayableCard = observer(
       item.payment?.forEach((s) => {
         if (!transactionStore.getItem(s)) missingIds.push(s);
       });
-      if (missingIds.length > 0) transactionStore.fetchSome(missingIds);
+      if (missingIds.length > 0) transactionStore.fetchAll({ ids: missingIds });
     };
 
     const paymentDetails = item.payment

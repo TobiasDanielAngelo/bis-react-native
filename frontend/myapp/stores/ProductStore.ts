@@ -73,7 +73,7 @@ export class ProductStore extends Model({
   }
 
   @modelFlow
-  fetchProductRangeIds = _async(function* (this: ProductStore) {
+  fetchProductRange = _async(function* (this: ProductStore) {
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -115,8 +115,31 @@ export class ProductStore extends Model({
   });
 
   @modelFlow
-  fetchProductsByIds = _async(function* (this: ProductStore, ids: number[]) {
-    if (ids.length === 0) return;
+  fetchProducts = _async(function* (
+    this: ProductStore,
+    filters?: {
+      startDate?: string;
+      endDate?: string;
+      ids?: number[];
+      isActive?: boolean;
+    }
+  ) {
+    let queryFilters: string[] = [];
+    let query: string = "";
+
+    if (filters) {
+      if (filters.startDate)
+        queryFilters.push(`start_date=${filters.startDate}`);
+      if (filters?.endDate) queryFilters.push(`end_date=${filters.endDate}`);
+      if (filters?.ids) queryFilters.push(`ids=${filters.ids.join("+")}`);
+      if (filters?.isActive)
+        queryFilters.push(`is_active=${filters?.isActive ? "true" : "false"}`);
+    }
+
+    if (queryFilters.length > 0) {
+      query = "?" + queryFilters.join("&");
+    }
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -124,7 +147,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/?incl=${ids.join("+")}`, {
+      fetch(`${process.env["BASE_URL"]}/products/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -155,8 +178,10 @@ export class ProductStore extends Model({
     }
 
     json.forEach((s) => {
-      if (!this.allPK.includes(s.id ?? -1)) {
+      if (!this.allPK.includes(s.id)) {
         this.products.push(new Product(s));
+      } else {
+        this.getItem(s.id)?.update(s);
       }
     });
 
@@ -196,15 +221,17 @@ export class ProductStore extends Model({
     let json: Product;
     try {
       const resp = yield* _await(response.json());
+      console.log(resp);
       json = resp;
     } catch (error) {
       console.error("Parsing Error", error);
       return { details: "Parsing Error", ok: false, data: null };
     }
 
-    if (!this.allPK.includes(json.id ?? -1)) {
+    if (!this.allPK.includes(json.id)) {
       this.products.push(new Product(json));
     } else {
+      console.log(json.counted);
       json.counted = json.counted ?? 0;
       json.returned = json.returned ?? 0;
       json.sold = json.sold ?? 0;

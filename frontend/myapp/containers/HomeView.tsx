@@ -11,7 +11,7 @@ import { FinanceModule } from "./D0FinanceModule";
 
 const Drawer = createDrawerNavigator();
 
-const myFocusScreen = "Finance";
+const myFocusScreen = "Sales";
 
 const arrayRange = (start: number, stop: number) =>
   Array.from({ length: stop - start }, (value, index) => start + index);
@@ -26,16 +26,16 @@ export const HomeView = observer((props: {}) => {
     motorStore,
   } = useStore();
 
-  const getParts = useCallback(() => {
-    sparePartStore.fetchAll();
-  }, []);
-
-  const getProductRange = useCallback(async () => {
-    const resp = await productStore.fetchProductRangeIds();
+  const getProducts = useCallback(async () => {
+    const resp = await productStore.fetchProductRange();
     if (!resp.ok || !resp.data) return;
     for (let i = resp.data.min_id; i <= resp.data.max_id; i += 40) {
-      await productStore.fetchProductsByIds(arrayRange(i, i + 40));
+      await productStore.fetchProducts({ ids: arrayRange(i, i + 40) });
     }
+  }, []);
+
+  const getParts = useCallback(() => {
+    sparePartStore.fetchAll();
   }, []);
 
   const getAccounts = useCallback(() => {
@@ -55,13 +55,14 @@ export const HomeView = observer((props: {}) => {
   }, []);
 
   useEffect(() => {
+    getProducts();
     getAccounts();
     getMechanics();
     getParts();
     getCategories();
     getMotors();
-    // getProductRange();
   }, []);
+
   return (
     <NavigationContainer>
       <Drawer.Navigator
@@ -71,10 +72,13 @@ export const HomeView = observer((props: {}) => {
         }}
         drawerContent={(props) => <DrawerActions {...props} />}
       >
-        <Drawer.Screen name="Sales" component={SalesModule} />
-        <Drawer.Screen name="Expenses" component={ExpenseModule} />
-        <Drawer.Screen name="Inventory" component={InventoryModule} />
-        <Drawer.Screen name="Finance" component={FinanceModule} />
+        <Drawer.Screen name="Sales & Balance" component={SalesModule} />
+        <Drawer.Screen name="Receipts & Payments" component={ExpenseModule} />
+        <Drawer.Screen
+          name="Purchases & Inventory"
+          component={InventoryModule}
+        />
+        <Drawer.Screen name="Transfers & Trends" component={FinanceModule} />
       </Drawer.Navigator>
     </NavigationContainer>
   );

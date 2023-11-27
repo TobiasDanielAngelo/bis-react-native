@@ -16,23 +16,6 @@ const arrayRange = (start: number, stop: number, step: number = 1) =>
     (_, index) => start + index * step
   );
 
-interface DatePriceLoading {
-  account: number;
-  date: Date;
-  price: number;
-  loading: boolean;
-}
-
-interface DatePriceXY {
-  date: Date;
-  price: number;
-}
-
-interface AccountTrend {
-  account: number;
-  points: DatePriceXY[];
-}
-
 interface AccountPriceXY {
   account: number;
   price: number;
@@ -58,8 +41,6 @@ export const D3TimelineView = observer((props: { isVisible?: boolean }) => {
   const { accountStore } = useStore();
   const [value, setValue] = useState(-3);
   const [mode, setMode] = useState(6);
-  // const [dataPoints, setDataPoints] = useState<DatePriceLoading[]>([]);
-  // const [dataPoints, setDataPoints] = useState<AccountTrend[]>([]);
   const [dataPoints, setDataPoints] = useState<PriceTrend[]>([]);
 
   const dates =
@@ -72,8 +53,6 @@ export const D3TimelineView = observer((props: { isVisible?: boolean }) => {
           .map((s) => addDays(new Date(), s + 1))
           .sort((a, b) => (a.getTime() > b.getTime() ? 1 : -1))
       : [];
-
-  console.log(dataPoints.map((s) => totalValue(s.points.map((s) => s.price))));
 
   const dataPointsByAccount =
     dataPoints && value > 0

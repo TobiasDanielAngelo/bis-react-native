@@ -5,7 +5,6 @@ import { MenuBar } from "../blueprints/MenuBar";
 import { useStore } from "../stores/Store";
 import { B1QuickView } from "./B1QuickView";
 import { B2CategoryView } from "./B2CategoryView";
-import { B3HistoryView } from "./B3HistoryView";
 import { BlankView } from "./BlankView";
 
 const defaultLogo = { id: -1, name: "", label: "" };

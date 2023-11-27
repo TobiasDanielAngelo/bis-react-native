@@ -50,6 +50,61 @@ export class TransactionStore extends Model({
   }
 
   @modelFlow
+  fetchAnalytics = _async(function* (
+    this: TransactionStore,
+    filters: {
+      range: string;
+    }
+  ) {
+    let token: string;
+
+    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
+
+    let response: Response;
+
+    response = yield* _await(
+      fetch(
+        `${process.env["BASE_URL"]}/transactions/?analytics=1&range=${filters.range}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
+    );
+
+    if (!response.ok) {
+      let msg: any = yield* _await(response.json());
+      if (msg.non_field_errors) {
+        return {
+          details: `${msg.non_field_errors}`,
+          ok: false,
+          data: null,
+        };
+      }
+      return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let json: {
+      adjustments_added: number;
+      adjustments_deducted: number;
+      operating_expenses: number;
+      other_incomes: number;
+    };
+    try {
+      const resp = yield* _await(response.json());
+      json = resp;
+    } catch (error) {
+      console.error("Parsing Error", error);
+      return { details: "Parsing Error", ok: false, data: null };
+    }
+
+    return { details: "", ok: true, data: json };
+  });
+
+  @modelFlow
   fetchAll = _async(function* (
     this: TransactionStore,
     filters?: {
@@ -119,78 +174,7 @@ export class TransactionStore extends Model({
       if (!this.allIDs.includes(s.id)) {
         this.transactions.push(new Transaction(s));
       } else {
-        this.transactions
-          .find((t) => t.id === s.id)
-          ?.update({
-            description: s.description,
-            amount: s.amount,
-            datetime_transacted: s.datetime_transacted,
-            category: s.category,
-            encoder: s.encoder,
-            transmitter: s.transmitter,
-            receiver: s.receiver,
-          });
-      }
-    });
-
-    return { details: "", ok: true, data: json };
-  });
-
-  @modelFlow
-  fetchSome = _async(function* (this: TransactionStore, ids: number[]) {
-    let token: string;
-
-    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
-
-    let response: Response;
-
-    response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/transactions/?ids=${ids.join("+")}`, {
-        method: "GET",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
-    );
-
-    if (!response.ok) {
-      let msg: any = yield* _await(response.json());
-      if (msg.non_field_errors) {
-        return {
-          details: `${msg.non_field_errors}`,
-          ok: false,
-          data: null,
-        };
-      }
-      return { details: `${msg.error}`, ok: false, data: null };
-    }
-
-    let json: Transaction[];
-    try {
-      const resp = yield* _await(response.json());
-
-      json = resp;
-    } catch (error) {
-      console.error("Parsing Error", error);
-      return { details: "Parsing Error", ok: false, data: null };
-    }
-
-    json.forEach((s) => {
-      if (!this.allIDs.includes(s.id)) {
-        this.transactions.push(new Transaction(s));
-      } else {
-        this.transactions
-          .find((t) => t.id === s.id)
-          ?.update({
-            description: s.description,
-            amount: s.amount,
-            datetime_transacted: s.datetime_transacted,
-            category: s.category,
-            encoder: s.encoder,
-            transmitter: s.transmitter,
-            receiver: s.receiver,
-          });
+        this.transactions.find((t) => t.id === s.id)?.update(s);
       }
     });
 

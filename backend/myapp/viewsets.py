@@ -1,9 +1,10 @@
 import operator
 import re
-from datetime import date
+from datetime import date, datetime
 from functools import reduce
 
 from django.db.models import (
+    F,
     Q,
     Sum,
     OuterRef,
@@ -12,7 +13,8 @@ from django.db.models import (
 )
 from knox.auth import TokenAuthentication
 from rest_framework import response, viewsets
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
+from .helpers import get_dates_start
 
 from .models import (
     Account,
@@ -57,7 +59,7 @@ from .serializers import (
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
 
     authentication_classes = (TokenAuthentication,)
@@ -91,14 +93,15 @@ class ProductViewSet(viewsets.ModelViewSet):
                 "min_id": queryset.earliest("id").id,
             }
             return response.Response(resp)
-        if params.get("incl"):
-            list_to_include = params["incl"].split(" ")
+        if params.get("ids"):
+            list_to_include = params["ids"].split(" ")
             queryset = queryset.filter(
                 reduce(
                     operator.or_,
                     (Q(id=x) for x in list_to_include),
                 )
             )
+
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
 
@@ -106,7 +109,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -116,7 +119,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class AccountViewSet(viewsets.ModelViewSet):
     serializer_class = AccountSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -164,7 +167,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 class MotorViewSet(viewsets.ModelViewSet):
     serializer_class = MotorSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -174,7 +177,7 @@ class MotorViewSet(viewsets.ModelViewSet):
 class SparePartViewSet(viewsets.ModelViewSet):
     serializer_class = SparePartSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -184,7 +187,7 @@ class SparePartViewSet(viewsets.ModelViewSet):
 class MechanicViewSet(viewsets.ModelViewSet):
     serializer_class = MechanicSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -194,7 +197,7 @@ class MechanicViewSet(viewsets.ModelViewSet):
 class MyUserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -212,7 +215,7 @@ class MyUserViewSet(viewsets.ModelViewSet):
 class SaleViewSet(viewsets.ModelViewSet):
     serializer_class = SaleSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -222,12 +225,21 @@ class SaleViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         params = self.request.query_params
         if params.get("start_date"):
-            queryset.filter(datetime_opened__gte=params["start_date"])
+            queryset = queryset.filter(datetime_opened__gte=params["start_date"])
         if params.get("end_date"):
-            queryset.filter(datetime_opened__lte=params["end_date"])
+            queryset = queryset.filter(datetime_opened__lte=params["end_date"])
         if params.get("is_active"):
             activity = params["is_active"] == "true"
-            queryset.filter(is_active=activity)
+            queryset = queryset.filter(is_active=activity)
+        if params.get("range"):
+            queryset = queryset.filter(
+                datetime_opened__gte=get_dates_start(params["range"])
+            )
+        if params.get("analytics"):
+            analytics = queryset.aggregate(
+                total_discount=Sum("discount"),
+            )
+            return response.Response(analytics)
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
 
@@ -235,7 +247,7 @@ class SaleViewSet(viewsets.ModelViewSet):
 class PurchaseViewSet(viewsets.ModelViewSet):
     serializer_class = PurchaseSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -245,12 +257,12 @@ class PurchaseViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         params = self.request.query_params
         if params.get("start_date"):
-            queryset.filter(datetime_opened__gte=params["start_date"])
+            queryset = queryset.filter(datetime_opened__gte=params["start_date"])
         if params.get("end_date"):
-            queryset.filter(datetime_opened__lte=params["end_date"])
+            queryset = queryset.filter(datetime_opened__lte=params["end_date"])
         if params.get("is_active"):
             activity = params["is_active"] == "true"
-            queryset.filter(is_active=activity)
+            queryset = queryset.filter(is_active=activity)
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
 
@@ -258,7 +270,7 @@ class PurchaseViewSet(viewsets.ModelViewSet):
 class PayableViewSet(viewsets.ModelViewSet):
     serializer_class = PayableSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -268,7 +280,7 @@ class PayableViewSet(viewsets.ModelViewSet):
 class ReceivableViewSet(viewsets.ModelViewSet):
     serializer_class = ReceivableSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -278,7 +290,7 @@ class ReceivableViewSet(viewsets.ModelViewSet):
 class SalesItemViewSet(viewsets.ModelViewSet):
     serializer_class = SalesItemSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -288,14 +300,56 @@ class SalesItemViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         params = self.request.query_params
         if params.get("start_date"):
-            queryset.filter(datetime_added__gte=params["start_date"])
+            queryset = queryset.filter(sales__datetime_opened__gte=params["start_date"])
         if params.get("end_date"):
-            queryset.filter(datetime_added__lte=params["end_date"])
+            queryset = queryset.filter(sales__datetime_opened__lte=params["end_date"])
         if params.get("product"):
-            queryset.filter(product=params["product"])
+            queryset = queryset.filter(product=params["product"])
         if params.get("is_active"):
             activity = params["is_active"] == "true"
-            queryset.filter(is_active=activity)
+            queryset = queryset.filter(is_active=activity)
+        if params.get("range"):
+            queryset = queryset.filter(
+                sales__datetime_opened__gte=get_dates_start(params["range"])
+            )
+        if params.get("analytics"):
+            analytics = queryset.aggregate(
+                gross_sales_from_goods_paid=Sum(
+                    F("quantity") * F("selling_price"), filter=Q(sales__status="3")
+                ),
+                gross_sales_from_goods_validating=Sum(
+                    F("quantity") * F("selling_price"), filter=Q(sales__status="2")
+                ),
+                gross_sales_from_goods_unpaid=Sum(
+                    F("quantity") * F("selling_price"), filter=Q(sales__status="1")
+                ),
+                sales_profit_from_goods_paid=Sum(
+                    F("quantity")
+                    * (
+                        F("selling_price")
+                        - (F("product__purchase_price") / F("product__piece_count"))
+                    ),
+                    filter=Q(sales__status="3"),
+                ),
+                sales_profit_from_goods_validating=Sum(
+                    F("quantity")
+                    * (
+                        F("selling_price")
+                        - (F("product__purchase_price") / F("product__piece_count"))
+                    ),
+                    filter=Q(sales__status="2"),
+                ),
+                sales_profit_from_goods_unpaid=Sum(
+                    F("quantity")
+                    * (
+                        F("selling_price")
+                        - (F("product__purchase_price") / F("product__piece_count"))
+                    ),
+                    filter=Q(sales__status="1"),
+                ),
+            )
+            return response.Response(analytics)
+
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
 
@@ -303,36 +357,118 @@ class SalesItemViewSet(viewsets.ModelViewSet):
 class CountItemViewSet(viewsets.ModelViewSet):
     serializer_class = CountItemSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
     queryset = CountItem.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("start_date"):
+            queryset = queryset.filter(datetime_counted__gte=params["start_date"])
+        if params.get("end_date"):
+            queryset = queryset.filter(datetime_counted__gte=params["end_date"])
+        if params.get("product"):
+            queryset = queryset.filter(product=params["product"])
+        if params.get("range"):
+            queryset = queryset.filter(
+                datetime_counted__gte=get_dates_start(params["range"])
+            )
+        if params.get("analytics"):
+            analytics = queryset.aggregate(
+                lost_gained_goods=Sum(
+                    F("quantity")
+                    * (F("product__sell_price") / F("product__piece_count")),
+                ),
+            )
+            return response.Response(analytics)
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
 
 
 class LaborItemViewSet(viewsets.ModelViewSet):
     serializer_class = LaborItemSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
     queryset = LaborItem.objects.all()
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("start_date"):
+            queryset = queryset.filter(sales__datetime_opened__gte=params["start_date"])
+        if params.get("end_date"):
+            queryset = queryset.filter(sales__datetime_opened__lte=params["end_date"])
+        if params.get("product"):
+            queryset = queryset.filter(product=params["product"])
+        if params.get("is_active"):
+            activity = params["is_active"] == "true"
+            queryset = queryset.filter(is_active=activity)
+        if params.get("range"):
+            queryset = queryset.filter(
+                sales__datetime_opened__gte=get_dates_start(params["range"])
+            )
+        if params.get("analytics"):
+            analytics = queryset.aggregate(
+                receive_labor_paid=Sum("amount_received", filter=Q(sales__status="3")),
+                receive_labor_validating=Sum(
+                    "amount_received", filter=Q(sales__status="2")
+                ),
+                receive_labor_unpaid=Sum(
+                    "amount_received", filter=Q(sales__status="1")
+                ),
+                returned_labor=Sum("amount_returned"),
+                owed_labor=Sum("amount_owed"),
+            )
+            return response.Response(analytics)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
+
 
 class ReturnedItemViewSet(viewsets.ModelViewSet):
     serializer_class = ReturnedItemSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
     queryset = ReturnedItem.objects.all()
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("start_date"):
+            queryset = queryset.filter(sales__datetime_opened__gte=params["start_date"])
+        if params.get("end_date"):
+            queryset = queryset.filter(sales__datetime_opened__lte=params["end_date"])
+        if params.get("product"):
+            queryset = queryset.filter(product=params["product"])
+        if params.get("is_active"):
+            activity = params["is_active"] == "true"
+            queryset = queryset.filter(is_active=activity)
+        if params.get("range"):
+            queryset = queryset.filter(
+                sales__datetime_opened__gte=get_dates_start(params["range"])
+            )
+        if params.get("analytics"):
+            analytics = queryset.aggregate(
+                returned_sales_from_goods=Sum(F("quantity") * F("selling_price"))
+            )
+            return response.Response(analytics)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
+
 
 class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
 
@@ -342,22 +478,67 @@ class TransactionViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         params = self.request.query_params
         if params.get("start_date"):
-            queryset.filter(datetime_transacted__gte=params["start_date"])
+            queryset = queryset.filter(datetime_transacted__gte=params["start_date"])
         if params.get("end_date"):
-            queryset.filter(datetime_transacted__lte=params["end_date"])
+            queryset = queryset.filter(datetime_transacted__lte=params["end_date"])
         if params.get("is_active"):
             activity = params["is_active"] == "true"
-            queryset.filter(is_active=activity)
+            queryset = queryset.filter(is_active=activity)
         if params.get("category"):
-            queryset.filter(category=params["category"])
+            queryset = queryset.filter(category=params["category"])
+        if params.get("range"):
+            queryset = queryset.filter(
+                datetime_transacted__gte=get_dates_start(params["range"])
+            )
+        if params.get("analytics"):
+            analytics = queryset.aggregate(
+                adjustments_added=Sum("amount", filter=Q(transmitter=11)),
+                adjustments_deducted=Sum("amount", filter=Q(receiver=11)),
+                operating_expenses=Sum("amount", filter=Q(receiver=16)),
+                other_incomes=Sum("amount", filter=Q(transmitter=16)),
+            )
+            return response.Response(analytics)
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
 
 
-class PurchaseItem2ViewSet(viewsets.ModelViewSet):
+class PurchaseItemViewSet(viewsets.ModelViewSet):
     serializer_class = PurchaseItemSerializer
     queryset = PurchaseItem.objects.all()
     permission_classes = [
-        AllowAny,
+        IsAuthenticated,
     ]
     authentication_classes = (TokenAuthentication,)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("start_date"):
+            queryset = queryset.filter(
+                purchase__datetime_closed__gte=params["start_date"]
+            )
+        if params.get("end_date"):
+            queryset = queryset.filter(
+                purchase__datetime_closed__gte=params["end_date"]
+            )
+        if params.get("product"):
+            queryset = queryset.filter(product=params["product"])
+        if params.get("range"):
+            queryset = queryset.filter(
+                purchase__datetime_closed__gte=get_dates_start(params["range"])
+            )
+        if params.get("analytics"):
+            analytics = queryset.aggregate(
+                total_purchased_goods_cost=Sum(
+                    F("quantity") * F("purchase_price"),
+                    filter=Q(purchase__status="4"),
+                ),
+                total_purchased_goods_worth=Sum(
+                    F("quantity")
+                    * (F("product__sell_price") / F("product__piece_count")),
+                    filter=Q(purchase__status="4"),
+                ),
+            )
+            return response.Response(analytics)
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)

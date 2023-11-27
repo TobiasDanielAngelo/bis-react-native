@@ -38,7 +38,13 @@ export const C4CheckView = observer((props: { isVisible?: boolean }) => {
         ? 1
         : -1
     )
-    .sort((a, b) => (a.part > b.part ? 1 : a.part === b.part ? 0 : -1));
+    .sort((a, b) => (a.part > b.part ? 1 : a.part === b.part ? 0 : -1))
+    .sort((a, b) =>
+      (a.purchased - a.sold + a.returned + a.counted) / (a.min_quantity + 1) <
+      (b.purchased - b.sold + b.returned + b.counted) / (b.min_quantity + 1)
+        ? 1
+        : -1
+    );
 
   const allPartsByLocation = removeDuplicates(
     productsByLocation.map((s) => s.part)
@@ -53,8 +59,7 @@ export const C4CheckView = observer((props: { isVisible?: boolean }) => {
             motors,
             s.motors.split(", ").map((s) => motorStore.motorId(s))
           )
-    )
-    .slice(4 * index, 4 * (index + 1));
+    );
 
   useEffect(() => {
     setIndex(0);
@@ -95,14 +100,14 @@ export const C4CheckView = observer((props: { isVisible?: boolean }) => {
           label="Filter by Motor(s)"
         />
         <MyDotPager
-          length={Math.ceil(productsByLocation.length / 4)}
+          length={Math.ceil(currentProducts.length / 4)}
           index={index}
           setIndex={setIndex}
-          hidden={productsByLocation.length <= 4}
+          hidden={currentProducts.length <= 4}
         />
         <View style={styles.body}>
           <FlatList
-            data={currentProducts}
+            data={currentProducts.slice(4 * index, 4 * (index + 1))}
             renderItem={({ item }) => <CheckCard item={item} />}
             keyboardShouldPersistTaps="always"
           />

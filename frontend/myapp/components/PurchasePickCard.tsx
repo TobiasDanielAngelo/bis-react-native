@@ -1,8 +1,12 @@
 import { observer } from "mobx-react-lite";
+import { useState } from "react";
 import { MyCard } from "../blueprints/MyCard";
 import { Product } from "../stores/ProductStore";
 import { purchaseStore } from "../stores/PurchaseStore";
 import { useStore } from "../stores/Store";
+import { MyOverlay } from "../blueprints/MyOverlay";
+import { MyTextInput } from "../blueprints/MyTextInput";
+import { toNumString } from "../constants/helpers";
 
 export const PurchasePickCard = observer(
   (props: {
@@ -12,6 +16,10 @@ export const PurchasePickCard = observer(
     purchaseId: number;
   }) => {
     const { item, hidden, locked, purchaseId } = props;
+    const [isVisible1, setVisible1] = useState(false);
+    const [minQuantity, setMinQuantity] = useState(
+      item.min_quantity.toString()
+    );
 
     const { sparePartStore, purchaseItemStore, productStore } = useStore();
 
@@ -45,6 +53,20 @@ export const PurchasePickCard = observer(
       });
     };
 
+    const onPressRefresh = () => {
+      productStore.fetchProducts({ ids: [item.id] });
+    };
+
+    const onChangeMinQuantity = (t: string) => {
+      setMinQuantity(toNumString(t));
+    };
+
+    const onPressCheck = () => {
+      if (isNaN(parseFloat(minQuantity))) return;
+      productStore.updateProduct(item.id, {
+        min_quantity: parseInt(minQuantity),
+      });
+    };
     const similarProducts = productStore.products.filter(
       (s) =>
         s.part === item.part &&
@@ -56,10 +78,26 @@ export const PurchasePickCard = observer(
 
     const actions = [
       { id: 1, name: "add", position: "Q6", onPress: onPressAdd },
+      { id: 2, name: "refresh", position: "Q4", onPress: onPressRefresh },
+      { id: 3, name: "edit", position: "Q4", onPress: () => setVisible1(true) },
     ].filter((s) => (locked ? s.id !== 1 : s));
 
     return (
       <>
+        <MyOverlay
+          isVisible={isVisible1}
+          setVisible={setVisible1}
+          title="Edit Minimum Sets"
+          onPressCheck={onPressCheck}
+        >
+          <MyTextInput
+            label="Minimum Quantity (Set)"
+            value={minQuantity}
+            onChangeValue={onChangeMinQuantity}
+            numeric
+            centered
+          />
+        </MyOverlay>
         <MyCard
           disabled={!item.is_active}
           item={item}
@@ -80,11 +118,21 @@ export const PurchasePickCard = observer(
             },
             {
               id: 3,
-              text: `${item.piece_count} ${item.unit}`,
+              text: `In stock: ${Math.floor(
+                (item.purchased - item.sold + item.returned + item.counted) /
+                  item.piece_count
+              )} ${item.piece_count > 1 ? "SET(S)" : item.unit} (Minimum of ${
+                item.min_quantity
+              } ${item.piece_count > 1 ? "SET(S)" : item.unit})`,
               type: "sub",
             },
             {
               id: 4,
+              text: `Pieces per Package/Set: ${item.piece_count} ${item.unit}`,
+              type: "sub",
+            },
+            {
+              id: 5,
               text:
                 similarProducts.length > 0
                   ? `Other Brands: ${similarProducts

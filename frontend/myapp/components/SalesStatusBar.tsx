@@ -170,7 +170,7 @@ export const SalesStatusBar = observer(
       sale.payment?.forEach((s) => {
         if (!transactionStore.getItem(s)) missingIds.push(s);
       });
-      if (missingIds.length > 0) transactionStore.fetchSome(missingIds);
+      if (missingIds.length > 0) transactionStore.fetchAll({ ids: missingIds });
     };
 
     const cash = toNumber(cashAmount);
@@ -208,7 +208,6 @@ export const SalesStatusBar = observer(
 
     const onPressStar = async (t: number, amountReturned: number) => {
       if (!sale?.id) return;
-      console.log("BOOOM", t, amountReturned);
       saleStore.updateItemParticularLabor(
         { amount_returned: amountReturned },
         sale?.id,

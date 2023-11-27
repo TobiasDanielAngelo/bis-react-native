@@ -32,10 +32,12 @@ export const CheckCard = observer(
     const [isVisible1, setVisible1] = useState(false);
     const [isVisible2, setVisible2] = useState(false);
     const [isVisible3, setVisible3] = useState(false);
+    const [isVisible4, setVisible4] = useState(false);
     const [details, setDetails] = useState({
       toPrint: item.print_count.toString(),
       location: item.location,
       quantity: "",
+      minQuantity: item.min_quantity.toString(),
     });
 
     const sold = item.sold ?? 0;
@@ -69,6 +71,10 @@ export const CheckCard = observer(
 
     const onChangeQuantity = (t: string) => {
       setDetails({ ...details, quantity: toNumString(t) });
+    };
+
+    const onChangeMinQuantity = (t: string) => {
+      setDetails({ ...details, minQuantity: toNumString(t) });
     };
 
     const onChangePrintCount = (t: string) => {
@@ -118,11 +124,17 @@ export const CheckCard = observer(
       onPressRefresh();
     };
 
-    const onPressRefresh = () => {
-      productStore.fetchProduct(item.id);
-      setDetails({ ...details, quantity: "" });
+    const onPressCheck4 = () => {
+      if (isNaN(parseFloat(details.minQuantity))) return;
+      productStore.updateProduct(item.id, {
+        min_quantity: parseInt(details.minQuantity),
+      });
     };
 
+    const onPressRefresh = () => {
+      productStore.fetchProducts({ ids: [item.id] });
+      setDetails({ ...details, quantity: "" });
+    };
     const onChangeExpectedQty = () => {
       setDetails({
         ...details,
@@ -191,7 +203,20 @@ export const CheckCard = observer(
             }
           />
         </MyOverlay>
-
+        <MyOverlay
+          isVisible={isVisible4}
+          setVisible={setVisible4}
+          title="Edit Minimum Sets"
+          onPressCheck={onPressCheck4}
+        >
+          <MyTextInput
+            label="Minimum Quantity (Set)"
+            value={details.minQuantity}
+            onChangeValue={onChangeMinQuantity}
+            numeric
+            centered
+          />
+        </MyOverlay>
         <MyCard
           disabled={locked}
           item={item}
@@ -253,6 +278,12 @@ export const CheckCard = observer(
                     name: "refresh",
                     position: "Q3",
                     onPress: onPressRefresh,
+                  },
+                  {
+                    id: 5,
+                    name: "edit",
+                    position: "Q1",
+                    onPress: () => setVisible4(true),
                   },
                 ]
               : []

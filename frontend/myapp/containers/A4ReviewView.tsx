@@ -155,6 +155,9 @@ export const A4ReviewView = observer((props: { isVisible?: boolean }) => {
               value: s.id,
               label: `#${s.id} - ${s.customer_name}`,
             }))}
+            label={`${sales.length === 0 ? "No" : sales.length} sale${
+              sales.length === 1 ? "" : "s"
+            } available.`}
           />
           <SalesLaborReturnList sale={sale} />
         </View>

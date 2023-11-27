@@ -51,7 +51,14 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
   const [details, setDetails] = useState(defaultProduct);
   const [motors, setMotors] = useState<number[]>([]);
 
-  const productMatches = productStore.products.filter((s) => s.part === part);
+  const productMatches = productStore.products
+    .filter((s) => s.part === part)
+    .sort((a, b) =>
+      (a.purchased - a.sold + a.returned + a.counted) / (a.min_quantity + 1) >
+      (b.purchased - b.sold + b.returned + b.counted) / (b.min_quantity + 1)
+        ? 1
+        : -1
+    );
 
   const currentOrder = purchaseStore.getItem(order);
 

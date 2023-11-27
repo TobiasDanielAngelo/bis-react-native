@@ -154,6 +154,7 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
       product: t.id,
       sales: sale.id,
       quantity: t.piece_count,
+      user_adder: userStore.currentUser.user_id,
     });
     setFocus(false);
     setQuery("");
@@ -197,8 +198,6 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
     setShowSearchBar(false);
     setQuery("");
   }, [sale?.id]);
-
-  console.log(sale?.sales_item.map((s) => s.is_claimed));
 
   return (
     isVisible && (
