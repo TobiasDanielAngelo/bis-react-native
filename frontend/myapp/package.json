@@ -8,6 +8,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "eas login": "eas login",
+    "eas prebuild": "expo prebuild --clean",
     "eas update:configure": "eas update:configure",
     "eas build:configure": "eas build:configure",
     "eas:build:android": "eas build --profile preview --platform android",
