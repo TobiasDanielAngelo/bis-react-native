@@ -21,6 +21,7 @@ export const A3ReturnView = observer((props: { isVisible?: boolean }) => {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [focus, setFocus] = useState(false);
   const [item, setItem] = useState<Product>();
+  const [matches, setMatches] = useState<number[]>([]);
 
   const toProductShortName = (t?: Product) => {
     return !t
@@ -49,37 +50,32 @@ export const A3ReturnView = observer((props: { isVisible?: boolean }) => {
     setQuery("");
   };
 
-  const toProductName = (t: Product) => {
-    return `${sparePartStore.sparePartName(t.part)}${
-      t.description !== "" ? " " + t.description : ""
-    }${t.motors !== "" ? " " + t.motors : ""}${
-      t.brand !== "" ? " " + t.brand : ""
-    }${
-      t.is_orig
-        ? " ORIG."
-        : sparePartStore.spareParts.find((s) => s.id === t.part)?.is_semi_shown
-        ? " SEMI."
-        : ""
-    }`.toUpperCase();
-  };
-
   const returnableItems = salesItemStore.salesItems
     .filter((s) => s.product === item?.id)
     .filter((s) => saleStore.getItem(s.sales)?.status !== "1");
 
-  const productMatches = productStore.products.filter((s: Product) => {
-    if (query === "") {
-      return;
-    } else if (
-      query
-        .split(/[ ,]+/)
-        .every((v) => toProductName(s).toLowerCase().includes(v.toLowerCase()))
-    ) {
-      return s;
-    } else {
-      return;
+  const productMatches = productStore.products.filter((s) =>
+    matches.includes(s.id)
+  );
+
+  const getMatches = async () => {
+    const resp = await productStore.fetchMatches(query);
+    if (resp.data) {
+      setMatches(resp.data.ids);
     }
-  });
+  };
+
+  useEffect(() => {
+    if (query !== "" && query.length > 4) {
+      const getData = setTimeout(() => {
+        getMatches();
+      }, 100);
+
+      return () => clearTimeout(getData);
+    } else {
+      setMatches([]);
+    }
+  }, [query]);
 
   useEffect(() => {
     if (item)

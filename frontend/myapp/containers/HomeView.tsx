@@ -24,7 +24,13 @@ export const HomeView = observer((props: {}) => {
     sparePartStore,
     categoryStore,
     motorStore,
+    userStore,
   } = useStore();
+
+  const hasAdminStatus = userStore.currentUser.privilege === "1";
+  const hasModStatus =
+    userStore.currentUser.privilege === "2" ||
+    userStore.currentUser.privilege === "1";
 
   const getProducts = useCallback(async () => {
     const resp = await productStore.fetchProductRange();
@@ -43,7 +49,7 @@ export const HomeView = observer((props: {}) => {
   }, []);
 
   const getMechanics = useCallback(() => {
-    mechanicStore.fetchMechanics();
+    mechanicStore.fetchAll({ isActive: true });
   }, []);
 
   const getCategories = useCallback(() => {
@@ -51,7 +57,7 @@ export const HomeView = observer((props: {}) => {
   }, []);
 
   const getMotors = useCallback(() => {
-    motorStore.fetchMotors();
+    motorStore.fetchAll();
   }, []);
 
   useEffect(() => {
@@ -73,12 +79,16 @@ export const HomeView = observer((props: {}) => {
         drawerContent={(props) => <DrawerActions {...props} />}
       >
         <Drawer.Screen name="Sales & Balance" component={SalesModule} />
-        <Drawer.Screen name="Receipts & Payments" component={ExpenseModule} />
+        {hasModStatus && (
+          <Drawer.Screen name="Receipts & Payments" component={ExpenseModule} />
+        )}
         <Drawer.Screen
           name="Purchases & Inventory"
           component={InventoryModule}
         />
-        <Drawer.Screen name="Transfers & Trends" component={FinanceModule} />
+        {hasAdminStatus && (
+          <Drawer.Screen name="Transfers & Trends" component={FinanceModule} />
+        )}
       </Drawer.Navigator>
     </NavigationContainer>
   );

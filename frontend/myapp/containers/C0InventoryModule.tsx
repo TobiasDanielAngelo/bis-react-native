@@ -12,17 +12,22 @@ import { C5HistoryView } from "./C5HistoryView";
 
 const defaultLogo = { id: -1, name: "", label: "" };
 
-const submodules = [
-  { id: 1, name: "add-shopping-cart", label: "Order" },
-  { id: 2, name: "category", label: "Products" },
-  { id: 3, name: "local-shipping", label: "Delivery" },
-  { id: 4, name: "fact-check", label: "Check" },
-  { id: 5, name: "history", label: "History" },
-];
-
 export const InventoryModule = observer(() => {
   const [view, setView] = useState(defaultLogo);
-  const { purchaseStore, productStore } = useStore();
+  const { purchaseStore, productStore, userStore } = useStore();
+
+  const hasAdminStatus = userStore.currentUser.privilege === "1";
+  const hasModStatus =
+    userStore.currentUser.privilege === "2" ||
+    userStore.currentUser.privilege === "1";
+
+  const submodules = [
+    { id: 1, name: "add-shopping-cart", label: "Order" },
+    { id: 2, name: "category", label: "Products" },
+    { id: 3, name: "local-shipping", label: "Delivery" },
+    { id: 4, name: "fact-check", label: "Check" },
+    { id: 5, name: "history", label: "History" },
+  ].filter((s) => (hasModStatus ? true : s.id !== 5));
 
   const getPurchases = useCallback(() => {
     purchaseStore.fetchAll({ isActive: true });

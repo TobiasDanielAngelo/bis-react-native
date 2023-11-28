@@ -38,17 +38,15 @@ export const SearchBar = (props: {
     small,
   } = props;
 
-  const [value, setValue] = useState(0);
-
   const onPressSearch = useCallback(() => {
     setQuery("");
     setShowSearchBar(true);
   }, []);
 
-  const onPressCode = useCallback(() => {
-    setQuery("#");
-    setShowSearchBar(true);
-  }, []);
+  // const onPressCode = useCallback(() => {
+  //   setQuery("#");
+  //   setShowSearchBar(true);
+  // }, []);
 
   const onPressCancel = useCallback(() => {
     setFocus && setFocus(false);
@@ -81,14 +79,14 @@ export const SearchBar = (props: {
                   size={small ? "small" : undefined}
                   noLabel={small}
                 />
-                <MyIcon
+                {/* <MyIcon
                   name="tag"
                   label="Code"
                   color="white"
                   onPress={onPressCode}
                   size={small ? "small" : undefined}
                   noLabel={small}
-                />
+                /> */}
               </>
             )}
             {!hasNoBNW && (

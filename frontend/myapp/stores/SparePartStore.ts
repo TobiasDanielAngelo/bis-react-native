@@ -42,7 +42,31 @@ export class SparePartStore extends Model({
   }
 
   @modelFlow
-  fetchAll = _async(function* (this: SparePartStore) {
+  fetchAll = _async(function* (
+    this: SparePartStore,
+    filters?: {
+      startDate?: string;
+      endDate?: string;
+      ids?: number[];
+      isActive?: boolean;
+    }
+  ) {
+    let queryFilters: string[] = [];
+    let query: string = "";
+
+    if (filters) {
+      if (filters.startDate)
+        queryFilters.push(`start_date=${filters.startDate}`);
+      if (filters?.endDate) queryFilters.push(`end_date=${filters.endDate}`);
+      if (filters?.ids) queryFilters.push(`ids=${filters.ids.join("+")}`);
+      if (filters?.isActive)
+        queryFilters.push(`is_active=${filters?.isActive ? "true" : "false"}`);
+    }
+
+    if (queryFilters.length > 0) {
+      query = "?" + queryFilters.join("&");
+    }
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -50,7 +74,7 @@ export class SparePartStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/spareparts/`, {
+      fetch(`${process.env["BASE_URL"]}/spareparts/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",

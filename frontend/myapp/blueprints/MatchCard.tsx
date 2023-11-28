@@ -6,18 +6,30 @@ export const MatchCard = <T extends { id: number }>(props: {
   item: T;
   mainText: string;
   subText?: string;
-  commentText?: string;
+  commentText1?: string;
+  commentText2?: string;
   price?: number;
   onPress?: () => void;
 }) => {
-  const { item, onPress, mainText, subText, commentText, price } = props;
+  const {
+    item,
+    onPress,
+    mainText,
+    subText,
+    commentText1,
+    commentText2,
+    price,
+  } = props;
 
   return (
     <TouchableOpacity key={item.id} onPress={onPress} style={styles.main}>
       <Text style={styles.mainText}>{mainText}</Text>
       <Text style={styles.subText}>{subText && subText.substring(0, 39)}</Text>
       <Text style={styles.commentText}>
-        {commentText && commentText.substring(0, 39)}
+        {commentText1 && commentText1.substring(0, 39)}
+      </Text>
+      <Text style={styles.commentText}>
+        {commentText2 && commentText2.substring(0, 39)}
       </Text>
       <Text style={styles.priceText}>{price && `\u20b1${toMoney(price)}`}</Text>
     </TouchableOpacity>

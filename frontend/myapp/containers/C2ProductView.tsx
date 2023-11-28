@@ -49,20 +49,7 @@ export const C2ProductView = observer((props: { isVisible?: boolean }) => {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [query, setQuery] = useState("");
   const [focus, setFocus] = useState(false);
-
-  const toProductName = (t: Product) => {
-    return `${sparePartStore.sparePartName(t.part)}${
-      t.description !== "" ? " " + t.description : ""
-    }${t.motors !== "" ? " " + t.motors : ""}${
-      t.brand !== "" ? " " + t.brand : ""
-    }${
-      t.is_orig
-        ? " ORIG."
-        : sparePartStore.spareParts.find((s) => s.id === t.part)?.is_semi_shown
-        ? " SEMI."
-        : ""
-    }`.toUpperCase();
-  };
+  const [matches, setMatches] = useState<number[]>([]);
 
   const toProductShortName = (t?: Product) => {
     return !t
@@ -84,15 +71,9 @@ export const C2ProductView = observer((props: { isVisible?: boolean }) => {
         }`.toUpperCase();
   };
 
-  const productMatches = productStore.products.filter((s: Product) => {
-    if (query === "") {
-      return;
-    } else if (isSubString(toProductName(s), query)) {
-      return s;
-    } else {
-      return;
-    }
-  });
+  const productMatches = productStore.products.filter((s) =>
+    matches.includes(s.id)
+  );
 
   const similarProducts = productStore.products.filter(
     (s) =>
@@ -142,6 +123,25 @@ export const C2ProductView = observer((props: { isVisible?: boolean }) => {
     setQuery("");
     setShowSearchBar(false);
   };
+
+  const getMatches = async () => {
+    const resp = await productStore.fetchMatches(query);
+    if (resp.data) {
+      setMatches(resp.data.ids);
+    }
+  };
+
+  useEffect(() => {
+    if (query !== "" && query.length > 4) {
+      const getData = setTimeout(() => {
+        getMatches();
+      }, 100);
+
+      return () => clearTimeout(getData);
+    } else {
+      setMatches([]);
+    }
+  }, [query]);
 
   useEffect(() => {
     onPressClear();

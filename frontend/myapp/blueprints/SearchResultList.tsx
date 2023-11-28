@@ -3,6 +3,7 @@ import { winHeight } from "../constants/constants";
 import { useStore } from "../stores/Store";
 import { MatchCard } from "./MatchCard";
 import { Product } from "../stores/ProductStore";
+import { toMoney } from "../constants/helpers";
 
 export const SearchResultList = (props: {
   onPressItem?: (item: Product) => void;
@@ -10,8 +11,9 @@ export const SearchResultList = (props: {
   inputFocus?: boolean;
   setInputFocus?: (t: boolean) => void;
   results: Product[];
+  showPPInstead?: boolean;
 }) => {
-  const { results, hidden, onPressItem } = props;
+  const { results, hidden, onPressItem, showPPInstead } = props;
 
   const { sparePartStore } = useStore();
 
@@ -46,13 +48,19 @@ export const SearchResultList = (props: {
               item={{ id: item.id }}
               mainText={toProductShortName(item)}
               subText={`SKU # ${item.id}`}
-              commentText={`Shelf ${item.location}`}
-              price={item.sell_price}
+              commentText1={`Shelf ${item.location} | In stock: ${
+                item.purchased - item.sold + item.returned + item.counted
+              } ${item.unit}`}
+              commentText2={
+                showPPInstead
+                  ? `Sell Price: ${toMoney(item.sell_price)}`
+                  : `Purchase Price: ${toMoney(item.purchase_price)}`
+              }
+              price={showPPInstead ? item.purchase_price : item.sell_price}
               key={item.id}
               onPress={() => onPress(item)}
             />
           )}
-          initialNumToRender={4}
           keyboardShouldPersistTaps="always"
         />
       </View>

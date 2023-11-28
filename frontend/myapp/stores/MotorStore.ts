@@ -41,7 +41,31 @@ export class MotorStore extends Model({
   }
 
   @modelFlow
-  fetchMotors = _async(function* (this: MotorStore) {
+  fetchAll = _async(function* (
+    this: MotorStore,
+    filters?: {
+      startDate?: string;
+      endDate?: string;
+      ids?: number[];
+      isActive?: boolean;
+    }
+  ) {
+    let queryFilters: string[] = [];
+    let query: string = "";
+
+    if (filters) {
+      if (filters.startDate)
+        queryFilters.push(`start_date=${filters.startDate}`);
+      if (filters?.endDate) queryFilters.push(`end_date=${filters.endDate}`);
+      if (filters?.ids) queryFilters.push(`ids=${filters.ids.join("+")}`);
+      if (filters?.isActive)
+        queryFilters.push(`is_active=${filters?.isActive ? "true" : "false"}`);
+    }
+
+    if (queryFilters.length > 0) {
+      query = "?" + queryFilters.join("&");
+    }
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -49,7 +73,7 @@ export class MotorStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/motors/`, {
+      fetch(`${process.env["BASE_URL"]}/motors/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",

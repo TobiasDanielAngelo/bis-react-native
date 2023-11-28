@@ -47,8 +47,13 @@ export const SalesStatusBar = observer(
       sale,
     } = props;
 
-    const { transactionStore, accountStore, mechanicStore, receivableStore } =
-      useStore();
+    const {
+      transactionStore,
+      accountStore,
+      mechanicStore,
+      receivableStore,
+      userStore,
+    } = useStore();
     const [isVisible1, setVisible1] = useState(false);
     const [isVisible2, setVisible2] = useState(false);
     const [isVisible3, setVisible3] = useState(false);
@@ -193,8 +198,6 @@ export const SalesStatusBar = observer(
       return transactionStore.getItem(t)?.amount;
     };
 
-    const mechanicName = (t: number) => mechanicStore.getItem(t)?.name;
-
     const amountPaid = totalValue(
       sale?.payment?.map(
         (s) =>
@@ -262,9 +265,9 @@ export const SalesStatusBar = observer(
       for (let i = 0; i < (sale.labor_item?.length ?? 0); i++) {
         if (sale.labor_item && sale.labor_item[i].amount_returned > 0) {
           const resp = await transactionStore.addItem({
-            description: `Labor for ${mechanicName(
-              sale.labor_item[i].mechanic
-            )} - Sale # ${sale?.id}`,
+            description: `Labor for ${
+              mechanicStore.getItem(sale.labor_item[i].mechanic)?.name
+            } - Sale # ${sale?.id}`,
             amount: sale.labor_item[i].amount_returned,
             transmitter: 10,
             receiver: 14,
@@ -291,6 +294,11 @@ export const SalesStatusBar = observer(
         payment: payments,
       });
     };
+
+    const hasAdminStatus = userStore.currentUser.privilege === "1";
+    const hasModStatus =
+      userStore.currentUser.privilege === "2" ||
+      userStore.currentUser.privilege === "1";
 
     const onPressCheck3 = () => {
       if (!sale?.id) return;
@@ -448,9 +456,9 @@ export const SalesStatusBar = observer(
 
               <MyText
                 size="medium"
-                text={`To ${mechanicName(s.mechanic)} ~ ${toMoney(
-                  s.amount_owed - s.amount_returned
-                )}`}
+                text={`To ${
+                  mechanicStore.getItem(s.mechanic)?.name
+                } ~ ${toMoney(s.amount_owed - s.amount_returned)}`}
               />
               <MyText size="medium" text={toMoney(s.amount_returned)} />
             </HView>
@@ -501,7 +509,9 @@ export const SalesStatusBar = observer(
         <MyStatusBar
           hidden={hidden}
           amount={amount}
-          action1={{ name: "list", onPress: onPressList }}
+          action1={
+            hasModStatus ? { name: "list", onPress: onPressList } : undefined
+          }
           action2={{
             name: "print",
             onPress: onPressPrint,
@@ -522,17 +532,19 @@ export const SalesStatusBar = observer(
                 : onPressClose,
           }}
           action4={
-            sale?.status !== "1"
-              ? {
-                  name: "star",
-                  onPress:
-                    sale?.status === "2" ? onPressProcess : onPressUnprocess,
-                  selected: sale?.status === "3",
-                }
-              : {
-                  name: "request-quote",
-                  onPress: onPressCreateReceivable,
-                }
+            hasModStatus
+              ? sale?.status !== "1"
+                ? {
+                    name: "star",
+                    onPress:
+                      sale?.status === "2" ? onPressProcess : onPressUnprocess,
+                    selected: sale?.status === "3",
+                  }
+                : {
+                    name: "request-quote",
+                    onPress: onPressCreateReceivable,
+                  }
+              : undefined
           }
           leftText={leftText}
           rightText={rightText}

@@ -8,19 +8,26 @@ import { A4ReviewView } from "./A4ReviewView";
 import { BlankView } from "./BlankView";
 import { observer } from "mobx-react-lite";
 import { A5BalanceView } from "./A5BalanceView";
+import { useStore } from "../stores/Store";
 
 const defaultLogo = { id: -1, name: "", label: "" };
 
-const submodules = [
-  { id: 1, name: "point-of-sale", label: "Transact" },
-  { id: 2, name: "home-repair-service", label: "Settle" },
-  { id: 3, name: "assignment-return", label: "Return" },
-  { id: 4, name: "history", label: "History" },
-  { id: 5, name: "description", label: "Balance" },
-];
-
 export const SalesModule = observer(() => {
+  const { userStore } = useStore();
   const [view, setView] = useState(defaultLogo);
+
+  const hasAdminStatus = userStore.currentUser.privilege === "1";
+  const hasModStatus =
+    userStore.currentUser.privilege === "2" ||
+    userStore.currentUser.privilege === "1";
+
+  const submodules = [
+    { id: 1, name: "point-of-sale", label: "Transact" },
+    { id: 2, name: "home-repair-service", label: "Settle" },
+    { id: 3, name: "assignment-return", label: "Return" },
+    { id: 4, name: "history", label: "History" },
+    { id: 5, name: "description", label: "Balance" },
+  ].filter((s) => (hasModStatus ? true : ![2, 4, 5].includes(s.id)));
 
   const onPressItem = useCallback(
     (item: { id: number; name: string; label: string }) => {

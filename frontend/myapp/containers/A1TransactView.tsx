@@ -33,6 +33,7 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
   const [laborCost, setLaborCost] = useState("");
   const [labor, setLabor] = useState(-1);
   const [mechanic, setMechanic] = useState(-1);
+  const [matches, setMatches] = useState<number[]>([]);
 
   const getSales = useCallback(() => {
     saleStore.fetchAll({ isActive: true });
@@ -126,20 +127,6 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
     }`.toUpperCase();
   };
 
-  const toProductName = (t: Product) => {
-    return `${sparePartStore.sparePartName(t.part)}${
-      t.description !== "" ? " " + t.description : ""
-    }${t.motors !== "" ? " " + t.motors : ""}${
-      t.brand !== "" ? " " + t.brand : ""
-    }${
-      t.is_orig
-        ? " ORIG."
-        : sparePartStore.spareParts.find((s) => s.id === t.part)?.is_semi_shown
-        ? " SEMI."
-        : ""
-    }`.toUpperCase();
-  };
-
   const onChangeLaborCost = (qty: string) => {
     let quantity = toNumString(qty);
     setLaborCost(quantity);
@@ -161,23 +148,28 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
     setShowSearchBar(false);
   };
 
-  const productMatches = productStore.products
-    .filter((s) => !sale?.sales_item.map((t) => t.product).includes(s.id))
-    .filter((s: Product) => {
-      if (query === "") {
-        return;
-      } else if (
-        query
-          .split(/[ ,]+/)
-          .every((v) =>
-            toProductName(s).toLowerCase().includes(v.toLowerCase())
-          )
-      ) {
-        return s;
-      } else {
-        return;
-      }
-    });
+  const productMatches = productStore.products.filter((s) =>
+    matches.includes(s.id)
+  );
+
+  const getMatches = async () => {
+    const resp = await productStore.fetchMatches(query);
+    if (resp.data) {
+      setMatches(resp.data.ids);
+    }
+  };
+
+  useEffect(() => {
+    if (query !== "" && query.length > 4) {
+      const getData = setTimeout(() => {
+        getMatches();
+      }, 100);
+
+      return () => clearTimeout(getData);
+    } else {
+      setMatches([]);
+    }
+  }, [query]);
 
   useEffect(() => {
     getSales();
@@ -266,6 +258,7 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
           setShowSearchBar={setShowSearchBar}
           focus={focus}
           setFocus={setFocus}
+          hasNoBNW
           hasNoSearch={selectedItem === -1}
           hasNoLabor={selectedItem === -1}
           hidden={sale?.status !== "1"}

@@ -48,20 +48,7 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
   const [index, setIndex] = useState(0);
   const [details2, setDetails2] = useState(defaultDetails);
   const [isVisible1, setVisible1] = useState(false);
-
-  const toProductName = (t: Product) => {
-    return `${sparePartStore.sparePartName(t.part)}${
-      t.description !== "" ? " " + t.description : ""
-    }${t.motors !== "" ? " " + t.motors : ""}${
-      t.brand !== "" ? " " + t.brand : ""
-    }${
-      t.is_orig
-        ? " ORIG."
-        : sparePartStore.spareParts.find((s) => s.id === t.part)?.is_semi_shown
-        ? " SEMI."
-        : ""
-    }`.toUpperCase();
-  };
+  const [matches, setMatches] = useState<number[]>([]);
 
   const currentOrder = purchaseStore.getItem(order);
   const purchaseItems = currentOrder?.purchase_item;
@@ -81,22 +68,27 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
   );
 
   const productMatches = productStore.products
-    .filter((s: Product) => {
-      if (query === "") {
-        return;
-      } else if (
-        query
-          .split(/[ ,]+/)
-          .every((v) =>
-            toProductName(s).toLowerCase().includes(v.toLowerCase())
-          )
-      ) {
-        return s;
-      } else {
-        return;
-      }
-    })
+    .filter((s) => matches.includes(s.id))
     .filter((s) => !purchaseItems?.map((t) => t.product).includes(s.id));
+
+  const getMatches = async () => {
+    const resp = await productStore.fetchMatches(query);
+    if (resp.data) {
+      setMatches(resp.data.ids);
+    }
+  };
+
+  useEffect(() => {
+    if (query !== "" && query.length > 4) {
+      const getData = setTimeout(() => {
+        getMatches();
+      }, 100);
+
+      return () => clearTimeout(getData);
+    } else {
+      setMatches([]);
+    }
+  }, [query]);
 
   const onPressDelivered = () => {
     if (order === -1) return;
@@ -280,6 +272,7 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
           hidden={!showSearchBar || !focus}
           inputFocus={focus}
           setInputFocus={setFocus}
+          showPPInstead
         />
 
         <View style={styles.body}>
