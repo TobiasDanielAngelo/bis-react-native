@@ -20,6 +20,7 @@ class MyUser(AbstractUser):
 class Mechanic(models.Model):
     name = models.CharField(max_length=20, default="")
     color = models.CharField(max_length=20, default="gray")
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.name}"

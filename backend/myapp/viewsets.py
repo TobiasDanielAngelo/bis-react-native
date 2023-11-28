@@ -10,7 +10,12 @@ from django.db.models import (
     OuterRef,
     Subquery,
     IntegerField,
+    Value,
+    Case,
+    When,
 )
+
+from django.db.models.functions import Concat
 from knox.auth import TokenAuthentication
 from rest_framework import response, viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -64,7 +69,18 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     authentication_classes = (TokenAuthentication,)
 
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().annotate(
+        name1=Concat(
+            "part__name",
+            Value(" "),
+            "description",
+            Value(" "),
+            "motors",
+            Value(" "),
+            "brand",
+            Case(When(is_orig=True, then=Value("ORIG.")), default=Value("SEMI.")),
+        ),
+    )
 
     def list(self, request, *args, **kwargs):
         params = self.request.query_params
@@ -101,6 +117,19 @@ class ProductViewSet(viewsets.ModelViewSet):
                     (Q(id=x) for x in list_to_include),
                 )
             )
+        if params.get("q"):
+            if len(f'{params["q"]}') > 4:
+                pattern = r"\W+"
+                list_queries = re.split(pattern, params["q"])
+                print(list_queries)
+                queryset = queryset.filter(
+                    reduce(
+                        operator.and_,
+                        (Q(name1__icontains=x) for x in list_queries),
+                    )
+                )
+                ids = list(queryset.values_list("id", flat=True))
+            return response.Response({"ids": ids})
 
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
@@ -114,6 +143,15 @@ class CategoryViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
 
     queryset = Category.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("is_active"):
+            activity = params["is_active"] == "true"
+            queryset = queryset.filter(is_active=activity)
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
 
 
 class AccountViewSet(viewsets.ModelViewSet):
@@ -173,6 +211,15 @@ class MotorViewSet(viewsets.ModelViewSet):
 
     queryset = Motor.objects.all()
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("is_active"):
+            activity = params["is_active"] == "true"
+            queryset = queryset.filter(is_active=activity)
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
+
 
 class SparePartViewSet(viewsets.ModelViewSet):
     serializer_class = SparePartSerializer
@@ -183,6 +230,15 @@ class SparePartViewSet(viewsets.ModelViewSet):
 
     queryset = SparePart.objects.all()
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("is_active"):
+            activity = params["is_active"] == "true"
+            queryset = queryset.filter(is_active=activity)
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
+
 
 class MechanicViewSet(viewsets.ModelViewSet):
     serializer_class = MechanicSerializer
@@ -192,6 +248,15 @@ class MechanicViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
 
     queryset = Mechanic.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        params = self.request.query_params
+        if params.get("is_active"):
+            activity = params["is_active"] == "true"
+            queryset = queryset.filter(is_active=activity)
+        serializer = self.get_serializer(queryset, many=True)
+        return response.Response(serializer.data)
 
 
 class MyUserViewSet(viewsets.ModelViewSet):
