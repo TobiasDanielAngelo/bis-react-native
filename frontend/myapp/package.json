@@ -11,7 +11,7 @@
     "eas prebuild": "expo prebuild --clean",
     "eas update:configure": "eas update:configure",
     "eas build:configure": "eas build:configure",
-    "eas:build:android": "eas build --profile preview --platform android",
+    "build": "eas build --profile preview --platform android",
     "eas whoami": "eas whoami",
     "doctor": "npx expo-doctor"
   },
