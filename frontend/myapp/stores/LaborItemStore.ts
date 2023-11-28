@@ -74,7 +74,7 @@ export class LaborItemStore extends Model({
 
     response = yield* _await(
       fetch(
-        `${process.env["BASE_URL"]}/labor_items/?analytics=1&range=${filters.range}`,
+        `${process.env["EXPO_PUBLIC_BASE_URL"]}/labor_items/?analytics=1&range=${filters.range}`,
         {
           method: "GET",
           headers: {

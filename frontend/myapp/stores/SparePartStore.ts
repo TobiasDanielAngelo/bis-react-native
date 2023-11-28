@@ -74,7 +74,7 @@ export class SparePartStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/spareparts/${query}`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/spareparts/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",

@@ -73,7 +73,7 @@ export class PurchaseItemStore extends Model({
 
     response = yield* _await(
       fetch(
-        `${process.env["BASE_URL"]}/purchase_items/?analytics=1&range=${filters.range}`,
+        `${process.env["EXPO_PUBLIC_BASE_URL"]}/purchase_items/?analytics=1&range=${filters.range}`,
         {
           method: "GET",
           headers: {

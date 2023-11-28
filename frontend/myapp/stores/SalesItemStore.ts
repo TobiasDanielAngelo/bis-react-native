@@ -73,7 +73,7 @@ export class SalesItemStore extends Model({
 
     response = yield* _await(
       fetch(
-        `${process.env["BASE_URL"]}/sales_items/?analytics=1&range=${filters.range}`,
+        `${process.env["EXPO_PUBLIC_BASE_URL"]}/sales_items/?analytics=1&range=${filters.range}`,
         {
           method: "GET",
           headers: {
@@ -150,7 +150,7 @@ export class SalesItemStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/sales_items/${query}`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/sales_items/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",

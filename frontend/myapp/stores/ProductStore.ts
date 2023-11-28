@@ -81,7 +81,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/?get_id_range=1`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/products/?get_id_range=1`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -123,7 +123,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/?q=${query}`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/products/?q=${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -189,7 +189,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/${query}`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/products/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -239,7 +239,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/${productId}/`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/products/${productId}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -296,7 +296,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/products/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -356,7 +356,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/${id}/`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/products/${id}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {

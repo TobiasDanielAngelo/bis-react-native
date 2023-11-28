@@ -89,7 +89,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/receivables/${query}`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/receivables/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -139,7 +139,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/receivables/${id}/`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/receivables/${id}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -199,7 +199,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/receivables/`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/receivables/`, {
         method: "POST",
         body: JSON.stringify(receivableDetails),
         headers: {
@@ -254,14 +254,17 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/receivables/${receivableId}/`, {
-        method: "PATCH",
-        body: JSON.stringify(details),
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+      fetch(
+        `${process.env["EXPO_PUBLIC_BASE_URL"]}/receivables/${receivableId}/`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(details),
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
     );
 
     if (!response.ok) {
@@ -297,7 +300,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/receivables/${id}/`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/receivables/${id}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

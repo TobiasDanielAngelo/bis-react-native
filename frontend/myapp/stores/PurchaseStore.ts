@@ -108,7 +108,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases/${query}`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/purchases/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -158,7 +158,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases/${id}/`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/purchases/${id}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -214,7 +214,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases/`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/purchases/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -269,7 +269,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases/${purchaseId}/`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/purchases/${purchaseId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -312,7 +312,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases/${purchaseId}/`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/purchases/${purchaseId}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",
@@ -356,7 +356,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchase_items/`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/purchase_items/`, {
         method: "POST",
         body: JSON.stringify({ ...details, user_adder: user?.user_id }),
         headers: {
@@ -416,14 +416,17 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchase_items/${purchaseItemId}/`, {
-        method: "PATCH",
-        body: JSON.stringify(details),
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+      fetch(
+        `${process.env["EXPO_PUBLIC_BASE_URL"]}/purchase_items/${purchaseItemId}/`,
+        {
+          method: "PATCH",
+          body: JSON.stringify(details),
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
     );
 
     if (!response.ok) {
@@ -468,13 +471,16 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchase_items/${purchaseItemId}/`, {
-        method: "DELETE",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      })
+      fetch(
+        `${process.env["EXPO_PUBLIC_BASE_URL"]}/purchase_items/${purchaseItemId}/`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      )
     );
 
     if (!response.ok) {

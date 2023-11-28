@@ -73,7 +73,7 @@ export class MotorStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/motors/${query}`, {
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/motors/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
