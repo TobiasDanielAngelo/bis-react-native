@@ -308,12 +308,10 @@ export const SalesStatusBar = observer(
         description: `Sale # ${sale.id}`,
         datetime_due: date.toISOString(),
       });
-      if (totalAmountReturned === laborTotalOwed) {
-        saleStore.updateItem(sale.id, {
-          datetime_closed: new Date().toISOString(),
-          is_active: false,
-        });
-      }
+      saleStore.updateItem(sale.id, {
+        datetime_closed: new Date().toISOString(),
+        is_active: false,
+      });
     };
 
     useEffect(() => {
