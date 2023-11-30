@@ -81,7 +81,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/?get_id_range=1`, {
+      fetch(`http://192.168.254.197:8000/products/?get_id_range=1`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -123,7 +123,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/?q=${query}`, {
+      fetch(`http://192.168.254.197:8000/products/?q=${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -189,7 +189,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/${query}`, {
+      fetch(`http://192.168.254.197:8000/products/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -239,7 +239,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/${productId}/`, {
+      fetch(`http://192.168.254.197:8000/products/${productId}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -296,7 +296,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/`, {
+      fetch(`http://192.168.254.197:8000/products/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -356,7 +356,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/products/${id}/`, {
+      fetch(`http://192.168.254.197:8000/products/${id}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {

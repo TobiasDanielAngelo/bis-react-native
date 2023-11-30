@@ -64,7 +64,7 @@ export class TransactionStore extends Model({
 
     response = yield* _await(
       fetch(
-        `${process.env["BASE_URL"]}/transactions/?analytics=1&range=${filters.range}`,
+        `http://192.168.254.197:8000/transactions/?analytics=1&range=${filters.range}`,
         {
           method: "GET",
           headers: {
@@ -139,7 +139,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/transactions/${query}`, {
+      fetch(`http://192.168.254.197:8000/transactions/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -213,7 +213,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/transactions/`, {
+      fetch(`http://192.168.254.197:8000/transactions/`, {
         method: "POST",
         body: JSON.stringify(transactionDetails),
         headers: {
@@ -266,7 +266,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/transactions/${transactionId}/`, {
+      fetch(`http://192.168.254.197:8000/transactions/${transactionId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -316,7 +316,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/transactions/${transactionId}/`, {
+      fetch(`http://192.168.254.197:8000/transactions/${transactionId}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

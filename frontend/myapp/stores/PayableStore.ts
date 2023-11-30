@@ -88,7 +88,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/payables/${query}`, {
+      fetch(`http://192.168.254.197:8000/payables/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -152,7 +152,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/payables/${id}/`, {
+      fetch(`http://192.168.254.197:8000/payables/${id}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -231,7 +231,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/payables/`, {
+      fetch(`http://192.168.254.197:8000/payables/`, {
         method: "POST",
         body: JSON.stringify(payableDetails),
         headers: {
@@ -310,7 +310,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/payables/${payableId}/`, {
+      fetch(`http://192.168.254.197:8000/payables/${payableId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -353,7 +353,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/payables/${id}/`, {
+      fetch(`http://192.168.254.197:8000/payables/${id}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

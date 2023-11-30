@@ -108,7 +108,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases/${query}`, {
+      fetch(`http://192.168.254.197:8000/purchases/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -158,7 +158,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases/${id}/`, {
+      fetch(`http://192.168.254.197:8000/purchases/${id}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -214,7 +214,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases/`, {
+      fetch(`http://192.168.254.197:8000/purchases/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -269,7 +269,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases/${purchaseId}/`, {
+      fetch(`http://192.168.254.197:8000/purchases/${purchaseId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -312,7 +312,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchases/${purchaseId}/`, {
+      fetch(`http://192.168.254.197:8000/purchases/${purchaseId}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",
@@ -356,7 +356,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchase_items/`, {
+      fetch(`http://192.168.254.197:8000/purchase_items/`, {
         method: "POST",
         body: JSON.stringify({ ...details, user_adder: user?.user_id }),
         headers: {
@@ -416,7 +416,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchase_items/${purchaseItemId}/`, {
+      fetch(`http://192.168.254.197:8000/purchase_items/${purchaseItemId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -468,7 +468,7 @@ export class PurchaseStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/purchase_items/${purchaseItemId}/`, {
+      fetch(`http://192.168.254.197:8000/purchase_items/${purchaseItemId}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

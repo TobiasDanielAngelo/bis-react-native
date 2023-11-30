@@ -50,7 +50,7 @@ export class CountItemStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/count_items/`, {
+      fetch(`http://192.168.254.197:8000/count_items/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -99,7 +99,7 @@ export class CountItemStore extends Model({
 
     response = yield* _await(
       fetch(
-        `${process.env["BASE_URL"]}/count_items/?analytics=1&range=${filters.range}`,
+        `http://192.168.254.197:8000/count_items/?analytics=1&range=${filters.range}`,
         {
           method: "GET",
           headers: {

@@ -64,7 +64,7 @@ export class MechanicStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/mechanics/${query}`, {
+      fetch(`http://192.168.254.197:8000/mechanics/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -116,7 +116,7 @@ export class MechanicStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/mechanics/`, {
+      fetch(`http://192.168.254.197:8000/mechanics/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {

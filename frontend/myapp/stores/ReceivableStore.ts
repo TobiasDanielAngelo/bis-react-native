@@ -89,7 +89,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/receivables/${query}`, {
+      fetch(`http://192.168.254.197:8000/receivables/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -139,7 +139,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/receivables/${id}/`, {
+      fetch(`http://192.168.254.197:8000/receivables/${id}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -199,7 +199,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/receivables/`, {
+      fetch(`http://192.168.254.197:8000/receivables/`, {
         method: "POST",
         body: JSON.stringify(receivableDetails),
         headers: {
@@ -254,7 +254,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/receivables/${receivableId}/`, {
+      fetch(`http://192.168.254.197:8000/receivables/${receivableId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -297,7 +297,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/receivables/${id}/`, {
+      fetch(`http://192.168.254.197:8000/receivables/${id}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

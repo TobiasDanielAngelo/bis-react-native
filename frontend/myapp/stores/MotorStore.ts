@@ -73,7 +73,7 @@ export class MotorStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/motors/${query}`, {
+      fetch(`http://192.168.254.197:8000/motors/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -127,7 +127,7 @@ export class MotorStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/motors/`, {
+      fetch(`http://192.168.254.197:8000/motors/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {

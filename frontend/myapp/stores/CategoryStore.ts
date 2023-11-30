@@ -74,7 +74,7 @@ export class CategoryStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/categories/${query}`, {
+      fetch(`http://192.168.254.197:8000/categories/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",

@@ -52,7 +52,7 @@ export class UserStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/users/?userid=${userId}`, {
+      fetch(`http://192.168.254.197:8000/users/?userid=${userId}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -96,7 +96,7 @@ export class UserStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/login`, {
+      fetch(`http://192.168.254.197:8000/login`, {
         method: "POST",
         body: JSON.stringify(credentials),
         headers: {
@@ -143,7 +143,7 @@ export class UserStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/logout`, {
+      fetch(`http://192.168.254.197:8000/logout`, {
         method: "POST",
         headers: {
           "Content-type": "application/json",
@@ -183,7 +183,7 @@ export class UserStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["BASE_URL"]}/reauth`, {
+      fetch(`http://192.168.254.197:8000/reauth`, {
         method: "POST",
         headers: {
           "Content-type": "application/json",

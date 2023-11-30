@@ -67,7 +67,7 @@ export class ReturnedItemStore extends Model({
 
     response = yield* _await(
       fetch(
-        `${process.env["BASE_URL"]}/returned_items/?analytics=1&range=${filters.range}`,
+        `http://192.168.254.197:8000/returned_items/?analytics=1&range=${filters.range}`,
         {
           method: "GET",
           headers: {
