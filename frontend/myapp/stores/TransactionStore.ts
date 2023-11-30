@@ -64,7 +64,7 @@ export class TransactionStore extends Model({
 
     response = yield* _await(
       fetch(
-        `${process.env["EXPO_PUBLIC_BASE_URL"]}/transactions/?analytics=1&range=${filters.range}`,
+        `${process.env["BASE_URL"]}/transactions/?analytics=1&range=${filters.range}`,
         {
           method: "GET",
           headers: {
@@ -139,7 +139,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/transactions/${query}`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -213,7 +213,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/transactions/`, {
+      fetch(`${process.env["BASE_URL"]}/transactions/`, {
         method: "POST",
         body: JSON.stringify(transactionDetails),
         headers: {
@@ -266,17 +266,14 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(
-        `${process.env["EXPO_PUBLIC_BASE_URL"]}/transactions/${transactionId}/`,
-        {
-          method: "PATCH",
-          body: JSON.stringify(details),
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+      fetch(`${process.env["BASE_URL"]}/transactions/${transactionId}/`, {
+        method: "PATCH",
+        body: JSON.stringify(details),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
     );
 
     if (!response.ok) {
@@ -319,16 +316,13 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(
-        `${process.env["EXPO_PUBLIC_BASE_URL"]}/transactions/${transactionId}/`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+      fetch(`${process.env["BASE_URL"]}/transactions/${transactionId}/`, {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
     );
 
     if (!response.ok) {

@@ -88,7 +88,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/payables/${query}`, {
+      fetch(`${process.env["BASE_URL"]}/payables/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -152,7 +152,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/payables/${id}/`, {
+      fetch(`${process.env["BASE_URL"]}/payables/${id}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -231,7 +231,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/payables/`, {
+      fetch(`${process.env["BASE_URL"]}/payables/`, {
         method: "POST",
         body: JSON.stringify(payableDetails),
         headers: {
@@ -310,7 +310,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/payables/${payableId}/`, {
+      fetch(`${process.env["BASE_URL"]}/payables/${payableId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -353,7 +353,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/payables/${id}/`, {
+      fetch(`${process.env["BASE_URL"]}/payables/${id}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

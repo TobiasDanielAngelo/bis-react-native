@@ -64,7 +64,7 @@ export class MechanicStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/mechanics/${query}`, {
+      fetch(`${process.env["BASE_URL"]}/mechanics/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -116,7 +116,7 @@ export class MechanicStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/mechanics/`, {
+      fetch(`${process.env["BASE_URL"]}/mechanics/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {

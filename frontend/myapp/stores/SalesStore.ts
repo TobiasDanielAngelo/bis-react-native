@@ -121,7 +121,7 @@ export class SaleStore extends Model({
 
     response = yield* _await(
       fetch(
-        `${process.env["EXPO_PUBLIC_BASE_URL"]}/sales/?analytics=1&range=${filters.range}`,
+        `${process.env["BASE_URL"]}/sales/?analytics=1&range=${filters.range}`,
         {
           method: "GET",
           headers: {
@@ -191,7 +191,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/sales/${query}`, {
+      fetch(`${process.env["BASE_URL"]}/sales/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -241,7 +241,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/sales/${id}/`, {
+      fetch(`${process.env["BASE_URL"]}/sales/${id}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -297,7 +297,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/sales/`, {
+      fetch(`${process.env["BASE_URL"]}/sales/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -352,7 +352,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/sales/${saleId}/`, {
+      fetch(`${process.env["BASE_URL"]}/sales/${saleId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -402,7 +402,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/sales_items/`, {
+      fetch(`${process.env["BASE_URL"]}/sales_items/`, {
         method: "POST",
         body: JSON.stringify({ ...details, user_adder: user?.user_id }),
         headers: {
@@ -454,7 +454,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/labor_items/`, {
+      fetch(`${process.env["BASE_URL"]}/labor_items/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -506,7 +506,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/returned_items/`, {
+      fetch(`${process.env["BASE_URL"]}/returned_items/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -566,17 +566,14 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(
-        `${process.env["EXPO_PUBLIC_BASE_URL"]}/sales_items/${salesItemId}/`,
-        {
-          method: "PATCH",
-          body: JSON.stringify(details),
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+      fetch(`${process.env["BASE_URL"]}/sales_items/${salesItemId}/`, {
+        method: "PATCH",
+        body: JSON.stringify(details),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
     );
 
     if (!response.ok) {
@@ -623,17 +620,14 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(
-        `${process.env["EXPO_PUBLIC_BASE_URL"]}/labor_items/${laborItemId}/`,
-        {
-          method: "PATCH",
-          body: JSON.stringify(details),
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+      fetch(`${process.env["BASE_URL"]}/labor_items/${laborItemId}/`, {
+        method: "PATCH",
+        body: JSON.stringify(details),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
     );
 
     if (!response.ok) {
@@ -678,16 +672,13 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(
-        `${process.env["EXPO_PUBLIC_BASE_URL"]}/sales_items/${salesItemId}/`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+      fetch(`${process.env["BASE_URL"]}/sales_items/${salesItemId}/`, {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
     );
 
     if (!response.ok) {
@@ -723,16 +714,13 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(
-        `${process.env["EXPO_PUBLIC_BASE_URL"]}/labor_items/${laborItemId}/`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+      fetch(`${process.env["BASE_URL"]}/labor_items/${laborItemId}/`, {
+        method: "DELETE",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
     );
 
     if (!response.ok) {

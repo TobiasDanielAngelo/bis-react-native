@@ -17,7 +17,7 @@
       "distribution": "internal",
       "channel": "preview",
       "env": {
-        "EXPO_PUBLIC_BASE_URL": "http://192.168.254.197:8000",
+        "BASE_URL": "http://192.168.254.197:8000",
         "APP_ICON": "./assets/icon.png",
         "APP_NAME": "DATS MC"
       }
