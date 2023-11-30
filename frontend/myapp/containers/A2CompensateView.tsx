@@ -6,14 +6,17 @@ import { SelectionBar } from "../blueprints/SelectionBar";
 import { totalValue } from "../constants/helpers";
 import { LaborList } from "../components/LaborList";
 import { useStore } from "../stores/Store";
+import { MyOverlay } from "../blueprints/MyOverlay";
+import { MyTextInput } from "../blueprints/MyTextInput";
 
 export const A2CompensateView = observer((props: { isVisible?: boolean }) => {
   const { isVisible } = props;
 
   const { mechanicStore, saleStore } = useStore();
-
+  const [isVisible1, setVisible1] = useState(false);
   const [selectedItem, setSelectedItem] = useState(-1);
   const [refresh, setRefresh] = useState(0);
+  const [mechanic, setMechanic] = useState("");
 
   const labors = saleStore.sales
     .map((s) => {
@@ -30,6 +33,13 @@ export const A2CompensateView = observer((props: { isVisible?: boolean }) => {
       .map((s) => s.labor.amount_owed - s.labor.amount_returned)
   );
 
+  const onPressAdd = () => {
+    if (mechanic === "") return;
+    mechanicStore.addItem({
+      name: mechanic.toUpperCase(),
+    });
+  };
+
   const getSales = useCallback(() => {
     saleStore.fetchAll({ isActive: true });
   }, []);
@@ -42,6 +52,18 @@ export const A2CompensateView = observer((props: { isVisible?: boolean }) => {
     isVisible && (
       <View style={styles.main}>
         <View style={styles.body}>
+          <MyOverlay
+            title="Add New Laborer"
+            isVisible={isVisible1}
+            setVisible={setVisible1}
+            onPressCheck={onPressAdd}
+          >
+            <MyTextInput
+              label="Laborer name"
+              value={mechanic}
+              onChangeValue={setMechanic}
+            />
+          </MyOverlay>
           <SelectionBar
             selectedItem={selectedItem}
             items={mechanicStore.mechanics.filter(
@@ -49,7 +71,7 @@ export const A2CompensateView = observer((props: { isVisible?: boolean }) => {
             )}
             onPressItem={setSelectedItem}
             onPressRefresh={() => setRefresh((t) => t + 1)}
-            hasNoAddBtn
+            onPressAdd={() => setVisible1(true)}
           />
           <View style={styles.list}>
             <LaborList

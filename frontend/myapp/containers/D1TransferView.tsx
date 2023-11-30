@@ -13,6 +13,8 @@ import { BalanceCard } from "../components/BalanceCard";
 import { TransferCard } from "../components/TransferCard";
 import { toNumString, toNumber } from "../constants/helpers";
 import { useStore } from "../stores/Store";
+import { MyOverlay } from "../blueprints/MyOverlay";
+import { MyIcon } from "../blueprints/MyIcon";
 
 const defaultDetails = {
   transmitter: -1,
@@ -28,6 +30,8 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
   const [screen1, setScreen1] = useState(false);
   const [screen2, setScreen2] = useState(false);
   const [details, setDetails] = useState(defaultDetails);
+  const [isVisible1, setVisible1] = useState(false);
+  const [account, setAccount] = useState("");
 
   const account1Choices = accountStore.accounts.filter(
     (s) => s.id !== details.receiver && ![14, 16].includes(s.id)
@@ -94,10 +98,29 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
     setDetails(defaultDetails);
   };
 
+  const onPressAdd = () => {
+    if (account === "") return;
+    accountStore.addItem({
+      name: account.toUpperCase(),
+    });
+  };
+
   return (
     isVisible && (
       <View style={styles.main}>
         <View style={styles.body}>
+          <MyOverlay
+            title="Add New Account"
+            isVisible={isVisible1}
+            setVisible={setVisible1}
+            onPressCheck={onPressAdd}
+          >
+            <MyTextInput
+              label="Account name"
+              value={account}
+              onChangeValue={setAccount}
+            />
+          </MyOverlay>
           <MyForm
             noBtn1={noBtn}
             btn1Label="Transfer"
@@ -106,15 +129,23 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
             onPressBtn2={onPressBtn2}
             hidden={screen1 || screen2}
           >
-            <MyDropdownPicker
-              items={account1Choices.map((s) => ({
-                value: s.id,
-                label: s.name,
-              }))}
-              value={details.transmitter}
-              setValue={onChangeTransmitter}
-              label="From..."
-            />
+            <HView>
+              <MyDropdownPicker
+                items={account1Choices.map((s) => ({
+                  value: s.id,
+                  label: s.name,
+                }))}
+                value={details.transmitter}
+                setValue={onChangeTransmitter}
+                label="From..."
+                flex
+              />
+              <MyIcon
+                name="add"
+                label="New"
+                onPress={() => setVisible1(true)}
+              />
+            </HView>
             <MyDropdownPicker
               items={account2Choices.map((s) => ({
                 value: s.id,
@@ -124,6 +155,7 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
               setValue={onChangeReceiver}
               label="To..."
             />
+
             <MyTextInput
               label="Amount"
               value={details.amount}
