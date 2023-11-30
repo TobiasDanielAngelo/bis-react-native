@@ -9,6 +9,8 @@ import { MyText } from "../blueprints/MyText";
 import { MyTextInput } from "../blueprints/MyTextInput";
 import { useStore } from "../stores/Store";
 import { roundToCash, toNumString, toNumber } from "../constants/helpers";
+import { MyIcon } from "../blueprints/MyIcon";
+import { MyOverlay } from "../blueprints/MyOverlay";
 
 const defaultProduct = {
   part: -1,
@@ -57,6 +59,8 @@ export const ProductForm = observer(
       message: "",
       status: "",
     });
+    const [motor, setMotor] = useState("");
+    const [isVisible1, setVisible1] = useState(false);
 
     const onChangePart = (t: number) => {
       setDetails({ ...details, part: t });
@@ -180,7 +184,7 @@ export const ProductForm = observer(
         unit: details.unit.toUpperCase(),
         description: details.miscInfo.toUpperCase(),
         brand: details.brand.toUpperCase(),
-        part: details.part.toString(),
+        part: details.part,
         motors: motors.map((s) => motorStore.motorName(s)).join(", "),
         datetime_added: new Date().toISOString(),
         is_active: true,
@@ -217,7 +221,7 @@ export const ProductForm = observer(
         unit: details.unit.toUpperCase(),
         description: details.miscInfo.toUpperCase(),
         brand: details.brand.toUpperCase(),
-        part: details.part.toString(),
+        part: details.part,
         motors: motors.map((s) => motorStore.motorName(s)).join(", "),
         location: details.location.toUpperCase(),
         purchase_price: parseFloat(details.packPP),
@@ -238,6 +242,14 @@ export const ProductForm = observer(
         setMotors([]);
       }
     };
+
+    const onPressAdd = () => {
+      if (motor === "") return;
+      motorStore.addItem({
+        name: motor.toUpperCase(),
+        maker: "NEW",
+      });
+    };
     const noBtn =
       details.part === -1 ||
       toNumber(details.unitPP) === 0 ||
@@ -255,6 +267,18 @@ export const ProductForm = observer(
 
     return (
       <>
+        <MyOverlay
+          title="Add New Motor"
+          isVisible={isVisible1}
+          setVisible={setVisible1}
+          onPressCheck={onPressAdd}
+        >
+          <MyTextInput
+            label="Motor name"
+            value={motor}
+            onChangeValue={setMotor}
+          />
+        </MyOverlay>
         <MyText
           text={status.message}
           size="medium"
@@ -285,15 +309,19 @@ export const ProductForm = observer(
             onChangeValue={onChangeInfo}
             placeholder={`e.g 'Red', 'Front', '20W-50', '1L' 'BH6x20'`}
           />
-          <MyDropdownPickers
-            items={motorStore.motors.map((s) => ({
-              value: s.id,
-              label: s.name.replaceAll("_", " "),
-            }))}
-            values={motors}
-            setValues={setMotors}
-            label="Suitable for Motors"
-          />
+          <HView>
+            <MyDropdownPickers
+              items={motorStore.motors.map((s) => ({
+                value: s.id,
+                label: s.name.replaceAll("_", " "),
+              }))}
+              values={motors}
+              setValues={setMotors}
+              label="Suitable for Motors"
+              flex
+            />
+            <MyIcon name="add" onPress={() => setVisible1(true)} label="New" />
+          </HView>
           <HView>
             <MyTextInput
               label="Brand of Item"

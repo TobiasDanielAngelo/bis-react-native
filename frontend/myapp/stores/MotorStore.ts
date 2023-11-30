@@ -111,6 +111,61 @@ export class MotorStore extends Model({
 
     return { details: "", ok: true, data: json };
   });
+
+  @modelFlow
+  addItem = _async(function* (
+    this: MotorStore,
+    details: {
+      name: string;
+      maker: string;
+    }
+  ) {
+    let token: string;
+
+    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
+
+    let response: Response;
+
+    response = yield* _await(
+      fetch(`${process.env["EXPO_PUBLIC_BASE_URL"]}/motors/`, {
+        method: "POST",
+        body: JSON.stringify(details),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+    );
+
+    if (!response.ok) {
+      let msg: any = yield* _await(response.json());
+      if (msg.non_field_errors) {
+        return {
+          details: `${msg.non_field_errors}`,
+          ok: false,
+          data: null,
+        };
+      }
+      return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let json: Motor;
+    try {
+      const resp = yield* _await(response.json());
+      json = resp;
+    } catch (error) {
+      console.error("Parsing Error", error);
+      return { details: "Parsing Error", ok: false, data: null };
+    }
+
+    let motor: Motor;
+
+    motor = new Motor(json);
+
+    this.motors.push(motor);
+
+    return { details: "", ok: true, data: motor };
+  });
 }
 
 export const motorStore = new MotorStore({});

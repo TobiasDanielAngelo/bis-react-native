@@ -237,13 +237,19 @@ export const SalesStatusBar = observer(
     );
 
     const laborTotalOwed = totalValue(
-      sale?.labor_item?.map((s) => s.amount_owed)
+      sale?.labor_item
+        ?.filter((s) => s.mechanic !== 1)
+        .map((s) => s.amount_owed)
     );
+
     const closable =
       sale?.sales_item
         ?.map((s) => s.is_claimed)
         .reduce((a, b) => a && b, true) &&
-      sale?.labor_item?.map((s) => s.is_done).reduce((a, b) => a && b, true) &&
+      sale?.labor_item
+        ?.filter((s) => s.mechanic !== 1) // DATS
+        .map((s) => s.is_done)
+        .reduce((a, b) => a && b, true) &&
       totalAmountReturned === laborTotalOwed;
 
     const onPressClose = async () => {
@@ -450,6 +456,7 @@ export const SalesStatusBar = observer(
                     s.amount_owed !== s.amount_returned ? s.amount_owed : 0
                   )
                 }
+                hidden={s.mechanic === 1}
               />
 
               <MyText

@@ -39,7 +39,7 @@ export const LaborList = observer(
     );
 
     const renderItem: SectionListRenderItem<Item, Section> = ({ item }) => {
-      return <MechLaborCard item={item} locked={item.sale.status !== "3"} />;
+      return <MechLaborCard item={item} locked={item.labor.mechanic === 1} />;
     };
     return (
       !hidden && (
