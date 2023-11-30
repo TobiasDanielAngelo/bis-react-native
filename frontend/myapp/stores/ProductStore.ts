@@ -74,6 +74,10 @@ export class ProductStore extends Model({
 
   @modelFlow
   fetchProductRange = _async(function* (this: ProductStore) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -81,7 +85,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/products/?get_id_range=1`, {
+      fetch(`${url}/products/?get_id_range=1`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -116,6 +120,10 @@ export class ProductStore extends Model({
 
   @modelFlow
   fetchMatches = _async(function* (this: ProductStore, query: string) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -123,7 +131,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/products/?q=${query}`, {
+      fetch(`${url}/products/?q=${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -182,6 +190,10 @@ export class ProductStore extends Model({
       query = "?" + queryFilters.join("&");
     }
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -189,7 +201,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/products/${query}`, {
+      fetch(`${url}/products/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -232,6 +244,10 @@ export class ProductStore extends Model({
 
   @modelFlow
   fetchProduct = _async(function* (this: ProductStore, productId: number) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -239,7 +255,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/products/${productId}/`, {
+      fetch(`${url}/products/${productId}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -289,6 +305,10 @@ export class ProductStore extends Model({
     this: ProductStore,
     details: ProductInterface
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -296,7 +316,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/products/`, {
+      fetch(`${url}/products/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -349,6 +369,10 @@ export class ProductStore extends Model({
 
     product.update(details);
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -356,7 +380,7 @@ export class ProductStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/products/${id}/`, {
+      fetch(`${url}/products/${id}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {

@@ -37,9 +37,27 @@ export const B2CategoryView = observer((props: { isVisible?: boolean }) => {
         moment(date).format("MMDDYY")
   );
 
-  const payables = payableStore.payables;
+  const payables = payableStore.payables.filter(
+    (s) =>
+      moment(s.datetime_closed).format("MMDDYY") ===
+        moment(date).format("MMDDYY") ||
+      moment(s.datetime_opened).format("MMDDYY") ===
+        moment(date).format("MMDDYY") ||
+      moment(s.datetime_due).format("MMDDYY") ===
+        moment(date).format("MMDDYY") ||
+      s.is_active
+  );
 
-  const receivables = receivableStore.receivables;
+  const receivables = receivableStore.receivables.filter(
+    (s) =>
+      moment(s.datetime_closed).format("MMDDYY") ===
+        moment(date).format("MMDDYY") ||
+      moment(s.datetime_opened).format("MMDDYY") ===
+        moment(date).format("MMDDYY") ||
+      moment(s.datetime_due).format("MMDDYY") ===
+        moment(date).format("MMDDYY") ||
+      s.is_active
+  );
 
   useEffect(() => {
     if (category === -1) return;

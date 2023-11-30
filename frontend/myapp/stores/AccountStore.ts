@@ -70,6 +70,10 @@ export class AccountStore extends Model({
       query = "?" + queryFilters.join("&");
     }
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -77,7 +81,7 @@ export class AccountStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/accounts/${query}`, {
+      fetch(`${url}/accounts/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -125,6 +129,10 @@ export class AccountStore extends Model({
       name: string;
     }
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -132,7 +140,7 @@ export class AccountStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/accounts/`, {
+      fetch(`${url}/accounts/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {

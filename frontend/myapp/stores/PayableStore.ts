@@ -81,6 +81,10 @@ export class PayableStore extends Model({
       query = "?" + queryFilters.join("&");
     }
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -88,7 +92,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/payables/${query}`, {
+      fetch(`${url}/payables/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -145,6 +149,10 @@ export class PayableStore extends Model({
 
   @modelFlow
   fetchOne = _async(function* (this: PayableStore, id: number) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -152,7 +160,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/payables/${id}/`, {
+      fetch(`${url}/payables/${id}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -223,6 +231,10 @@ export class PayableStore extends Model({
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     const payableDetails = {
       user_opener: user?.user_id,
       ...details,
@@ -231,7 +243,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/payables/`, {
+      fetch(`${url}/payables/`, {
         method: "POST",
         body: JSON.stringify(payableDetails),
         headers: {
@@ -275,33 +287,11 @@ export class PayableStore extends Model({
   updateItem = _async(function* (
     this: PayableStore,
     payableId: number,
-    details: {
-      payment?: number[];
-      lender_name?: string;
-      borrowed_amount?: number;
-      description?: string;
-      datetime_opened?: string;
-      datetime_due?: string;
-      datetime_closed?: string;
-      is_active?: boolean;
-      user_opener?: string;
-      user_closer?: string;
-    }
+    details: PayableInterface
   ) {
-    this.payables
-      .find((s) => payableId === s.id ?? -1)
-      ?.update({
-        payment: details.payment,
-        lender_name: details.lender_name,
-        borrowed_amount: details.borrowed_amount,
-        description: details.description,
-        datetime_opened: details.datetime_opened,
-        datetime_due: details.datetime_due,
-        datetime_closed: details.datetime_closed,
-        is_active: details.is_active,
-        user_opener: details.user_opener,
-        user_closer: details.user_closer,
-      });
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
 
     let token: string;
 
@@ -310,7 +300,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/payables/${payableId}/`, {
+      fetch(`${url}/payables/${payableId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -341,11 +331,17 @@ export class PayableStore extends Model({
       return { details: "Parsing Error", ok: false, data: null };
     }
 
+    this.payables.find((s) => payableId === s.id ?? -1)?.update(details);
+
     return { details: "", ok: true, data: json };
   });
 
   @modelFlow
   deleteItem = _async(function* (this: PayableStore, id: number) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -353,7 +349,7 @@ export class PayableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/payables/${id}/`, {
+      fetch(`${url}/payables/${id}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

@@ -121,6 +121,20 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
               onChangeValue={setAccount}
             />
           </MyOverlay>
+          <HView>
+            <MyButton
+              label={!screen1 ? "Transfers" : "New Transfer"}
+              flex
+              onPress={onPressTransfers}
+              hidden={screen2}
+            />
+            <MyButton
+              label={!screen2 ? "See Balance" : "New Transfer"}
+              flex
+              onPress={onPressBalance}
+              hidden={screen1}
+            />
+          </HView>
           <MyForm
             noBtn1={noBtn}
             btn1Label="Transfer"
@@ -160,6 +174,8 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
               label="Amount"
               value={details.amount}
               onChangeValue={onChangeAmount}
+              numeric
+              centered
             />
             <MyTextInput
               label="Note (Optional)"
@@ -180,20 +196,6 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
             />
           </MyList>
         </View>
-        <HView>
-          <MyButton
-            label={!screen1 ? "Transfers" : "New Transfer"}
-            flex
-            onPress={onPressTransfers}
-            hidden={screen2}
-          />
-          <MyButton
-            label={!screen2 ? "See Balance" : "New Transfer"}
-            flex
-            onPress={onPressBalance}
-            hidden={screen1}
-          />
-        </HView>
         <MyStatusBar
           action1={{
             name: "refresh",

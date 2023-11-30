@@ -65,6 +65,10 @@ export class PurchaseItemStore extends Model({
       range: string;
     }
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -72,16 +76,13 @@ export class PurchaseItemStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(
-        `http://192.168.254.197:8000/purchase_items/?analytics=1&range=${filters.range}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+      fetch(`${url}/purchase_items/?analytics=1&range=${filters.range}`, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
     );
 
     if (!response.ok) {

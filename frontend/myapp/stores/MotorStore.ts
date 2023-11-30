@@ -66,6 +66,10 @@ export class MotorStore extends Model({
       query = "?" + queryFilters.join("&");
     }
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -73,7 +77,7 @@ export class MotorStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/motors/${query}`, {
+      fetch(`${url}/motors/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -120,6 +124,10 @@ export class MotorStore extends Model({
       maker: string;
     }
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -127,7 +135,7 @@ export class MotorStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/motors/`, {
+      fetch(`${url}/motors/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {

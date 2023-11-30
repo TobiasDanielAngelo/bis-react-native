@@ -57,6 +57,10 @@ export class MechanicStore extends Model({
       query = "?" + queryFilters.join("&");
     }
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -64,7 +68,7 @@ export class MechanicStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/mechanics/${query}`, {
+      fetch(`${url}/mechanics/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -109,6 +113,10 @@ export class MechanicStore extends Model({
       name: string;
     }
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -116,7 +124,7 @@ export class MechanicStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/mechanics/`, {
+      fetch(`${url}/mechanics/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {

@@ -81,6 +81,9 @@ export class ReceivableStore extends Model({
     if (queryFilters.length > 0) {
       query = "?" + queryFilters.join("&");
     }
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
 
     let token: string;
 
@@ -89,7 +92,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/receivables/${query}`, {
+      fetch(`${url}/receivables/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -132,6 +135,10 @@ export class ReceivableStore extends Model({
 
   @modelFlow
   fetchOne = _async(function* (this: ReceivableStore, id: number) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -139,7 +146,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/receivables/${id}/`, {
+      fetch(`${url}/receivables/${id}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -187,6 +194,10 @@ export class ReceivableStore extends Model({
       (yield* _await(AsyncStorage.getItem("@currentUser"))) ?? ""
     );
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -199,7 +210,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/receivables/`, {
+      fetch(`${url}/receivables/`, {
         method: "POST",
         body: JSON.stringify(receivableDetails),
         headers: {
@@ -245,7 +256,9 @@ export class ReceivableStore extends Model({
     receivableId: number,
     details: ReceivableInterface
   ) {
-    this.receivables.find((s) => receivableId === s.id ?? -1)?.update(details);
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
 
     let token: string;
 
@@ -254,7 +267,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/receivables/${receivableId}/`, {
+      fetch(`${url}/receivables/${receivableId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -285,11 +298,17 @@ export class ReceivableStore extends Model({
       return { details: "Parsing Error", ok: false, data: null };
     }
 
+    this.receivables.find((s) => receivableId === s.id ?? -1)?.update(details);
+
     return { details: "", ok: true, data: json };
   });
 
   @modelFlow
   deleteItem = _async(function* (this: ReceivableStore, id: number) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -297,7 +316,7 @@ export class ReceivableStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/receivables/${id}/`, {
+      fetch(`${url}/receivables/${id}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

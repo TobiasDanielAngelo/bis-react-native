@@ -83,15 +83,15 @@ export const SalesStatusBar = observer(
     };
 
     const onChangeCashAmount = useCallback((t: string) => {
-      setCashAmount(toNumString(t));
+      setCashAmount(toNumString(t, true));
     }, []);
 
     const onChangeGcashAmount = useCallback((t: string) => {
-      setGcashAmount(toNumString(t));
+      setGcashAmount(toNumString(t, true));
     }, []);
 
     const onChangeDiscountAmount = useCallback((t: string) => {
-      setDiscountAmount(toNumString(t));
+      setDiscountAmount(toNumString(t, true));
     }, []);
 
     const onPressCheck1 = async () => {

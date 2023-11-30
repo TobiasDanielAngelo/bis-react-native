@@ -1,4 +1,5 @@
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ActivityIndicator, Button, StyleSheet, View } from "react-native";
 
 export const LoadingView = () => {
   return (

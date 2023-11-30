@@ -45,6 +45,10 @@ export class UserStore extends Model({
 }) {
   @modelFlow
   fetchUser = _async(function* (this: UserStore, userId: string) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -52,7 +56,7 @@ export class UserStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/users/?userid=${userId}`, {
+      fetch(`${url}/users/?userid=${userId}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -93,10 +97,14 @@ export class UserStore extends Model({
       password: string;
     }
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/login`, {
+      fetch(`${url}/login`, {
         method: "POST",
         body: JSON.stringify(credentials),
         headers: {
@@ -136,6 +144,10 @@ export class UserStore extends Model({
 
   @modelFlow
   logoutUser = _async(function* (this: UserStore) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -143,7 +155,7 @@ export class UserStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/logout`, {
+      fetch(`${url}/logout`, {
         method: "POST",
         headers: {
           "Content-type": "application/json",
@@ -172,6 +184,10 @@ export class UserStore extends Model({
 
   @modelFlow
   reauthUser = _async(function* (this: UserStore) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -183,7 +199,7 @@ export class UserStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/reauth`, {
+      fetch(`${url}/reauth`, {
         method: "POST",
         headers: {
           "Content-type": "application/json",

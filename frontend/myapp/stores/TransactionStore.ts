@@ -56,6 +56,10 @@ export class TransactionStore extends Model({
       range: string;
     }
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -63,16 +67,13 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(
-        `http://192.168.254.197:8000/transactions/?analytics=1&range=${filters.range}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+      fetch(`${url}/transactions/?analytics=1&range=${filters.range}`, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
     );
 
     if (!response.ok) {
@@ -131,6 +132,9 @@ export class TransactionStore extends Model({
     if (queryFilters.length > 0) {
       query = "?" + queryFilters.join("&");
     }
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
 
     let token: string;
 
@@ -139,7 +143,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/transactions/${query}`, {
+      fetch(`${url}/transactions/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -206,6 +210,10 @@ export class TransactionStore extends Model({
       receiver: details.receiver,
     };
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -213,7 +221,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/transactions/`, {
+      fetch(`${url}/transactions/`, {
         method: "POST",
         body: JSON.stringify(transactionDetails),
         headers: {
@@ -259,6 +267,10 @@ export class TransactionStore extends Model({
     transactionId: number,
     details: TransactionInterface
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -266,7 +278,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/transactions/${transactionId}/`, {
+      fetch(`${url}/transactions/${transactionId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -309,6 +321,10 @@ export class TransactionStore extends Model({
     this: TransactionStore,
     transactionId: number
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -316,7 +332,7 @@ export class TransactionStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/transactions/${transactionId}/`, {
+      fetch(`${url}/transactions/${transactionId}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

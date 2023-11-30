@@ -48,7 +48,9 @@ export const ReceivableCard = observer(
             },
             {
               id: 2,
-              text: moment(item.datetime_due).format("MMM. D, YYYY, h:mm A"),
+              text: `Due: ${moment(item.datetime_due).format(
+                "MMM. D, YYYY, h:mm A"
+              )}`,
               type: "sub",
             },
             {

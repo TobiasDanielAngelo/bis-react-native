@@ -11,6 +11,7 @@ import { Icon } from "react-native-elements";
 import { useNavigate } from "react-router-native";
 import { useStore } from "../stores/Store";
 import { LoadingView } from "./LoadingView";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const LoginView = () => {
   const [credentials, setCredentials] = useState({
@@ -23,7 +24,31 @@ export const LoginView = () => {
   const navigate = useNavigate();
   const { userStore } = useStore();
 
+  const setUrl = async () => {
+    const resp = await fetch(
+      "https://api.github.com/gists/cd0d3ede36ed6234ad43865fbc0b3af7"
+    );
+    if (!resp.ok) return;
+    let json: {
+      files: {
+        "main.json": {
+          content: string;
+        };
+      };
+    };
+    json = await resp.json();
+    let txt = JSON.parse(json.files["main.json"].content) as { svr: string };
+    AsyncStorage.setItem(
+      "@apiUrl",
+      txt.svr
+        .split("")
+        .map((s) => String.fromCharCode(s.charCodeAt(0) - 1))
+        .join("")
+    );
+  };
+
   const reauthUser = async () => {
+    await setUrl();
     setLoading(true);
     try {
       const response = await userStore.reauthUser();
@@ -34,7 +59,8 @@ export const LoginView = () => {
       setLoading(false);
       navigate("/home");
     } catch (error) {
-      console.error(error);
+      setLoading(false);
+      console.log(error);
     }
   };
 

@@ -113,6 +113,9 @@ export class SaleStore extends Model({
       range: string;
     }
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -120,16 +123,13 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(
-        `http://192.168.254.197:8000/sales/?analytics=1&range=${filters.range}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+      fetch(`${url}/sales/?analytics=1&range=${filters.range}`, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
     );
 
     if (!response.ok) {
@@ -184,6 +184,10 @@ export class SaleStore extends Model({
       query = "?" + queryFilters.join("&");
     }
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -191,7 +195,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/sales/${query}`, {
+      fetch(`${url}/sales/${query}`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -234,6 +238,10 @@ export class SaleStore extends Model({
 
   @modelFlow
   fetchOne = _async(function* (this: SaleStore, id: number) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -241,7 +249,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/sales/${id}/`, {
+      fetch(`${url}/sales/${id}/`, {
         method: "GET",
         headers: {
           "Content-type": "application/json",
@@ -285,6 +293,10 @@ export class SaleStore extends Model({
       (yield* _await(AsyncStorage.getItem("@currentUser"))) ?? ""
     );
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -297,7 +309,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/sales/`, {
+      fetch(`${url}/sales/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -345,6 +357,10 @@ export class SaleStore extends Model({
   ) {
     this.sales.find((s) => saleId === s.id ?? -1)?.update(details);
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -352,7 +368,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/sales/${saleId}/`, {
+      fetch(`${url}/sales/${saleId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -391,6 +407,10 @@ export class SaleStore extends Model({
     this: SaleStore,
     details: SaleItemInterface
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     const user = JSON.parse(
@@ -402,7 +422,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/sales_items/`, {
+      fetch(`${url}/sales_items/`, {
         method: "POST",
         body: JSON.stringify({ ...details, user_adder: user?.user_id }),
         headers: {
@@ -447,6 +467,10 @@ export class SaleStore extends Model({
     this: SaleStore,
     details: LaborItemInterface
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -454,7 +478,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/labor_items/`, {
+      fetch(`${url}/labor_items/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -499,6 +523,10 @@ export class SaleStore extends Model({
     this: SaleStore,
     details: ReturnedItemInterface
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -506,7 +534,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/returned_items/`, {
+      fetch(`${url}/returned_items/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -559,6 +587,10 @@ export class SaleStore extends Model({
       sale.updateParticularSale(details, salesItemId);
     }
 
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -566,7 +598,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/sales_items/${salesItemId}/`, {
+      fetch(`${url}/sales_items/${salesItemId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -612,6 +644,9 @@ export class SaleStore extends Model({
     if (sale) {
       sale.updateParticularLabor(details, laborItemId);
     }
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
 
     let token: string;
 
@@ -620,7 +655,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/labor_items/${laborItemId}/`, {
+      fetch(`${url}/labor_items/${laborItemId}/`, {
         method: "PATCH",
         body: JSON.stringify(details),
         headers: {
@@ -665,6 +700,11 @@ export class SaleStore extends Model({
     if (sale) {
       sale.deleteParticularSale(salesItemId);
     }
+
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -672,7 +712,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/sales_items/${salesItemId}/`, {
+      fetch(`${url}/sales_items/${salesItemId}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",
@@ -707,6 +747,11 @@ export class SaleStore extends Model({
     if (sale) {
       sale.deleteParticularLabor(laborItemId);
     }
+
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -714,7 +759,7 @@ export class SaleStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/labor_items/${laborItemId}/`, {
+      fetch(`${url}/labor_items/${laborItemId}/`, {
         method: "DELETE",
         headers: {
           "Content-type": "application/json",

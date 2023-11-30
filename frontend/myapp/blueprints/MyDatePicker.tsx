@@ -1,5 +1,8 @@
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import moment from "moment";
+import { View } from "react-native";
 import { useCallback, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { winWidth } from "../constants/constants";
@@ -16,14 +19,18 @@ export const MyDatePicker = (props: {
   const { hidden, setDate, date, range, size, noIcon } = props;
   const [show, setShow] = useState(false);
 
-  const onChangeDate = useCallback((date: Date) => {
-    setDate(date);
-    setShow(false);
+  const onChangeDate = useCallback((event: DateTimePickerEvent, date: Date) => {
+    if (event.type == "set") {
+      setDate(date);
+      setShow(false);
+    } else {
+      setShow(false);
+    }
   }, []);
 
   return (
     !hidden && (
-      <TouchableOpacity style={styles.main} onPress={() => setShow(true)}>
+      <View style={styles.main}>
         {!noIcon && (
           <MyIcon
             name="date-range"
@@ -35,8 +42,8 @@ export const MyDatePicker = (props: {
           />
         )}
         {noIcon && (
-          <TouchableOpacity onPress={() => setShow(true)} style={styles.bar}>
-            <Text style={styles.text}>
+          <View style={styles.bar}>
+            <Text style={styles.text} onPress={() => setShow(true)}>
               {moment(date).format("MMM D, YYYY")}
             </Text>
             <MyIcon
@@ -45,7 +52,7 @@ export const MyDatePicker = (props: {
               noLabel
               onPress={() => setShow(true)}
             />
-          </TouchableOpacity>
+          </View>
         )}
         {show &&
           (range === "past" ? (
@@ -54,7 +61,7 @@ export const MyDatePicker = (props: {
               display="calendar"
               maximumDate={new Date()}
               value={date}
-              onChange={(_, date) => onChangeDate(date ?? new Date())}
+              onChange={(e, date) => onChangeDate(e, date ?? new Date())}
             />
           ) : range === "future" ? (
             <DateTimePicker
@@ -62,17 +69,17 @@ export const MyDatePicker = (props: {
               display="calendar"
               minimumDate={new Date()}
               value={date}
-              onChange={(_, date) => onChangeDate(date ?? new Date())}
+              onChange={(e, date) => onChangeDate(e, date ?? new Date())}
             />
           ) : (
             <DateTimePicker
               mode="date"
               display="calendar"
               value={date}
-              onChange={(_, date) => onChangeDate(date ?? new Date())}
+              onChange={(e, date) => onChangeDate(e, date ?? new Date())}
             />
           ))}
-      </TouchableOpacity>
+      </View>
     )
   );
 };

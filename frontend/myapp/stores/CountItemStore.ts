@@ -37,6 +37,9 @@ export class CountItemStore extends Model({
     const user = JSON.parse(
       (yield* _await(AsyncStorage.getItem("@currentUser"))) ?? ""
     );
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
 
     let token: string;
 
@@ -50,7 +53,7 @@ export class CountItemStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(`http://192.168.254.197:8000/count_items/`, {
+      fetch(`${url}/count_items/`, {
         method: "POST",
         body: JSON.stringify(details),
         headers: {
@@ -91,6 +94,10 @@ export class CountItemStore extends Model({
       range: string;
     }
   ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
     let token: string;
 
     token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
@@ -98,16 +105,13 @@ export class CountItemStore extends Model({
     let response: Response;
 
     response = yield* _await(
-      fetch(
-        `http://192.168.254.197:8000/count_items/?analytics=1&range=${filters.range}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-type": "application/json",
-            Authorization: `Token ${token}`,
-          },
-        }
-      )
+      fetch(`${url}/count_items/?analytics=1&range=${filters.range}`, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
     );
 
     if (!response.ok) {
