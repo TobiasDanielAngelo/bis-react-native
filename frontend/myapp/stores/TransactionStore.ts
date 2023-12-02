@@ -91,7 +91,11 @@ export class TransactionStore extends Model({
     let json: {
       adjustments_added: number;
       adjustments_deducted: number;
-      operating_expenses: number;
+      adjustments_added_stocks: number;
+      adjustments_deducted_stocks: number;
+      replenished_stocks: number;
+      parts_expenses: number;
+      other_expenses: number;
       other_incomes: number;
     };
     try {
@@ -188,13 +192,7 @@ export class TransactionStore extends Model({
   @modelFlow
   addItem = _async(function* (
     this: TransactionStore,
-    details: {
-      description: string;
-      amount: number;
-      category: number;
-      transmitter: number;
-      receiver: number;
-    }
+    details: TransactionInterface
   ) {
     const user = JSON.parse(
       (yield* _await(AsyncStorage.getItem("@currentUser"))) ?? ""
@@ -203,7 +201,8 @@ export class TransactionStore extends Model({
     const transactionDetails = {
       category: details.category,
       encoder: user?.user_id,
-      datetime_transacted: new Date().toISOString(),
+      datetime_transacted:
+        details.datetime_transacted ?? new Date().toISOString(),
       amount: details.amount,
       description: details.description,
       transmitter: details.transmitter,

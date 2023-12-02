@@ -7,7 +7,7 @@ import { MyTextInput } from "../blueprints/MyTextInput";
 import { labors } from "../constants/constants";
 import { LaborItem } from "../stores/LaborItemStore";
 import { useStore } from "../stores/Store";
-import { toNumString } from "../constants/helpers";
+import { laborDueToMechanic, toNumString } from "../constants/helpers";
 
 export const LaborCard = observer(
   (props: {
@@ -39,7 +39,11 @@ export const LaborCard = observer(
           amount_returned:
             labors.find((s, ind) => ind === labor) !== item.labor_name
               ? 0
-              : undefined,
+              : item.amount_returned,
+          amount_owed: laborDueToMechanic(
+            labors.find((s, ind) => ind === labor) ?? "",
+            parseFloat(value)
+          ),
           amount_received: parseFloat(value),
           labor_name: labors.find((s, ind) => ind === labor),
         },
@@ -75,13 +79,6 @@ export const LaborCard = observer(
           setVisible={setEdit}
           onPressCheck={onPressCheck}
         >
-          <MyTextInput
-            value={value}
-            onChangeValue={onChangeValue}
-            label="Labor Cost"
-            numeric
-            centered
-          />
           <MyDropdownPicker
             items={labors.map((s, ind) => ({
               value: ind,
@@ -93,12 +90,19 @@ export const LaborCard = observer(
           />
           <MyDropdownPicker
             items={mechanicStore.mechanics.map((s, ind) => ({
-              value: ind,
+              value: s.id,
               label: s.name,
             }))}
             label="Mechanic"
             value={mechanic}
             setValue={setMechanic}
+          />
+          <MyTextInput
+            value={value}
+            onChangeValue={onChangeValue}
+            label="Labor Cost"
+            numeric
+            centered
           />
         </MyOverlay>
         <MyCard

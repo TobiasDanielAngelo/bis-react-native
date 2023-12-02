@@ -257,6 +257,7 @@ export const SalesStatusBar = observer(
       saleStore.updateItem(sale.id, {
         datetime_closed: new Date().toISOString(),
         is_active: false,
+        to_print: false,
       });
     };
 
@@ -310,13 +311,14 @@ export const SalesStatusBar = observer(
       if (!sale?.id) return;
       receivableStore.addItem({
         borrower_name: sale.customer_name ?? "",
-        lent_amount: amount ?? 0,
+        lent_amount: (amount ?? 0) - amountPaid,
         description: `Sale # ${sale.id}`,
         datetime_due: date.toISOString(),
       });
       saleStore.updateItem(sale.id, {
         datetime_closed: new Date().toISOString(),
         is_active: false,
+        to_print: false,
       });
     };
 
@@ -496,8 +498,8 @@ export const SalesStatusBar = observer(
             <MyText size="medium" text={sale?.customer_name} />
           </HView>
           <HView>
-            <MyText size="medium" text="Amount:" />
-            <MyText size="medium" text={toMoney(amount ?? 0)} />
+            <MyText size="medium" text="Amount Due:" />
+            <MyText size="medium" text={toMoney((amount ?? 0) - amountPaid)} />
           </HView>
           <HView>
             <MyText size="medium" text="Date to Pay:" />
@@ -515,27 +517,38 @@ export const SalesStatusBar = observer(
           hidden={hidden}
           amount={amount}
           action1={
-            hasModStatus ? { name: "list", onPress: onPressList } : undefined
+            hasModStatus
+              ? sale?.status === "2"
+                ? {
+                    name: "request-quote",
+                    onPress: onPressCreateReceivable,
+                  }
+                : { name: "list", onPress: onPressList }
+              : undefined
           }
           action2={{
             name: "print",
             onPress: onPressPrint,
             selected: sale?.to_print,
           }}
-          action3={{
-            name:
-              sale?.status === "1"
-                ? "payments"
-                : sale?.status === "2"
-                ? "undo"
-                : "close",
-            onPress:
-              sale?.status === "1"
-                ? onPressPayment
-                : sale?.status === "2"
-                ? onPressUndo
-                : onPressClose,
-          }}
+          action3={
+            sale?.status === "1"
+              ? {
+                  name: "payments",
+                  onPress: onPressPayment,
+                }
+              : sale?.status === "2"
+              ? {
+                  name: "undo",
+                  onPress: onPressUndo,
+                }
+              : hasModStatus
+              ? {
+                  name: "close",
+                  onPress: onPressClose,
+                }
+              : undefined
+          }
           action4={
             hasModStatus
               ? sale?.status !== "1"

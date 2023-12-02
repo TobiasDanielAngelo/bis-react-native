@@ -30,9 +30,9 @@ export const PayableForm = (props: { hidden?: boolean }) => {
 
   const onPressSubmit = () => {
     payableStore.addItem({
-      lender_name: details.person,
+      lender_name: details.person.toUpperCase(),
       borrowed_amount: parseFloat(details.amount),
-      description: details.comment,
+      description: details.comment.toUpperCase(),
       datetime_due: details.date_due.toISOString(),
     });
     setDetails(defaultDetails);

@@ -22,8 +22,7 @@ export const ReceivableForm = (props: { hidden?: boolean }) => {
   const { hidden } = props;
   const [details, setDetails] = useState(defaultDetails);
 
-  const { categoryStore, accountStore, receivableStore, transactionStore } =
-    useStore();
+  const { accountStore, receivableStore, transactionStore } = useStore();
 
   const noBtn =
     isNaN(parseFloat(details.amount)) ||
@@ -36,16 +35,16 @@ export const ReceivableForm = (props: { hidden?: boolean }) => {
       description:
         details.comment === "" && details.person === ""
           ? `Lend Money to Anon.`
-          : `${details.comment} (${details.person})`,
+          : `${details.comment.toUpperCase()} (${details.person.toUpperCase()})`,
       amount: parseFloat(details.amount),
       category: 2,
       transmitter: details.transmitter,
       receiver: 16,
     });
     receivableStore.addItem({
-      borrower_name: details.person,
+      borrower_name: details.person.toUpperCase(),
       lent_amount: parseFloat(details.amount),
-      description: details.comment,
+      description: details.comment.toUpperCase(),
       datetime_due: details.date_due.toISOString(),
     });
     setDetails(defaultDetails);
@@ -56,7 +55,7 @@ export const ReceivableForm = (props: { hidden?: boolean }) => {
   };
 
   const accounts = accountStore.accounts.filter(
-    (s) => ![11, 14, 16].includes(s.id)
+    (s) => ![14, 16].includes(s.id)
   );
 
   return (

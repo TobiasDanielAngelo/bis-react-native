@@ -36,6 +36,7 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
   const [matches, setMatches] = useState<number[]>([]);
 
   const getSales = useCallback(() => {
+    saleStore.deleteAll();
     saleStore.fetchAll({ isActive: true });
   }, []);
 
@@ -279,7 +280,7 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
         </View>
         <SalesStatusBar
           sale={sale}
-          leftText={`${sale?.name.substring(0, 20)}... \u270e`}
+          leftText={`#${sale?.id} ${sale?.name.substring(0, 20)}... \u270e`}
           rightText={status}
           amount={total}
           hidden={selectedItem === -1 || !total}

@@ -12,14 +12,14 @@ import { ExpenseCard } from "../components/ExpenseCard";
 import { PayableCard } from "../components/PayableCard";
 import { ReceivableCard } from "../components/ReceivableCard";
 import { addDays } from "../constants/helpers";
-import { payableStore } from "../stores/PayableStore";
-import { receivableStore } from "../stores/ReceivableStore";
 import { useStore } from "../stores/Store";
+import { TransactionsList } from "../components/TransactionsList";
 
 export const B2CategoryView = observer((props: { isVisible?: boolean }) => {
   const { isVisible } = props;
 
-  const { categoryStore, transactionStore } = useStore();
+  const { categoryStore, transactionStore, payableStore, receivableStore } =
+    useStore();
   const [category, setCategory] = useState(-1);
   const [date, setDate] = useState(new Date());
   const [index, setIndex] = useState(0);
@@ -32,7 +32,7 @@ export const B2CategoryView = observer((props: { isVisible?: boolean }) => {
 
   const transactions = transactionStore.transactions.filter(
     (s) =>
-      s.category === category &&
+      (category === -1 ? true : s.category === category) &&
       moment(s.datetime_transacted).format("MMDDYY") ===
         moment(date).format("MMDDYY")
   );
@@ -60,8 +60,8 @@ export const B2CategoryView = observer((props: { isVisible?: boolean }) => {
   );
 
   useEffect(() => {
-    if (category === -1) return;
-    if (category !== 50 && category !== 51) {
+    if (!isVisible) return;
+    if (category !== 50 && category !== 51 && category !== -1) {
       transactionStore.fetchAll({
         startDate: addDays(date, -1).toISOString(),
         endDate: addDays(date, 1).toISOString(),
@@ -72,18 +72,35 @@ export const B2CategoryView = observer((props: { isVisible?: boolean }) => {
         startDate: addDays(date, -60).toISOString(),
         endDate: addDays(date, 60).toISOString(),
       });
+    } else if (category === 51) {
+      receivableStore.fetchAll({
+        startDate: addDays(date, -60).toISOString(),
+        endDate: addDays(date, 60).toISOString(),
+      });
+    } else if (category === -1) {
+      transactionStore.fetchAll({
+        startDate: addDays(date, -1).toISOString(),
+        endDate: addDays(date, 1).toISOString(),
+      });
     }
-  }, [category, date]);
+  }, [category, date, isVisible]);
 
   return (
     isVisible && (
       <View style={styles.main}>
         <MyDropdownPicker
-          items={categories.map((s) => ({
-            value: s.id,
-            label: s.title,
-            icon: () => <MyIcon name={s.logo} noLabel />,
-          }))}
+          items={[
+            {
+              value: -1,
+              label: "All Categories",
+              icon: () => <MyIcon name="apps" noLabel />,
+            },
+            ...categories.map((s) => ({
+              value: s.id,
+              label: s.title,
+              icon: () => <MyIcon name={s.logo} noLabel />,
+            })),
+          ]}
           value={category}
           setValue={setCategory}
           label="Select a Category"
@@ -92,7 +109,7 @@ export const B2CategoryView = observer((props: { isVisible?: boolean }) => {
           length={Math.ceil(transactions.length / 10)}
           index={index}
           setIndex={setIndex}
-          hidden={transactions.length < 10}
+          hidden={transactions.length < 10 || category === -1}
         />
         <View style={styles.body}>
           <MyList
@@ -125,6 +142,19 @@ export const B2CategoryView = observer((props: { isVisible?: boolean }) => {
               renderItem={({ item }) => <ReceivableCard item={item} />}
             />
           </MyList>
+          <TransactionsList
+            hidden={category !== -1}
+            expenses={transactions.filter(
+              (s) => categoryStore.getItem(s.category)?.nature === "1"
+            )}
+            incomes={transactions.filter(
+              (s) =>
+                categoryStore.getItem(s.category)?.nature === "2" &&
+                s.category !== 1
+            )}
+            receivables={receivables}
+            payables={payables}
+          />
         </View>
         <HView>
           <View style={styles.body}></View>

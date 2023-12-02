@@ -65,14 +65,16 @@ export const D3TimelineView = observer((props: { isVisible?: boolean }) => {
 
   const dataPointsTotal = dataPoints.map((s) =>
     totalValue(
-      s.points.filter((u) => ![11, 16].includes(u.account)).map((t) => t.price)
+      s.points
+        .filter((u) => ![11, 16, 19].includes(u.account))
+        .map((t) => t.price)
     )
   );
 
   const dataPointsCash = dataPoints.map((s) =>
     totalValue(
       s.points
-        .filter((u) => ![11, 14, 16].includes(u.account))
+        .filter((u) => ![11, 14, 16, 19].includes(u.account))
         .map((t) => t.price)
     )
   );

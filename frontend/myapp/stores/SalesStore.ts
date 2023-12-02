@@ -106,6 +106,11 @@ export class SaleStore extends Model({
     return this.sales.find((s) => s.id === id);
   }
 
+  @modelAction
+  deleteAll() {
+    this.sales.splice(0, this.sales.length);
+  }
+
   @modelFlow
   fetchAnalytics = _async(function* (
     this: SaleStore,

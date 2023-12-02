@@ -20,8 +20,8 @@ export const SalesCreatePopup = (props: {
     setAddress(nameAddress[1]);
   }, []);
 
-  const onPressCheck = async () => {
-    await saleStore.addItem(`${name} (${address})`);
+  const onPressCheck = () => {
+    saleStore.addItem(`${name} (${address})`);
   };
 
   return (

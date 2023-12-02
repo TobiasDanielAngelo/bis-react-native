@@ -9,8 +9,10 @@ export const MyText = (props: {
   success?: boolean;
   highlight?: boolean;
   onPress?: () => void;
+  align?: "center" | "right";
 }) => {
-  const { highlight, text, hidden, size, error, success, onPress } = props;
+  const { highlight, text, hidden, size, error, success, onPress, align } =
+    props;
   return (
     !hidden && (
       <Text
@@ -22,6 +24,7 @@ export const MyText = (props: {
             : winWidth * 0.07,
           color: error ? "darkred" : success ? "green" : undefined,
           fontWeight: highlight ? "bold" : "normal",
+          textAlign: align,
         }}
         onPress={onPress}
       >

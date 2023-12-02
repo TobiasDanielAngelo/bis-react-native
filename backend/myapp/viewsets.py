@@ -118,6 +118,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                 )
             )
         if params.get("q"):
+            ids = []
             if len(f'{params["q"]}') > 4:
                 pattern = r"\W+"
                 list_queries = re.split(pattern, params["q"])
@@ -487,7 +488,7 @@ class LaborItemViewSet(viewsets.ModelViewSet):
                     "amount_received", filter=Q(sales__status="1")
                 ),
                 returned_labor=Sum("amount_returned"),
-                owed_labor=Sum("amount_owed"),
+                owed_labor=Sum("amount_owed", filter=~Q(mechanic=1)),
             )
             return response.Response(analytics)
 
@@ -522,7 +523,14 @@ class ReturnedItemViewSet(viewsets.ModelViewSet):
             )
         if params.get("analytics"):
             analytics = queryset.aggregate(
-                returned_sales_from_goods=Sum(F("quantity") * F("selling_price"))
+                returned_sales_from_goods=Sum(F("quantity") * F("selling_price")),
+                returned_sales_from_goods_profit=Sum(
+                    F("quantity")
+                    * (
+                        F("selling_price")
+                        - (F("product__purchase_price") / F("product__piece_count"))
+                    )
+                ),
             )
             return response.Response(analytics)
 
@@ -557,9 +565,17 @@ class TransactionViewSet(viewsets.ModelViewSet):
             )
         if params.get("analytics"):
             analytics = queryset.aggregate(
-                adjustments_added=Sum("amount", filter=Q(transmitter=11)),
-                adjustments_deducted=Sum("amount", filter=Q(receiver=11)),
-                operating_expenses=Sum("amount", filter=Q(receiver=16)),
+                adjustments_added=Sum("amount", filter=Q(category=54, transmitter=11)),
+                adjustments_deducted=Sum("amount", filter=Q(category=54, receiver=11)),
+                adjustments_added_stocks=Sum(
+                    "amount", filter=Q(category=53, transmitter=11)
+                ),
+                adjustments_deducted_stocks=Sum(
+                    "amount", filter=Q(category=53, receiver=11)
+                ),
+                replenished_stocks=Sum("amount", filter=Q(category=52)),
+                parts_expenses=Sum("amount", filter=Q(category=13)),
+                other_expenses=Sum("amount", filter=Q(receiver=16)),
                 other_incomes=Sum("amount", filter=Q(transmitter=16)),
             )
             return response.Response(analytics)

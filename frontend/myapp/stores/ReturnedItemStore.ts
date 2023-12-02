@@ -93,6 +93,7 @@ export class ReturnedItemStore extends Model({
 
     let json: {
       returned_sales_from_goods: number;
+      returned_sales_from_goods_profit: number;
     };
     try {
       const resp = yield* _await(response.json());

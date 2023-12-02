@@ -34,9 +34,9 @@ export const MyOverlay = (
     setVisible(false);
   };
 
-  const onClose = useCallback(() => {
+  const onClose = () => {
     setVisible(false);
-  }, []);
+  };
 
   return (
     <Overlay isVisible={isVisible}>

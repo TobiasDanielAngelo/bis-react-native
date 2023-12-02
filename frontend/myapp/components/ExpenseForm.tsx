@@ -28,9 +28,7 @@ export const ExpenseForm = (props: { hidden?: boolean }) => {
 
   const noBtn =
     isNaN(parseFloat(details.amount)) ||
-    details.person === "" ||
     details.category === -1 ||
-    details.comment === "" ||
     details.transmitter === -1;
 
   const categories = categoryStore.categories.filter(
@@ -38,7 +36,7 @@ export const ExpenseForm = (props: { hidden?: boolean }) => {
   );
 
   const accounts = accountStore.accounts.filter(
-    (s) => ![11, 14, 16].includes(s.id)
+    (s) => ![14, 16, 19].includes(s.id)
   );
 
   const payables = payableStore.payables.filter((s) => s.is_active);
@@ -56,11 +54,12 @@ export const ExpenseForm = (props: { hidden?: boolean }) => {
         details.comment === "" && details.person === ""
           ? categoryStore.getItem(details.category)?.title ??
             `Cat-${details.category}`
-          : `${details.comment} (${details.person})`,
+          : `${details.comment.toUpperCase()} (${details.person.toUpperCase()})`,
       amount: parseFloat(details.amount),
       category: details.category,
       transmitter: details.transmitter,
       receiver: 16,
+      datetime_transacted: details.date_due.toISOString(),
     });
     if (resp.data && details.payable !== -1) {
       await payableStore.updateItem(details.payable, {
@@ -119,7 +118,7 @@ export const ExpenseForm = (props: { hidden?: boolean }) => {
       <MyDropdownPicker
         items={categories.map((s) => ({
           value: s.id,
-          label: `${s.id} ${s.title}`,
+          label: s.title,
           icon: () => <MyIcon name={s.logo} noLabel />,
         }))}
         value={details.category}

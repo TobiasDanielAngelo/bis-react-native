@@ -147,14 +147,15 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
     payableStore.addItem({
       lender_name: details2.person,
       borrowed_amount: parseFloat(details2.amount),
-      description: `Receipt # ${details2.comment}`,
+      description: `Receipt # ${details2.comment.toUpperCase()}`,
       datetime_due: details2.date_due.toISOString(),
     });
     purchaseStore.updateItem(order, {
-      supplier_name: `${details2.person} (${details2.comment})`,
+      supplier_name: `${details2.person.toUpperCase()} (${details2.comment.toUpperCase()})`,
       status: "4",
       datetime_closed: new Date().toISOString(),
       is_active: false,
+      to_print: false,
     });
     transactionStore.addItem({
       description: `Replenish Stocks`,
@@ -178,7 +179,7 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
       setDetails2({
         ...details2,
         person: currentOrder.supplier_name,
-        amount: toMoney(totalAmount),
+        amount: toMoney(totalAmount).replaceAll(",", ""),
       });
     }
   }, [isVisible1]);

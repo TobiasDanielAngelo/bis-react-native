@@ -11,7 +11,7 @@ import { MyStatusBar } from "../blueprints/MyStatusBar";
 import { MyTextInput } from "../blueprints/MyTextInput";
 import { BalanceCard } from "../components/BalanceCard";
 import { TransferCard } from "../components/TransferCard";
-import { toNumString, toNumber } from "../constants/helpers";
+import { toNumString, toNumber, totalValue } from "../constants/helpers";
 import { useStore } from "../stores/Store";
 import { MyOverlay } from "../blueprints/MyOverlay";
 import { MyIcon } from "../blueprints/MyIcon";
@@ -37,7 +37,7 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
     (s) => s.id !== details.receiver && ![14, 16].includes(s.id)
   );
   const account2Choices = accountStore.accounts.filter(
-    (s) => s.id !== details.transmitter && ![14, 16].includes(s.id)
+    (s) => s.id !== details.transmitter && ![14, 16, 19].includes(s.id)
   );
 
   const onChangeAmount = (t: string) => {
@@ -104,6 +104,12 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
       name: account.toUpperCase(),
     });
   };
+
+  const totalAssets = totalValue(
+    accountStore.accounts
+      .filter((s) => ![11, 16, 19].includes(s.id))
+      .map((s) => (s.received ?? 0) - (s.transmitted ?? 0))
+  );
 
   return (
     isVisible && (
@@ -191,7 +197,9 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
           </MyList>
           <MyList hidden={!screen2} headNote="Account Balance">
             <FlatList
-              data={accountStore.accounts}
+              data={accountStore.accounts.filter(
+                (s) => ![11, 16, 19].includes(s.id)
+              )}
               renderItem={({ item }) => <BalanceCard item={item} />}
             />
           </MyList>
@@ -201,6 +209,7 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
             name: "refresh",
             onPress: () => accountStore.fetchAll(),
           }}
+          amount={totalAssets}
         />
       </View>
     )

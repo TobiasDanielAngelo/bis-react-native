@@ -47,6 +47,30 @@ class PurchaseItemInline(admin.TabularInline):
     model = PurchaseItem
 
 
+class LaborItemAdmin(admin.ModelAdmin):
+    model = LaborItem
+    list_display = (
+        "id",
+        "mechanic",
+        "labor_name",
+        "amount_received",
+        "amount_owed",
+        "amount_returned",
+    )
+
+
+class SaleItemAdmin(admin.ModelAdmin):
+    model = SalesItem
+
+
+class PurchaseItemAdmin(admin.ModelAdmin):
+    model = PurchaseItem
+
+
+class ReturnItemAdmin(admin.ModelAdmin):
+    model = ReturnedItem
+
+
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("title", "nature", "logo", "pk")
 
@@ -144,3 +168,7 @@ admin.site.register(Purchase, PurchaseAdmin)
 admin.site.register(Payable, PayableAdmin)
 admin.site.register(Receivable, ReceivableAdmin)
 admin.site.register(CountItem, CountItemAdmin)
+admin.site.register(SalesItem, SaleItemAdmin)
+admin.site.register(LaborItem, LaborItemAdmin)
+admin.site.register(ReturnedItem, ReturnItemAdmin)
+admin.site.register(PurchaseItem, PurchaseItemAdmin)

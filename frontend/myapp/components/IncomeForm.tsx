@@ -23,29 +23,19 @@ export const IncomeForm = (props: { hidden?: boolean }) => {
   const { hidden } = props;
   const [details, setDetails] = useState(defaultDetails);
 
-  const {
-    categoryStore,
-    accountStore,
-    payableStore,
-    receivableStore,
-    transactionStore,
-    userStore,
-  } = useStore();
+  const { categoryStore, accountStore, receivableStore, transactionStore } =
+    useStore();
 
   const noBtn =
     details.receivable === -1 ||
     isNaN(parseFloat(details.amount)) ||
-    details.person === "" ||
     details.category === -1 ||
-    details.comment === "" ||
     details.transmitter === -1;
-
-  console.log(details.receivable);
 
   const categories = categoryStore.categories.filter((s) => s.nature === "2");
 
   const accounts = accountStore.accounts.filter(
-    (s) => ![11, 14, 16].includes(s.id)
+    (s) => ![14, 16].includes(s.id)
   );
 
   const receivables = receivableStore.receivables.filter((s) => s.is_active);
@@ -63,7 +53,7 @@ export const IncomeForm = (props: { hidden?: boolean }) => {
         details.comment === "" && details.person === ""
           ? categoryStore.getItem(details.category)?.title ??
             `Cat-${details.category}`
-          : `${details.comment} (${details.person})`,
+          : `${details.comment.toUpperCase()} (${details.person.toUpperCase()})`,
       amount: parseFloat(details.amount),
       category: details.category,
       transmitter: 16,

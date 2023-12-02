@@ -17,6 +17,7 @@ export const MyTextInput = (props: {
   centered?: boolean;
   maxLength?: number;
   autoCapitalize?: boolean;
+  enlarged?: boolean;
 }) => {
   const {
     hidden,
@@ -32,6 +33,7 @@ export const MyTextInput = (props: {
     placeholder,
     maxLength,
     autoCapitalize,
+    enlarged,
   } = props;
 
   const [editable, setEditable] = useState(true);
@@ -49,7 +51,9 @@ export const MyTextInput = (props: {
     !hidden && (
       <View style={[styles.main, { flex: flex ? flex : 0 }]}>
         <View style={styles.textInput}>
-          <Text>{label}</Text>
+          <Text style={{ fontSize: enlarged ? winWidth * 0.05 : undefined }}>
+            {label}
+          </Text>
           <TextInput
             onChangeText={onChangeValue}
             value={value}

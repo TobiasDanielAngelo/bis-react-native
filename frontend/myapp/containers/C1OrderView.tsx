@@ -170,7 +170,7 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
               .filter((s) => s.is_active)
               .map((s) => ({
                 value: s.id,
-                label: `${s.id} - ${s.supplier_name}`,
+                label: s.supplier_name,
               }))}
             value={order}
             setValue={setOrder}

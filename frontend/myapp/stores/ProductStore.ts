@@ -279,7 +279,6 @@ export class ProductStore extends Model({
     let json: Product;
     try {
       const resp = yield* _await(response.json());
-      console.log(resp);
       json = resp;
     } catch (error) {
       console.error("Parsing Error", error);
@@ -289,7 +288,6 @@ export class ProductStore extends Model({
     if (!this.allPK.includes(json.id)) {
       this.products.push(new Product(json));
     } else {
-      console.log(json.counted);
       json.counted = json.counted ?? 0;
       json.returned = json.returned ?? 0;
       json.sold = json.sold ?? 0;

@@ -101,10 +101,14 @@ export const C2ProductView = observer((props: { isVisible?: boolean }) => {
       part: item.part,
       brand: item.brand,
       pieces: item.piece_count.toString(),
-      unitPP: toMoney(item.purchase_price / item.piece_count).toString(),
-      packPP: toMoney(item.purchase_price).toString(),
-      unitSP: toMoney(item.sell_price / item.piece_count).toString(),
-      packSP: toMoney(item.sell_price).toString(),
+      unitPP: toMoney(item.purchase_price / item.piece_count)
+        .toString()
+        .replaceAll(",", ""),
+      packPP: toMoney(item.purchase_price).toString().replaceAll(",", ""),
+      unitSP: toMoney(item.sell_price / item.piece_count)
+        .toString()
+        .replaceAll(",", ""),
+      packSP: toMoney(item.sell_price).toString().replaceAll(",", ""),
       miscInfo: item.description,
       location: item.location,
       minimum: item.min_quantity.toString(),
