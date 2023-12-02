@@ -30,6 +30,18 @@ const defaultProduct = {
 
 type ProductInput = typeof defaultProduct;
 
+const sortAlphabetically = (t: { name: string }[]) => {
+  return t.sort((a, b) => {
+    if (a.name < b.name) {
+      return -1;
+    }
+    if (a.name > b.name) {
+      return 1;
+    }
+    return 0;
+  });
+};
+
 export const ProductForm = observer(
   (props: {
     hidden?: boolean;
@@ -60,7 +72,12 @@ export const ProductForm = observer(
       status: "",
     });
     const [motor, setMotor] = useState("");
+    const [sparePart, setSparePart] = useState("");
+    const [isMotorShown, setMotorShown] = useState(true);
+    const [isSemiShown, setSemiShown] = useState(true);
+
     const [isVisible1, setVisible1] = useState(false);
+    const [isVisible2, setVisible2] = useState(false);
 
     const onChangePart = (t: number) => {
       setDetails({ ...details, part: t });
@@ -251,6 +268,15 @@ export const ProductForm = observer(
       });
     };
 
+    const onPressCheck2 = () => {
+      if (sparePart === "") return;
+      sparePartStore.addItem({
+        name: sparePart.toUpperCase(),
+        is_motor_shown: isMotorShown,
+        is_semi_shown: isSemiShown,
+      });
+    };
+
     const noBtn =
       details.part === -1 ||
       toNumber(details.unitPP) === 0 ||
@@ -280,6 +306,32 @@ export const ProductForm = observer(
             onChangeValue={setMotor}
           />
         </MyOverlay>
+        <MyOverlay
+          title="Add New Spare Part"
+          isVisible={isVisible2}
+          setVisible={setVisible2}
+          onPressCheck={onPressCheck2}
+        >
+          <MyTextInput
+            label="Spare Part"
+            value={sparePart}
+            onChangeValue={setSparePart}
+          />
+          <HView>
+            <MyCheckBox
+              isSelected={isMotorShown}
+              setSelection={(t) => setMotorShown(t)}
+              color="lightcyan"
+              title="Show Motor?"
+            />
+            <MyCheckBox
+              isSelected={isSemiShown}
+              setSelection={(t) => setSemiShown(t)}
+              color="lightcyan"
+              title="Show Semi.?"
+            />
+          </HView>
+        </MyOverlay>
         <MyText
           text={status.message}
           size="medium"
@@ -295,15 +347,22 @@ export const ProductForm = observer(
           noBtn1={noBtn}
           noBtn2={noBtn}
         >
-          <MyDropdownPicker
-            items={sparePartStore.spareParts.map((s) => ({
-              value: s.id,
-              label: s.name,
-            }))}
-            value={details.part}
-            setValue={onChangePart}
-            label="Part Category"
-          />
+          <HView>
+            <MyDropdownPicker
+              items={sparePartStore.spareParts
+                .slice()
+                .sort((a, b) => (a.name < b.name ? -1 : 1))
+                .map((s) => ({
+                  value: s.id,
+                  label: s.name,
+                }))}
+              value={details.part}
+              setValue={onChangePart}
+              label="Part Category"
+              flex
+            />
+            <MyIcon name="add" onPress={() => setVisible2(true)} label="New" />
+          </HView>
           <MyTextInput
             label="Additional Information"
             value={details.miscInfo}

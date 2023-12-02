@@ -29,6 +29,13 @@ export const InventoryModule = observer(() => {
     { id: 5, name: "history", label: "History" },
   ].filter((s) => (hasModStatus ? true : s.id !== 5));
 
+  const onPressItem = useCallback(
+    (item: { id: number; name: string; label: string }) => {
+      setView((prev) => (prev.id === item.id ? defaultLogo : item));
+    },
+    [view]
+  );
+
   const getPurchases = useCallback(() => {
     purchaseStore.fetchAll({ isActive: true });
   }, []);
@@ -45,7 +52,11 @@ export const InventoryModule = observer(() => {
       <C3DeliveryView isVisible={view?.id === 3} />
       <C4CheckView isVisible={view?.id === 4} />
       <C5HistoryView isVisible={view?.id === 5} />
-      <MenuBar items={submodules} selectedItem={view} onPressItem={setView} />
+      <MenuBar
+        items={submodules}
+        selectedItem={view}
+        onPressItem={onPressItem}
+      />
     </View>
   );
 });

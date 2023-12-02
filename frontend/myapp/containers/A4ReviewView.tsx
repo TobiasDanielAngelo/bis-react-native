@@ -86,8 +86,8 @@ export const A4ReviewView = observer((props: { isVisible?: boolean }) => {
   useEffect(() => {
     if (!isVisible) return;
     saleStore.fetchAll({
-      startDate: addDays(new Date(), -1).toISOString(),
-      endDate: addDays(new Date(), 1).toISOString(),
+      startDate: addDays(date, -1).toISOString(),
+      endDate: addDays(date, 1).toISOString(),
     });
   }, [date, isVisible]);
 

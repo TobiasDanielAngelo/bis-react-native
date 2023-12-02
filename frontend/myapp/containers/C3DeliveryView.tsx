@@ -136,6 +136,11 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
     setShowSearchBar(false);
   };
 
+  const onPressRefresh = () => {
+    purchaseStore.deleteAll();
+    purchaseStore.fetchAll({ isActive: true });
+  };
+
   const onPressCheck = () => {
     if (
       details2.person === "" ||
@@ -302,16 +307,25 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
 
         <MyStatusBar
           action1={{
-            name: "print",
-            onPress: onPressPrint,
-            selected: currentOrder?.to_print,
+            name: "refresh",
+            onPress: onPressRefresh,
           }}
           action2={
-            closable
+            currentOrder?.status !== "3" || focus
+              ? undefined
+              : {
+                  name: "print",
+                  onPress: onPressPrint,
+                  selected: currentOrder?.to_print,
+                }
+          }
+          action3={
+            currentOrder?.status !== "3" || focus
+              ? undefined
+              : closable
               ? { name: "star", onPress: () => setVisible1(true) }
               : undefined
           }
-          hidden={currentOrder?.status !== "3" || focus}
           amount={totalAmount}
         />
       </View>

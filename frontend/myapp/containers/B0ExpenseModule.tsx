@@ -27,6 +27,13 @@ export const ExpenseModule = observer(() => {
     receivableStore.fetchAll({ isActive: true });
   }, []);
 
+  const onPressItem = useCallback(
+    (item: { id: number; name: string; label: string }) => {
+      setView((prev) => (prev.id === item.id ? defaultLogo : item));
+    },
+    [view]
+  );
+
   useEffect(() => {
     getPayables();
     getReceivables();
@@ -37,7 +44,11 @@ export const ExpenseModule = observer(() => {
       <BlankView isVisible={view?.id === -1} />
       <B1QuickView isVisible={view?.id === 1} />
       <B2CategoryView isVisible={view?.id === 2} />
-      <MenuBar items={submodules} selectedItem={view} onPressItem={setView} />
+      <MenuBar
+        items={submodules}
+        selectedItem={view}
+        onPressItem={onPressItem}
+      />
     </View>
   );
 });

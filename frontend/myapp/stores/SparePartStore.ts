@@ -42,6 +42,66 @@ export class SparePartStore extends Model({
   }
 
   @modelFlow
+  addItem = _async(function* (
+    this: SparePartStore,
+    details: {
+      name: string;
+      is_motor_shown: boolean;
+      is_semi_shown: boolean;
+    }
+  ) {
+    let url: string;
+
+    url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
+
+    let token: string;
+
+    token = (yield* _await(AsyncStorage.getItem("@userToken"))) ?? "";
+
+    let response: Response;
+
+    response = yield* _await(
+      fetch(`${url}/spareparts/`, {
+        method: "POST",
+        body: JSON.stringify(details),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      })
+    );
+
+    if (!response.ok) {
+      let msg: any = yield* _await(response.json());
+      if (msg.non_field_errors) {
+        return {
+          details: `${msg.non_field_errors}`,
+          ok: false,
+          data: null,
+        };
+      }
+      return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let json: SparePart;
+    try {
+      const resp = yield* _await(response.json());
+      json = resp;
+    } catch (error) {
+      console.error("Parsing Error", error);
+      return { details: "Parsing Error", ok: false, data: null };
+    }
+
+    let sparePart: SparePart;
+
+    sparePart = new SparePart(json);
+
+    this.spareParts.push(sparePart);
+
+    return { details: "", ok: true, data: sparePart };
+  });
+
+  @modelFlow
   fetchAll = _async(function* (
     this: SparePartStore,
     filters?: {

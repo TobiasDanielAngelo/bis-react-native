@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { MenuBar } from "../blueprints/MenuBar";
 import { addDays } from "../constants/helpers";
@@ -31,6 +31,14 @@ export const FinanceModule = observer(() => {
       category: 48,
     });
   };
+
+  const onPressItem = useCallback(
+    (item: { id: number; name: string; label: string }) => {
+      setView((prev) => (prev.id === item.id ? defaultLogo : item));
+    },
+    [view]
+  );
+
   useEffect(() => {
     getTransfersToday();
   }, []);
@@ -42,7 +50,11 @@ export const FinanceModule = observer(() => {
       <D3TimelineView isVisible={view?.id === 3} />
       <D4AccountsView isVisible={view?.id === 4} />
       <D5ForecastView isVisible={view?.id === 5} />
-      <MenuBar items={submodules} selectedItem={view} onPressItem={setView} />
+      <MenuBar
+        items={submodules}
+        selectedItem={view}
+        onPressItem={onPressItem}
+      />
     </View>
   );
 });

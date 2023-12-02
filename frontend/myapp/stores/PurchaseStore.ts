@@ -75,6 +75,11 @@ export class PurchaseStore extends Model({
     return this.purchases.find((s) => s.id === id);
   }
 
+  @modelAction
+  deleteAll() {
+    this.purchases.splice(0, this.purchases.length);
+  }
+
   @modelFlow
   fetchAll = _async(function* (
     this: PurchaseStore,

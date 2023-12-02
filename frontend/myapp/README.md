@@ -1,7 +1,7 @@
 Logs
 
 November 30, 2023
-Next update: December 31, 2023
+Next update: December 2, 2023
 
 1. Changed description for adding petty coins. Manually change description until next update.
 2. Found some input error for posting check payment. Manually change transaction date to due date of check until next update.
@@ -33,3 +33,8 @@ Next update: December 31, 2023
 28. Cash adjustments must keep separate.
 29. Add Untracked to Expense Module. (OK)
 30. Add a feature in Edit for editing selling prices (on Check).
+
+December 2, 2023
+
+1. Review of Sales navigating in date not showing any sales.
+2. Major bug found in tallying.

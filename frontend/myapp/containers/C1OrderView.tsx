@@ -119,6 +119,7 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
   }, [order]);
 
   useEffect(() => {
+    purchaseStore.deleteAll();
     purchaseStore.fetchAll({ isActive: true });
   }, [refresh]);
 
