@@ -38,3 +38,9 @@ December 2, 2023
 
 1. Review of Sales navigating in date not showing any sales.
 2. Major bug found in tallying.
+
+December 3, 2023
+
+1. Found some issues in adding an item in sales. (indexing?) Replicate by closing an item from first page then adding item in second page? Maybe the solution is to set order to -1 after closing.
+2. In Timeline, find a way to add padding with the y-axis labels.
+3. Change random name to Cash -> Cabanatuan City

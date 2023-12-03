@@ -51,7 +51,7 @@ class SparePart(models.Model):
 class Product(models.Model):
     piece_count = models.IntegerField(validators=[MinValueValidator(1)], default=1)
     unit = models.CharField(max_length=10, default="pcs")
-    description = models.CharField(max_length=50, default="", blank=True)
+    description = models.CharField(max_length=200, default="", blank=True)
     brand = models.CharField(max_length=20, default="", blank=True)
     part = models.ForeignKey(
         SparePart, on_delete=models.CASCADE, related_name="product_part", null=True
@@ -242,7 +242,7 @@ class Sale(models.Model):
     )
     status = models.CharField(max_length=10, choices=PAYMENT_CHOICES, default="1")
     to_print = models.BooleanField(default=False)
-    customer_name = models.CharField(max_length=30, default="", blank=True)
+    customer_name = models.CharField(max_length=60, default="", blank=True)
     datetime_opened = models.DateTimeField(default=timezone.now)
     datetime_closed = models.DateTimeField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
@@ -278,7 +278,7 @@ class SalesItem(models.Model):
     product = models.ForeignKey(
         Product, on_delete=models.SET_NULL, related_name="sales_product", null=True
     )
-    description = models.CharField(max_length=50, default="", blank=True)
+    description = models.CharField(max_length=200, default="", blank=True)
     unit = models.CharField(max_length=30, default="", blank=True)
     quantity = models.DecimalField(
         default=1, decimal_places=2, max_digits=10, validators=[MinValueValidator(0)]
@@ -315,7 +315,7 @@ class ReturnedItem(models.Model):
     quantity = models.DecimalField(
         default=1, decimal_places=2, max_digits=10, validators=[MinValueValidator(0)]
     )
-    description = models.CharField(max_length=50, default="", blank=True)
+    description = models.CharField(max_length=200, default="", blank=True)
     unit = models.CharField(max_length=30, default="", blank=True)
     selling_price = models.DecimalField(
         max_digits=7, decimal_places=2, validators=[MinValueValidator(0)], default=0
@@ -371,7 +371,7 @@ class PurchaseItem(models.Model):
     product = models.ForeignKey(
         Product, on_delete=models.SET_NULL, related_name="purchase_product", null=True
     )
-    description = models.CharField(max_length=50, default="", blank=True)
+    description = models.CharField(max_length=200, default="", blank=True)
     unit = models.CharField(max_length=10, default="PC")
     quantity = models.DecimalField(
         default=1, decimal_places=2, max_digits=10, validators=[MinValueValidator(0)]

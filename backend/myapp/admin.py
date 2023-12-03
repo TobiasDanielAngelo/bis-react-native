@@ -61,6 +61,13 @@ class LaborItemAdmin(admin.ModelAdmin):
 
 class SaleItemAdmin(admin.ModelAdmin):
     model = SalesItem
+    list_display = (
+        "id",
+        "product",
+        "quantity",
+        "selling_price",
+        "is_claimed",
+    )
 
 
 class PurchaseItemAdmin(admin.ModelAdmin):
