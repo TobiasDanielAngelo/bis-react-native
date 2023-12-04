@@ -242,7 +242,7 @@ export const CheckCard = observer(
             },
             {
               id: 4,
-              text: `Located at Shelf ${item.location}`,
+              text: `Located at Shelf ${item.location} | For label: ${item.print_count}`,
               type: "sub",
             },
             {

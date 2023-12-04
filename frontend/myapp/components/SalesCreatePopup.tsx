@@ -17,9 +17,8 @@ export const SalesCreatePopup = (props: {
   const [address, setAddress] = useState("");
 
   const onPressShuffle = useCallback(() => {
-    let nameAddress = randomNameGen(true);
     setName(`${Math.round(300 * Math.random())} Cash`);
-    setAddress(nameAddress[1]);
+    setAddress("Cabanatuan City");
   }, []);
 
   const onPressCheck = async () => {

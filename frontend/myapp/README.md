@@ -47,4 +47,11 @@ December 3, 2023
 4. Create a print button in status bar for Sales > History (Temporarily make it active for editing).
 5. Sort by latest from sales/expense/transfer/purchase histories.
 6. Add date to receipt. (OK)
-7. Option to remove total.
+
+December 4, 2023
+
+1. Closing the sale sets selected item to -1 which puts page number to -1, set it to 0. (OK)
+2. Set default address to Cabanatuan. (OK)
+3. Option to remove total.
+4. Fetch missing products.
+5. Show print counts for Check. (OK)

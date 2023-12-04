@@ -17,24 +17,26 @@ interface Section {
 }
 
 export const SalesAndLaborList = observer(
-  (props: { sale?: SaleInterface; hidden?: boolean }) => {
-    const { sale, hidden } = props;
+  (props: {
+    sale?: SaleInterface;
+    laborItems?: LaborItem[];
+    saleItems?: SalesItem[];
+    hidden?: boolean;
+  }) => {
+    const { sale, hidden, laborItems, saleItems } = props;
 
-    const data = useMemo(
-      () => [
-        {
-          title: "Labor",
-          data: sale?.labor_item ?? [],
-          type: "labor",
-        },
-        {
-          title: "Sales",
-          data: sale?.sales_item ?? [],
-          type: "sales",
-        },
-      ],
-      [sale?.sales_item, sale?.labor_item]
-    );
+    const data = [
+      {
+        title: "Labor",
+        data: laborItems ?? [],
+        type: "labor",
+      },
+      {
+        title: "Sales",
+        data: saleItems ?? [],
+        type: "sales",
+      },
+    ];
 
     const renderItem: SectionListRenderItem<Item, Section> = ({
       item,

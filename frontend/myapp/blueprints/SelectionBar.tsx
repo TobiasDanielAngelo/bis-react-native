@@ -35,7 +35,7 @@ export const SelectionBar = <
 
   useEffect(() => {
     const ind = items.map((s) => s.id).indexOf(selectedItem);
-    setPage(Math.floor(ind / 4));
+    setPage(ind < 0 ? 0 : Math.floor(ind / 4));
   }, [selectedItem]);
 
   return (

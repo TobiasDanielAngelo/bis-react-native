@@ -161,8 +161,16 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
 
   const getMatches = async () => {
     const resp = await productStore.fetchMatches(query);
+    let missingProdIds = [];
     if (resp.data) {
-      setMatches(resp.data.ids);
+      missingProdIds.push(
+        ...resp.data.ids.filter(
+          (t) => !productStore.products.map((s) => s.id).includes(t)
+        )
+      );
+    }
+    for (let i = 0; i < missingProdIds.length; i++) {
+      await productStore.fetchProduct(missingProdIds[i]);
     }
   };
 
@@ -285,6 +293,8 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
         <View style={styles.body}>
           <SalesAndLaborList
             sale={sale}
+            saleItems={sale?.sales_item}
+            laborItems={sale?.labor_item}
             hidden={focus || selectedItem === -1}
           />
         </View>

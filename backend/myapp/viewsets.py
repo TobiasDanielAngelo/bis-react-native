@@ -109,6 +109,8 @@ class ProductViewSet(viewsets.ModelViewSet):
                 "min_id": queryset.earliest("id").id,
             }
             return response.Response(resp)
+        if params.get("get_printables"):
+            queryset = queryset.filter(print_count__gt=0)
         if params.get("ids"):
             list_to_include = params["ids"].split(" ")
             queryset = queryset.filter(
