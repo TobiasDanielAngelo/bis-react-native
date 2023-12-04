@@ -168,6 +168,7 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
           (t) => !productStore.products.map((s) => s.id).includes(t)
         )
       );
+      setMatches(resp.data.ids);
     }
     for (let i = 0; i < missingProdIds.length; i++) {
       await productStore.fetchProduct(missingProdIds[i]);

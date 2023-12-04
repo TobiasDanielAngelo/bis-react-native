@@ -132,6 +132,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                     )
                 )
                 ids = list(queryset.values_list("id", flat=True))
+                print(ids)
             return response.Response({"ids": ids})
 
         serializer = self.get_serializer(queryset, many=True)
