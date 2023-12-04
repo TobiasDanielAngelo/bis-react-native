@@ -59,7 +59,9 @@ export const SalesLaborReturnList = observer(
       !hidden && (
         <SectionList
           sections={data}
-          keyExtractor={(item, index) => item.id.toString()}
+          keyExtractor={(item, index) =>
+            (100000 * item.sales + item.id).toString()
+          }
           renderItem={renderItem}
           renderSectionHeader={({ section: { title, data } }) => {
             return data.length > 0 ? (

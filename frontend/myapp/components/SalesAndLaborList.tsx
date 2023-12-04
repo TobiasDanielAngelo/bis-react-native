@@ -44,11 +44,19 @@ export const SalesAndLaborList = observer(
     }) => {
       if (section.type === "sales") {
         return (
-          <SalesCard item={item as SalesItem} locked={sale?.status !== "1"} />
+          <SalesCard
+            item={item as SalesItem}
+            key={item.id}
+            locked={sale?.status !== "1"}
+          />
         );
       } else if (section.type === "labor") {
         return (
-          <LaborCard item={item as LaborItem} locked={sale?.status !== "1"} />
+          <LaborCard
+            item={item as LaborItem}
+            key={item.id}
+            locked={sale?.status !== "1"}
+          />
         );
       } else {
         return <></>;
@@ -58,7 +66,9 @@ export const SalesAndLaborList = observer(
       !hidden && (
         <SectionList
           sections={data}
-          keyExtractor={(item, index) => (item.id + index).toString()}
+          keyExtractor={(item, index) =>
+            (100000 * item.sales + item.id).toString()
+          }
           renderItem={renderItem}
           renderSectionHeader={({ section: { title, data } }) => {
             return data.length > 0 ? (
