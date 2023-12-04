@@ -24,7 +24,6 @@ export const D4AccountsView = observer((props: { isVisible?: boolean }) => {
       (s) => moment(s.datetime_transacted).format("YYYYMM") === month.toString()
     )
     .filter((s) => s.transmitter === account || s.receiver === account);
-
   useEffect(() => {
     let y = parseInt(month.toString().substring(0, 4));
     let m = parseInt(month.toString().substring(4, 6));
@@ -68,11 +67,12 @@ export const D4AccountsView = observer((props: { isVisible?: boolean }) => {
         </HView>
         <View style={styles.body}>
           <FlatList
-            data={transactionByAccount}
+            data={transactionByAccount.slice(10 * index, 10 * (index + 1))}
             renderItem={({ item }) => (
               <TransactionCard
                 item={item}
                 negative={account === item.transmitter}
+                noActions
               />
             )}
           />

@@ -83,12 +83,21 @@ export const A4ReviewView = observer((props: { isVisible?: boolean }) => {
       )
     : 0;
 
+  const onPressPrint = () => {
+    if (!sale) return;
+    saleStore.updateItem(sale.id, {
+      is_active: true,
+      to_print: !sale.to_print,
+    });
+  };
+
   useEffect(() => {
     if (!isVisible) return;
     saleStore.fetchAll({
       startDate: addDays(date, -1).toISOString(),
       endDate: addDays(date, 1).toISOString(),
     });
+    setValue(-1);
   }, [date, isVisible]);
 
   return (
@@ -154,7 +163,9 @@ export const A4ReviewView = observer((props: { isVisible?: boolean }) => {
             setValue={setValue}
             items={sales.map((s) => ({
               value: s.id,
-              label: `#${s.id} - ${s.customer_name}`,
+              label: `#${s.id} - ${moment(s.datetime_opened).format(
+                "h:mm A"
+              )} ${s.customer_name}`,
             }))}
             label={`${sales.length === 0 ? "No" : sales.length} sale${
               sales.length === 1 ? "" : "s"
@@ -173,11 +184,15 @@ export const A4ReviewView = observer((props: { isVisible?: boolean }) => {
         </View>
         <MyStatusBar
           amount={amount}
-          // action1={
-          //   value !== -1
-          //     ? { name: "list", onPress: () => setVisible1(true) }
-          //     : undefined
-          // }
+          action1={
+            value !== -1
+              ? {
+                  name: "print",
+                  onPress: onPressPrint,
+                  selected: sale?.to_print,
+                }
+              : undefined
+          }
         />
       </View>
     )

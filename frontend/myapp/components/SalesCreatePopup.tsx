@@ -1,14 +1,16 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { MyOverlay } from "../blueprints/MyOverlay";
 import { MyTextInput } from "../blueprints/MyTextInput";
 import { randomNameGen } from "../constants/helpers";
 import { useStore } from "../stores/Store";
+import moment from "moment";
 
 export const SalesCreatePopup = (props: {
   isVisible: boolean;
   setVisible: (t: boolean) => void;
+  setSelectedItem: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-  const { isVisible, setVisible } = props;
+  const { isVisible, setVisible, setSelectedItem } = props;
   const { saleStore } = useStore();
 
   const [name, setName] = useState("");
@@ -16,13 +18,22 @@ export const SalesCreatePopup = (props: {
 
   const onPressShuffle = useCallback(() => {
     let nameAddress = randomNameGen(true);
-    setName(nameAddress[0]);
+    setName(`${Math.round(300 * Math.random())} Cash`);
     setAddress(nameAddress[1]);
   }, []);
 
-  const onPressCheck = () => {
-    saleStore.addItem(`${name} (${address})`);
+  const onPressCheck = async () => {
+    const resp = await saleStore.addItem(`${name} (${address})`);
+    if (!resp.data) return;
+    setSelectedItem(resp.data.id);
   };
+
+  useEffect(() => {
+    if (isVisible) {
+      setName("");
+      setAddress("");
+    }
+  }, [isVisible]);
 
   return (
     <MyOverlay

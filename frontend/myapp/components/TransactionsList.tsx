@@ -37,7 +37,13 @@ export const TransactionsList = observer(
     const data = [
       {
         title: "Expenses",
-        data: expenses ?? [],
+        data:
+          expenses?.sort((a, b) =>
+            new Date(a.datetime_transacted).getTime() >
+            new Date(b.datetime_transacted).getTime()
+              ? -1
+              : 1
+          ) ?? [],
         type: "transaction",
       },
       {

@@ -99,28 +99,32 @@ export const CheckCard = observer(
         quantity: toNumber(details.quantity) - netQty,
         product: item.id,
       });
-      productStore.updateProduct(item.id, {
-        datetime_updated: new Date().toISOString(),
-      });
       if (toNumber(details.quantity) > netQty) {
-        transactionStore.addItem({
-          description: `Stock Gained for ${item.id}`,
+        await transactionStore.addItem({
+          description: item.datetime_updated
+            ? `Stock Gained for ${item.id}`
+            : `Initial for ${item.id}`,
           amount:
             Math.abs(toNumber(details.quantity) - netQty) * item.sell_price,
-          category: 53,
-          transmitter: 11,
+          category: item.datetime_updated ? 53 : 48,
+          transmitter: item.datetime_updated ? 11 : 19,
           receiver: 14,
         });
       } else if (toNumber(details.quantity) < netQty) {
-        transactionStore.addItem({
-          description: `Stock Lost for ${item.id}`,
+        await transactionStore.addItem({
+          description: item.datetime_updated
+            ? `Stock Lost for ${item.id}`
+            : `Initial for ${item.id}`,
           amount:
             Math.abs(toNumber(details.quantity) - netQty) * item.sell_price,
-          category: 52,
+          category: item.datetime_updated ? 53 : 48,
           transmitter: 14,
-          receiver: 11,
+          receiver: item.datetime_updated ? 11 : 19,
         });
       }
+      await productStore.updateProduct(item.id, {
+        datetime_updated: new Date().toISOString(),
+      });
       onPressRefresh();
     };
 

@@ -66,6 +66,7 @@ export const D1TransferView = observer((props: { isVisible?: boolean }) => {
   };
 
   const onPressBalance = () => {
+    accountStore.fetchAll();
     setScreen2((t) => !t);
     setScreen1(false);
   };

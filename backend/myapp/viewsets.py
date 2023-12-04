@@ -298,6 +298,7 @@ class SaleViewSet(viewsets.ModelViewSet):
             activity = params["is_active"] == "true"
             queryset = queryset.filter(is_active=activity)
         if params.get("range"):
+            print(get_dates_start(params["range"]))
             queryset = queryset.filter(
                 datetime_opened__gte=get_dates_start(params["range"])
             )

@@ -56,18 +56,13 @@ class LaborItemAdmin(admin.ModelAdmin):
         "amount_received",
         "amount_owed",
         "amount_returned",
+        "sales",
     )
 
 
 class SaleItemAdmin(admin.ModelAdmin):
     model = SalesItem
-    list_display = (
-        "id",
-        "product",
-        "quantity",
-        "selling_price",
-        "is_claimed",
-    )
+    list_display = ("id", "product", "quantity", "selling_price", "is_claimed", "sales")
 
 
 class PurchaseItemAdmin(admin.ModelAdmin):

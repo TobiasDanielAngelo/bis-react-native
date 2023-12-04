@@ -35,9 +35,15 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
   const [mechanic, setMechanic] = useState(-1);
   const [matches, setMatches] = useState<number[]>([]);
 
-  const getSales = useCallback(() => {
+  const getSales = useCallback(async () => {
     saleStore.deleteAll();
-    saleStore.fetchAll({ isActive: true });
+    const resp = await saleStore.fetchAll({ isActive: true });
+    if (!resp.data) return;
+    if (resp.data.length === 0) {
+      setSelectedItem(-1);
+      return;
+    }
+    setSelectedItem(resp.data[0].id);
   }, []);
 
   const sales = saleStore.sales
@@ -195,7 +201,11 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
   return (
     isVisible && (
       <View style={styles.main}>
-        <SalesCreatePopup isVisible={isVisible1} setVisible={setVisible1} />
+        <SalesCreatePopup
+          isVisible={isVisible1}
+          setVisible={setVisible1}
+          setSelectedItem={setSelectedItem}
+        />
         <MyOverlay
           title="Edit Customer Name"
           onPressCheck={onPressCheck}
@@ -280,11 +290,12 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
         </View>
         <SalesStatusBar
           sale={sale}
-          leftText={`#${sale?.id} ${sale?.name.substring(0, 20)}... \u270e`}
+          leftText={`#${sale?.id} - ${sale?.name.substring(0, 20)}... \u270e`}
           rightText={status}
           amount={total}
-          hidden={selectedItem === -1 || !total}
+          hidden={selectedItem === -1}
           leftAction={() => setVisible2(true)}
+          setSelectedItem={setSelectedItem}
         />
       </View>
     )

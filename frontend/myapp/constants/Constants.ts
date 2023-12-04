@@ -109,7 +109,8 @@ export const durationDays = [
   { duration: "1Q", days: 90, format: "M-D" },
   { duration: "1M", days: 30, format: "M-D" },
   { duration: "1W", days: 7, format: "DD" },
-  { duration: "3D", days: 3, format: "MM-D hA" },
+  { duration: "3D", days: 3, format: "D hA" },
+  { duration: "1D", days: 1, format: "hA" },
 ] as DurationDays[];
 
 export const suppliers = [

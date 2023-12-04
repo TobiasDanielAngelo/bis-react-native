@@ -4,7 +4,8 @@ import math
 
 
 def get_dates_start(range):
-    now = timezone.now()
+    now = timezone.localtime(timezone.now())
+    print(now)
     mytz = timezone.get_current_timezone()
     if range == "5Y":
         return datetime(now.year - 4, 1, 1, tzinfo=mytz)

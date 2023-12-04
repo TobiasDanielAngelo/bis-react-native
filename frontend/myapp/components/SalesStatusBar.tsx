@@ -33,6 +33,7 @@ export const SalesStatusBar = observer(
     hidden?: boolean;
     amount?: number;
     sale?: SaleInterface;
+    setSelectedItem: React.Dispatch<React.SetStateAction<number>>;
   }) => {
     const {
       hidden,
@@ -45,6 +46,7 @@ export const SalesStatusBar = observer(
       leftAction,
       rightAction,
       sale,
+      setSelectedItem,
     } = props;
 
     const {
@@ -254,11 +256,12 @@ export const SalesStatusBar = observer(
 
     const onPressClose = async () => {
       if (!sale?.id || !closable) return;
-      saleStore.updateItem(sale.id, {
+      await saleStore.updateItem(sale.id, {
         datetime_closed: new Date().toISOString(),
         is_active: false,
         to_print: false,
       });
+      setSelectedItem(-1);
     };
 
     const onPressCreateReceivable = () => {

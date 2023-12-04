@@ -18,7 +18,7 @@ export const TransactionCard = observer(
     negative?: boolean;
   }) => {
     const { item, hidden, locked, negative, noActions } = props;
-    const { transactionStore, categoryStore } = useStore();
+    const { transactionStore, categoryStore, accountStore } = useStore();
     const [isVisible1, setVisible1] = useState(false);
     const [value, setValue] = useState(item.amount.toString());
 
@@ -65,9 +65,16 @@ export const TransactionCard = observer(
               )}`,
               type: "sub",
             },
+            {
+              id: 3,
+              text: `From ${accountStore.getItem(item.transmitter)?.name} to ${
+                accountStore.getItem(item.receiver)?.name
+              }`,
+              type: "sub",
+            },
           ]}
           actions={
-            [2].includes(item.category)
+            [2].includes(item.category) || noActions
               ? []
               : [
                   {

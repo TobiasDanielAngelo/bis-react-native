@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { doNothing } from "../constants/constants";
 import { Avatar } from "./Avatar";
@@ -32,6 +32,11 @@ export const SelectionBar = <
   const rowLength = 4 + (hasNoAddBtn ? 1 : 0);
   const leftIndex = page * rowLength;
   const rightIndex = leftIndex + rowLength;
+
+  useEffect(() => {
+    const ind = items.map((s) => s.id).indexOf(selectedItem);
+    setPage(Math.floor(ind / 4));
+  }, [selectedItem]);
 
   return (
     !hidden && (

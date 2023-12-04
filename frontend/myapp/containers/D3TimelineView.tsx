@@ -26,14 +26,18 @@ interface PriceTrend {
   points: AccountPriceXY[];
 }
 
+let ms = 86400000;
+
 const actions = [
-  { id: 1, name: "arrow-drop-down", label: "5Y", interval: 75 },
-  { id: 2, name: "arrow-drop-down", label: "2Y", interval: 30.0 },
-  { id: 3, name: "arrow-drop-down", label: "1Y", interval: 15.0 },
-  { id: 4, name: "arrow-drop-down", label: "1B", interval: 7.5 },
-  { id: 5, name: "arrow-drop-down", label: "1Q", interval: 4.0 },
-  { id: 6, name: "arrow-drop-down", label: "1M", interval: 1.3 },
-  { id: 7, name: "arrow-drop-down", label: "1W", interval: 0.3 },
+  { id: 1, name: "arrow-drop-down", label: "5Y", interval: 2 * 75 * ms },
+  { id: 2, name: "arrow-drop-down", label: "2Y", interval: 2 * 30.0 * ms },
+  { id: 3, name: "arrow-drop-down", label: "1Y", interval: 2 * 15.0 * ms },
+  { id: 4, name: "arrow-drop-down", label: "1B", interval: 15 * ms },
+  { id: 5, name: "arrow-drop-down", label: "1Q", interval: 8.0 * ms },
+  { id: 6, name: "arrow-drop-down", label: "1M", interval: 2.5 * ms },
+  { id: 7, name: "arrow-drop-down", label: "1W", interval: 0.6 * ms },
+  { id: 8, name: "arrow-drop-down", label: "3D", interval: 0.25 * ms },
+  { id: 9, name: "arrow-drop-down", label: "1D", interval: 0.08 * ms },
 ];
 
 export const D3TimelineView = observer((props: { isVisible?: boolean }) => {
@@ -47,10 +51,10 @@ export const D3TimelineView = observer((props: { isVisible?: boolean }) => {
     mode !== 0
       ? arrayRange(
           0,
-          -24 * actions[mode - 1].interval,
+          -12 * actions[mode - 1].interval,
           -actions[mode - 1].interval
         )
-          .map((s) => addDays(new Date(), s + 1))
+          .map((s) => new Date(new Date().getTime() + s))
           .sort((a, b) => (a.getTime() > b.getTime() ? 1 : -1))
       : [];
 
@@ -93,10 +97,10 @@ export const D3TimelineView = observer((props: { isVisible?: boolean }) => {
           {
             data:
               value > 0
-                ? dataPointsByAccount.map((s) => s.price)
+                ? dataPointsByAccount.map((s) => Math.round(s.price / 1000))
                 : value === 0
-                ? dataPointsTotal
-                : dataPointsCash,
+                ? dataPointsTotal.map((s) => Math.round(s / 1000))
+                : dataPointsCash.map((s) => Math.round(s / 1000)),
           },
         ],
       }

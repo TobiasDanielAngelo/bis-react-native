@@ -27,11 +27,12 @@ export const MyLineChart = (props: {
             width={winWidth}
             height={400}
             yAxisLabel={`\u20b1`}
+            yAxisSuffix={`k`}
             chartConfig={{
               backgroundColor: "#dddddd",
               backgroundGradientFrom: "teal",
               backgroundGradientTo: "gray",
-              decimalPlaces: 2,
+              decimalPlaces: 1,
               color: (opacity = 1) =>
                 data.datasets[0].data[0] >
                 data.datasets[0].data[data.datasets[0].data.length - 1]
