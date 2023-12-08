@@ -17,12 +17,14 @@ export const PurchaseDeliveredCard = observer(
 
     const { productStore, sparePartStore, purchaseStore } = useStore();
     const [isVisible1, setVisible1] = useState(false);
+    const [isVisible2, setVisible2] = useState(false);
     const [quantity, setQuantity] = useState("0");
     const [details, setDetails] = useState({
       unitPP: "0",
       unitSP: "0",
       packPP: "0",
       packSP: "0",
+      toPrint: "0",
     });
 
     const product = productStore.getItem(item.product);
@@ -95,6 +97,11 @@ export const PurchaseDeliveredCard = observer(
           : "",
       });
     };
+
+    const onChangePrintCount = (t: string) => {
+      setDetails({ ...details, toPrint: toNumString(t) });
+    };
+
     const onPressCheck = () => {
       if (
         isNaN(parseFloat(quantity)) ||
@@ -141,6 +148,14 @@ export const PurchaseDeliveredCard = observer(
       );
     };
 
+    const onPressCheck2 = () => {
+      if (isNaN(parseInt(details.toPrint)) || parseInt(details.toPrint) === 0)
+        return;
+      productStore.updateProduct(item.product, {
+        print_count: toNumber(details.toPrint),
+      });
+    };
+
     const actions = locked
       ? []
       : [
@@ -156,11 +171,17 @@ export const PurchaseDeliveredCard = observer(
             onPress: () => setVisible1(true),
           },
           {
-            id: 2,
+            id: 3,
             name: "close",
             position: "Q3",
             onPress: onPressClose,
             disabled: locked,
+          },
+          {
+            id: 4,
+            name: "print",
+            position: "Q1",
+            onPress: () => setVisible2(true),
           },
         ].filter((s) => (item.is_valid ? s.id !== 1 : s.id !== 2));
 
@@ -268,6 +289,20 @@ export const PurchaseDeliveredCard = observer(
               flex={1}
             />
           </HView>
+        </MyOverlay>
+        <MyOverlay
+          title="Print Labels"
+          isVisible={isVisible2}
+          setVisible={setVisible2}
+          onPressCheck={onPressCheck2}
+        >
+          <MyTextInput
+            value={details.toPrint}
+            onChangeValue={onChangePrintCount}
+            label="Number of Labels"
+            numeric
+            centered
+          />
         </MyOverlay>
         <MyCard
           disabled={!item || locked}

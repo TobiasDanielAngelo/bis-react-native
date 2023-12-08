@@ -38,6 +38,7 @@ export const CheckCard = observer(
       location: item.location,
       quantity: "",
       minQuantity: item.min_quantity.toString(),
+      sellPrice: item.sell_price.toFixed(2),
     });
 
     const sold = item.sold ?? 0;
@@ -75,6 +76,10 @@ export const CheckCard = observer(
 
     const onChangeMinQuantity = (t: string) => {
       setDetails({ ...details, minQuantity: toNumString(t) });
+    };
+
+    const onChangeSellPrice = (t: string) => {
+      setDetails({ ...details, sellPrice: toNumString(t, true) });
     };
 
     const onChangePrintCount = (t: string) => {
@@ -217,6 +222,13 @@ export const CheckCard = observer(
             label="Minimum Quantity (Set)"
             value={details.minQuantity}
             onChangeValue={onChangeMinQuantity}
+            numeric
+            centered
+          />
+          <MyTextInput
+            label="Selling Price"
+            value={details.sellPrice}
+            onChangeValue={onChangeSellPrice}
             numeric
             centered
           />

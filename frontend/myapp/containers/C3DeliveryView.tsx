@@ -295,6 +295,7 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
                 />
               )}
               keyboardShouldPersistTaps="always"
+              removeClippedSubviews={false}
             />
           </MyList>
           <MyDotPager

@@ -1,7 +1,7 @@
 import uuid
 
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -66,6 +66,10 @@ class Product(models.Model):
     is_orig = models.BooleanField(default=False)
     print_count = models.IntegerField(validators=[MinValueValidator(0)], default=0)
     datetime_updated = models.DateTimeField(blank=True, null=True)
+    label_size = models.IntegerField(
+        default=3, validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    label_format = models.CharField(max_length=50, default="", blank=True)
 
     def __str__(self):
         return f"{self.part} {self.description} {self.brand} {'ORIG.' if self.is_orig else 'SEMI.'} {self.motors[0:5]}"

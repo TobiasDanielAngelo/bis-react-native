@@ -110,6 +110,7 @@ export const C4CheckView = observer((props: { isVisible?: boolean }) => {
             data={currentProducts.slice(4 * index, 4 * (index + 1))}
             renderItem={({ item }) => <CheckCard item={item} />}
             keyboardShouldPersistTaps="always"
+            removeClippedSubviews={false}
           />
         </View>
       </View>

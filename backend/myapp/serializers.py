@@ -98,6 +98,8 @@ class ProductSerializer(serializers.ModelSerializer):
             "returned",
             "purchased",
             "counted",
+            "label_size",
+            "label_format",
         ]
 
 
