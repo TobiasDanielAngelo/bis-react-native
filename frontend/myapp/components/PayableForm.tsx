@@ -9,16 +9,17 @@ import { toNumString, totalValue } from "../constants/helpers";
 import { MyText } from "../blueprints/MyText";
 import { MyDatePicker } from "../blueprints/MyDatePicker";
 
-const defaultDetails = {
-  comment: "",
-  category: -1,
-  person: "",
-  amount: "",
-  date_due: new Date(),
-};
-
 export const PayableForm = (props: { hidden?: boolean }) => {
   const { hidden } = props;
+
+  const defaultDetails = {
+    comment: "",
+    category: -1,
+    person: "",
+    amount: "",
+    date_due: new Date(),
+  };
+
   const [details, setDetails] = useState(defaultDetails);
 
   const { payableStore } = useStore();

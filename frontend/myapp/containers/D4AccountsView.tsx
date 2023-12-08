@@ -23,6 +23,12 @@ export const D4AccountsView = observer((props: { isVisible?: boolean }) => {
     .filter(
       (s) => moment(s.datetime_transacted).format("YYYYMM") === month.toString()
     )
+    .sort((a, b) =>
+      new Date(a.datetime_transacted).getTime() >
+      new Date(b.datetime_transacted).getTime()
+        ? -1
+        : 1
+    )
     .filter((s) => s.transmitter === account || s.receiver === account);
   useEffect(() => {
     let y = parseInt(month.toString().substring(0, 4));

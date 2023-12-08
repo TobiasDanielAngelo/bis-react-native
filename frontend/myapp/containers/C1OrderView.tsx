@@ -154,7 +154,6 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
             onChangeValue={setValue2}
             label="Code"
             centered
-            numeric
           />
         </MyOverlay>
         <HView hidden={!showOrders}>

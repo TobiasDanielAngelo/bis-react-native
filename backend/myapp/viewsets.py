@@ -121,7 +121,18 @@ class ProductViewSet(viewsets.ModelViewSet):
             )
         if params.get("q"):
             ids = []
-            if len(f'{params["q"]}') > 4:
+            if params["q"][0] == "@":
+                queryset = queryset.filter(id=int((params["q"]).replace("@", "")))
+                ids = list(queryset.values_list("id", flat=True))
+                return response.Response({"ids": ids})
+            elif params["q"][0:3] == "BNW":
+                list_queries = [106, 152, 3, 173, 107, 80, 84, 118]
+                queryset = queryset.filter(
+                    reduce(operator.or_, (Q(part=x) for x in list_queries))
+                )
+                ids = list(queryset.values_list("id", flat=True))
+                return response.Response({"ids": ids})
+            elif len(f'{params["q"]}') > 1:
                 pattern = r"\W+"
                 list_queries = re.split(pattern, params["q"])
                 print(list_queries)

@@ -48,17 +48,35 @@ export const TransactionsList = observer(
       },
       {
         title: "Other Incomes",
-        data: incomes ?? [],
+        data:
+          incomes?.sort((a, b) =>
+            new Date(a.datetime_transacted).getTime() >
+            new Date(b.datetime_transacted).getTime()
+              ? -1
+              : 1
+          ) ?? [],
         type: "transaction",
       },
       {
         title: "Payables",
-        data: payables ?? [],
+        data:
+          payables?.sort((a, b) =>
+            new Date(a.datetime_opened).getTime() >
+            new Date(b.datetime_opened).getTime()
+              ? -1
+              : 1
+          ) ?? [],
         type: "payable",
       },
       {
         title: "Receivables",
-        data: receivables ?? [],
+        data:
+          receivables?.sort((a, b) =>
+            new Date(a.datetime_opened).getTime() >
+            new Date(b.datetime_opened).getTime()
+              ? -1
+              : 1
+          ) ?? [],
         type: "receivable",
       },
     ];
@@ -68,18 +86,21 @@ export const TransactionsList = observer(
       section,
     }) => {
       if (section.type === "transaction") {
-        return <TransactionCard item={item as Transaction} />;
+        return (
+          <TransactionCard item={item as Transaction} key={item.id + 1000} />
+        );
       } else if (section.type === "receivable") {
-        return <ReceivableCard item={item as Receivable} />;
+        return (
+          <ReceivableCard item={item as Receivable} key={item.id + 2000} />
+        );
       } else {
-        return <PayableCard item={item as Payable} />;
+        return <PayableCard item={item as Payable} key={item.id + 3000} />;
       }
     };
     return (
       !hidden && (
         <SectionList
           sections={data}
-          keyExtractor={(item, index) => item.id.toString()}
           renderItem={renderItem}
           renderSectionHeader={({ section: { title, data } }) => {
             return data.length > 0 ? (

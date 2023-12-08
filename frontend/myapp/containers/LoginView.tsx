@@ -65,7 +65,10 @@ export const LoginView = () => {
   };
 
   const loginUser = async (details: { username: string; password: string }) => {
-    const response = await userStore.loginUser(details);
+    const response = await userStore.loginUser({
+      username: details.username.toLowerCase(),
+      password: details.password,
+    });
 
     if (!response.ok) {
       setMsg(response.details);

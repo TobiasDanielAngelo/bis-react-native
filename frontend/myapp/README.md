@@ -55,3 +55,10 @@ December 4, 2023
 3. Option to remove total.
 4. Fetch missing products.
 5. Show print counts for Check. (OK)
+
+December 8, 2023
+
+1. Added BNW and Code.
+2. Case insensitive login.
+3. Sort by date.
+4. Fix subview clipping.

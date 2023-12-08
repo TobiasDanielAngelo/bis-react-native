@@ -1,26 +1,25 @@
+import { useEffect, useState } from "react";
+import { HView } from "../blueprints/HView";
 import { MyDropdownPicker } from "../blueprints/MyDropdownPicker";
 import { MyForm } from "../blueprints/MyForm";
-import { useState, useEffect } from "react";
-import { useStore } from "../stores/Store";
 import { MyIcon } from "../blueprints/MyIcon";
-import { HView } from "../blueprints/HView";
 import { MyTextInput } from "../blueprints/MyTextInput";
-import { toNumString, toNumber, totalValue } from "../constants/helpers";
-import { MyText } from "../blueprints/MyText";
-import { MyDatePicker } from "../blueprints/MyDatePicker";
-
-const defaultDetails = {
-  comment: "",
-  category: -1,
-  transmitter: 10,
-  receiver: 16,
-  person: "",
-  amount: "",
-  receivable: -1,
-};
+import { toNumString, totalValue } from "../constants/helpers";
+import { useStore } from "../stores/Store";
 
 export const IncomeForm = (props: { hidden?: boolean }) => {
   const { hidden } = props;
+
+  const defaultDetails = {
+    comment: "",
+    category: -1,
+    transmitter: 10,
+    receiver: 16,
+    person: "",
+    amount: "",
+    receivable: -1,
+  };
+
   const [details, setDetails] = useState(defaultDetails);
 
   const { categoryStore, accountStore, receivableStore, transactionStore } =
@@ -139,7 +138,7 @@ export const IncomeForm = (props: { hidden?: boolean }) => {
             label: s.name,
           }))}
           value={details.receiver}
-          setValue={(t) => setDetails({ ...details, transmitter: t })}
+          setValue={(t) => setDetails({ ...details, receiver: t })}
           label={"To this Account"}
           flex
         />

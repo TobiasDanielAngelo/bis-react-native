@@ -176,7 +176,7 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
   };
 
   useEffect(() => {
-    if (query !== "" && query.length > 4) {
+    if (query !== "" && query.length > 1) {
       const getData = setTimeout(() => {
         getMatches();
       }, 100);
@@ -278,7 +278,7 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
           setShowSearchBar={setShowSearchBar}
           focus={focus}
           setFocus={setFocus}
-          hasNoBNW
+          hasNoBNW={selectedItem === -1}
           hasNoSearch={selectedItem === -1}
           hasNoLabor={selectedItem === -1}
           hidden={sale?.status !== "1"}

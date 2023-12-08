@@ -5,7 +5,6 @@ import { MySearchInput } from "./MySearchInput";
 
 export const SearchBar = (props: {
   onPressLabor?: () => void;
-  onPressBNW?: () => void;
   onPressDate?: () => void;
   query: string;
   setQuery: (t: string) => void;
@@ -22,7 +21,6 @@ export const SearchBar = (props: {
   small?: boolean;
 }) => {
   const {
-    onPressBNW,
     onPressLabor,
     hidden,
     hasNoBNW,
@@ -43,10 +41,17 @@ export const SearchBar = (props: {
     setShowSearchBar(true);
   }, []);
 
-  // const onPressCode = useCallback(() => {
-  //   setQuery("#");
-  //   setShowSearchBar(true);
-  // }, []);
+  const onPressCode = useCallback(() => {
+    setQuery("@");
+    setShowSearchBar(true);
+    setFocus && setFocus(true);
+  }, []);
+
+  const onPressBNW = useCallback(() => {
+    setQuery("BNW");
+    setShowSearchBar(true);
+    setFocus && setFocus(true);
+  }, []);
 
   const onPressCancel = useCallback(() => {
     setFocus && setFocus(false);
@@ -79,14 +84,14 @@ export const SearchBar = (props: {
                   size={small ? "small" : undefined}
                   noLabel={small}
                 />
-                {/* <MyIcon
+                <MyIcon
                   name="tag"
                   label="Code"
                   color="white"
                   onPress={onPressCode}
                   size={small ? "small" : undefined}
                   noLabel={small}
-                /> */}
+                />
               </>
             )}
             {!hasNoBNW && (

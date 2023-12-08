@@ -66,7 +66,7 @@ export const A3ReturnView = observer((props: { isVisible?: boolean }) => {
   };
 
   useEffect(() => {
-    if (query !== "" && query.length > 4) {
+    if (query !== "" && query.length > 1) {
       const getData = setTimeout(() => {
         getMatches();
       }, 100);
