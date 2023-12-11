@@ -134,9 +134,15 @@ export const CheckCard = observer(
     };
 
     const onPressCheck4 = () => {
-      if (isNaN(parseFloat(details.minQuantity))) return;
+      if (
+        isNaN(parseFloat(details.minQuantity)) ||
+        isNaN(parseFloat(details.sellPrice)) ||
+        parseFloat(details.sellPrice) <= item.purchase_price
+      )
+        return;
       productStore.updateProduct(item.id, {
         min_quantity: parseInt(details.minQuantity),
+        sell_price: parseFloat(details.sellPrice),
       });
     };
 
