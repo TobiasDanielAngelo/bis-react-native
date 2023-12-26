@@ -9,7 +9,12 @@ import { MyQuickList } from "../blueprints/MyQuickList";
 import { MyText } from "../blueprints/MyText";
 import { MyTextInput } from "../blueprints/MyTextInput";
 import { doNothing } from "../constants/constants";
-import { toMoney, toNumString, toNumber } from "../constants/helpers";
+import {
+  toMoney,
+  toNumString,
+  toNumber,
+  toProductShortName,
+} from "../constants/helpers";
 import { useStore } from "../stores/Store";
 import { Product } from "../stores/ProductStore";
 
@@ -47,24 +52,6 @@ export const CheckCard = observer(
     const counted = item.counted ?? 0;
 
     const netQty = purchased + returned - sold + counted;
-
-    const toProductShortName = (t: Product) => {
-      return `${sparePartStore.sparePartName(t.part)}${
-        t.description !== "" ? " " + t.description : ""
-      }${
-        t.motors !== "" &&
-        sparePartStore.spareParts.find((s) => s.id === t.part)?.is_motor_shown
-          ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
-          : ""
-      }${t.brand !== "" ? " " + t.brand : ""}${
-        t.is_orig
-          ? " ORIG."
-          : sparePartStore.spareParts.find((s) => s.id === t.part)
-              ?.is_semi_shown
-          ? " SEMI."
-          : ""
-      }`.toUpperCase();
-    };
 
     const onChangeLocation = (t: string) => {
       setDetails({ ...details, location: t });
@@ -243,7 +230,11 @@ export const CheckCard = observer(
           disabled={locked}
           item={item}
           details={[
-            { id: 1, text: toProductShortName(item), type: "main" },
+            {
+              id: 1,
+              text: toProductShortName(sparePartStore, item),
+              type: "main",
+            },
             {
               id: 2,
               text: `Purchase: \u20b1${toMoney(item.purchase_price)} for ${

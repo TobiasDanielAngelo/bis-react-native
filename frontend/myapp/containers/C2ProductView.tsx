@@ -7,7 +7,7 @@ import { MyDotPager } from "../blueprints/MyDotPager";
 import { SearchBar } from "../blueprints/SearchBar";
 import { SearchResultList } from "../blueprints/SearchResultList";
 import { ProductForm } from "../components/ProductForm";
-import { toMoney } from "../constants/helpers";
+import { toMoney, toProductShortName } from "../constants/helpers";
 import { motorStore } from "../stores/MotorStore";
 import { useStore } from "../stores/Store";
 import { Product } from "../stores/ProductStore";
@@ -50,26 +50,6 @@ export const C2ProductView = observer((props: { isVisible?: boolean }) => {
   const [query, setQuery] = useState("");
   const [focus, setFocus] = useState(false);
   const [matches, setMatches] = useState<number[]>([]);
-
-  const toProductShortName = (t?: Product) => {
-    return !t
-      ? ""
-      : `${sparePartStore.sparePartName(t.part)}${
-          t.description !== "" ? " " + t.description : ""
-        }${
-          t.motors !== "" &&
-          sparePartStore.spareParts.find((s) => s.id === t.part)?.is_motor_shown
-            ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
-            : ""
-        }${t.brand !== "" ? " " + t.brand : ""}${
-          t.is_orig
-            ? " ORIG."
-            : sparePartStore.spareParts.find((s) => s.id === t.part)
-                ?.is_semi_shown
-            ? " SEMI."
-            : ""
-        }`.toUpperCase();
-  };
 
   const productMatches = productStore.products.filter((s) =>
     matches.includes(s.id)
@@ -211,7 +191,11 @@ export const C2ProductView = observer((props: { isVisible?: boolean }) => {
           hidden={(mode !== 1 && mode !== 2) || similarProducts.length === 0}
           details={[
             { id: 1, text: "Similar Item", type: "sub" },
-            { id: 2, text: toProductShortName(shownProduct), type: "main" },
+            {
+              id: 2,
+              text: toProductShortName(sparePartStore, shownProduct),
+              type: "main",
+            },
           ]}
         />
       </View>

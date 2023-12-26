@@ -67,6 +67,14 @@ class SaleItemAdmin(admin.ModelAdmin):
 
 class PurchaseItemAdmin(admin.ModelAdmin):
     model = PurchaseItem
+    list_display = (
+        "id",
+        "product",
+        "quantity",
+        "purchase_price",
+        "is_valid",
+        "purchase",
+    )
 
 
 class ReturnItemAdmin(admin.ModelAdmin):

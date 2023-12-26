@@ -594,6 +594,14 @@ class TransactionViewSet(viewsets.ModelViewSet):
                 other_incomes=Sum("amount", filter=Q(transmitter=16)),
             )
             return response.Response(analytics)
+        if params.get("summary"):
+            summary = (
+                queryset.values("category", "transmitter", "receiver")
+                .annotate(subtotal=Sum("amount"))
+                .order_by("transmitter", "receiver")
+            )
+            return response.Response(summary)
+
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
 

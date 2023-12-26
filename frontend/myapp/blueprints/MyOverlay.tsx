@@ -15,6 +15,7 @@ export const MyOverlay = (
     actionLogo2?: string;
     onPressAction1?: () => void;
     onPressAction2?: () => void;
+    noBtns?: boolean;
   }>
 ) => {
   const {
@@ -27,6 +28,7 @@ export const MyOverlay = (
     onPressAction2,
     actionLogo1,
     actionLogo2,
+    noBtns,
   } = props;
 
   const onCheck = () => {
@@ -49,6 +51,7 @@ export const MyOverlay = (
             onPress={onClose}
             color="gray"
             size="small"
+            hidden={noBtns}
           />
         </HView>
         <View style={styles.children}>{children}</View>
@@ -59,6 +62,7 @@ export const MyOverlay = (
             onPress={onCheck}
             color="gray"
             size="small"
+            hidden={noBtns}
           />
           <HView>
             {actionLogo1 && (

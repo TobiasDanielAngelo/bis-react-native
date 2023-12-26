@@ -4,9 +4,19 @@ import { NativeRouter, Route, Routes } from "react-router-native";
 import { LoginView } from "./containers/LoginView";
 import { HomeView } from "./containers/HomeView";
 import { StoreContext, createStore } from "./stores/Store";
+import NetInfo from "@react-native-community/netinfo";
 
 export default function App() {
   const store = createStore();
+
+  React.useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      console.log(state);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <View style={styles.main}>

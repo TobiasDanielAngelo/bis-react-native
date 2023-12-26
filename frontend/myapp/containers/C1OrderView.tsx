@@ -5,6 +5,7 @@ import { HView } from "../blueprints/HView";
 import { MyButton } from "../blueprints/MyButton";
 import { MyDotPager } from "../blueprints/MyDotPager";
 import { MyDropdownPicker } from "../blueprints/MyDropdownPicker";
+import { MyDropdownPickers } from "../blueprints/MyDropdownPickers";
 import { MyIcon } from "../blueprints/MyIcon";
 import { MyList } from "../blueprints/MyList";
 import { MyOverlay } from "../blueprints/MyOverlay";
@@ -14,30 +15,20 @@ import { MyTextInput } from "../blueprints/MyTextInput";
 import { PurchaseChosenCard } from "../components/PurchaseChosenCard";
 import { PurchasePickCard } from "../components/PurchasePickCard";
 import { doNothing, suppliers } from "../constants/constants";
-import { totalValue } from "../constants/helpers";
+import { toProductShortName, totalValue } from "../constants/helpers";
 import { purchaseStore } from "../stores/PurchaseStore";
 import { useStore } from "../stores/Store";
 
-const defaultProduct = {
-  part: -1,
-  brand: "",
-  pieces: "1",
-  unitPP: "",
-  packPP: "",
-  unitSP: "",
-  packSP: "",
-  miscInfo: "",
-  location: "",
-  minimum: "",
-  unit: "pc.",
-  isOrig: false,
+const hasIntersect = (arr1: any[], arr2: any[]) => {
+  return arr1.filter((s) => arr2.includes(s)).length > 0;
 };
 
 export const C1OrderView = observer((props: { isVisible?: boolean }) => {
   const { isVisible } = props;
-  const { sparePartStore, productStore } = useStore();
+  const { sparePartStore, productStore, motorStore } = useStore();
   const [showOrders, setShowOrders] = useState(true);
   const [part, setPart] = useState(-1);
+  const [item, setItem] = useState(-1);
   const [order, setOrder] = useState(-1);
   const [refresh, setRefresh] = useState(0);
   const [index, setIndex] = useState(0);
@@ -45,20 +36,23 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
   const [index3, setIndex3] = useState(0);
   const [isVisible1, setVisible1] = useState(false);
   const [isVisible2, setVisible2] = useState(false);
+  const [motors, setMotors] = useState<number[]>([]);
   const [value, setValue] = useState("");
   const [value2, setValue2] = useState("");
 
-  const [details, setDetails] = useState(defaultProduct);
-  const [motors, setMotors] = useState<number[]>([]);
-
-  const productMatches = productStore.products
-    .filter((s) => s.part === part)
-    .sort((a, b) =>
-      (a.purchased - a.sold + a.returned + a.counted) / (a.min_quantity + 1) >
-      (b.purchased - b.sold + b.returned + b.counted) / (b.min_quantity + 1)
-        ? 1
-        : -1
-    );
+  const productMatches =
+    part === -1 && motors.length === 0
+      ? []
+      : productStore.products
+          .filter((s) => (part === -1 ? true : s.part === part))
+          .filter((s) =>
+            motors.length === 0
+              ? true
+              : hasIntersect(
+                  motors,
+                  s.motors.split(", ").map((s) => motorStore.motorId(s))
+                )
+          );
 
   const currentOrder = purchaseStore.getItem(order);
 
@@ -185,18 +179,33 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
           />
         </HView>
         <MyDropdownPicker
-          items={sparePartStore.spareParts.map((s) => ({
-            value: s.id,
-            label: s.name,
-          }))}
+          items={[
+            { value: -1, label: "ALL PARTS" },
+            ...sparePartStore.spareParts.map((s) => ({
+              value: s.id,
+              label: s.name,
+            })),
+          ]}
           value={part}
           setValue={setPart}
           label="Part Category"
           hidden={showOrders}
         />
+        <MyDropdownPickers
+          items={motorStore.motors.map((s) => ({
+            value: s.id,
+            label: s.name.replaceAll("_", " "),
+          }))}
+          values={motors}
+          setValues={setMotors}
+          hidden={showOrders}
+          label="Filter by Motor(s)"
+        />
         <View style={styles.body}>
           <MyList
-            headNote="Products"
+            headNote={`Products (${
+              item === -1 ? productMatches.length : 1
+            } Results)`}
             hidden={
               showOrders ||
               !productMatches ||
@@ -204,7 +213,12 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
             }
           >
             <FlatList
-              data={productMatches.slice(10 * index, 10 * (index + 1))}
+              data={
+                item === -1
+                  ? productMatches.slice(10 * index, 10 * (index + 1))
+                  : productMatches.filter((s) => s.id === item)
+              }
+              // removeClippedSubviews={false}
               renderItem={({ item }) => (
                 <PurchasePickCard
                   item={item}
@@ -242,11 +256,24 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
             />
           </MyList>
         </View>
+        <MyDropdownPicker
+          items={[
+            { value: -1, label: "ALL MATCHES" },
+            ...productMatches.map((s) => ({
+              value: s.id,
+              label: toProductShortName(sparePartStore, s),
+            })),
+          ]}
+          value={item}
+          setValue={setItem}
+          label="Select Item"
+          hidden={showOrders}
+        />
         <MyDotPager
           length={Math.ceil(productMatches.length / 10)}
           index={index}
           setIndex={setIndex}
-          hidden={showOrders || productMatches.length <= 10}
+          hidden={showOrders || productMatches.length <= 10 || item !== -1}
         />
         <MyDotPager
           length={purchaseItems ? Math.ceil(purchaseItems.length / 10) : 0}

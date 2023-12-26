@@ -18,6 +18,7 @@ import {
   toMoney,
   toNumString,
   toNumber,
+  toProductShortName,
   totalValue,
 } from "../constants/helpers";
 import { useStore } from "../stores/Store";
@@ -72,6 +73,10 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
     .filter((s) => !purchaseItems?.map((t) => t.product).includes(s.id));
 
   const getMatches = async () => {
+    if (query[0] === "@") {
+      setMatches([parseInt(query.replace("@", ""))]);
+      return;
+    }
     const resp = await productStore.fetchMatches(query);
     if (resp.data) {
       setMatches(resp.data.ids);
@@ -104,26 +109,9 @@ export const C3DeliveryView = observer((props: { isVisible?: boolean }) => {
     ?.map((s) => s.is_valid)
     .reduce((a, b) => a && b, true);
 
-  const toProductShortName = (t: Product) => {
-    return `${sparePartStore.sparePartName(t.part)}${
-      t.description !== "" ? " " + t.description : ""
-    }${
-      t.motors !== "" &&
-      sparePartStore.spareParts.find((s) => s.id === t.part)?.is_motor_shown
-        ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
-        : ""
-    }${t.brand !== "" ? " " + t.brand : ""}${
-      t.is_orig
-        ? " ORIG."
-        : sparePartStore.spareParts.find((s) => s.id === t.part)?.is_semi_shown
-        ? " SEMI."
-        : ""
-    }`.toUpperCase();
-  };
-
   const onPressResult = (item: Product) => {
     purchaseStore.addItemParticularPurchase({
-      description: toProductShortName(item),
+      description: toProductShortName(sparePartStore, item),
       unit: item.unit,
       purchase_price:
         Math.round(100 * (item.purchase_price / item.piece_count)) / 100,

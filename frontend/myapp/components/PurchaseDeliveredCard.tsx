@@ -5,7 +5,12 @@ import { MyCard } from "../blueprints/MyCard";
 import { MyOverlay } from "../blueprints/MyOverlay";
 import { MyText } from "../blueprints/MyText";
 import { MyTextInput } from "../blueprints/MyTextInput";
-import { roundToCash, toNumString, toNumber } from "../constants/helpers";
+import {
+  roundToCash,
+  toNumString,
+  toNumber,
+  toProductShortName,
+} from "../constants/helpers";
 import { doNothing } from "../constants/constants";
 import { Product } from "../stores/ProductStore";
 import { PurchaseItem } from "../stores/PurchaseItemStore";
@@ -133,7 +138,7 @@ export const PurchaseDeliveredCard = observer(
       if (!newProduct) return;
       purchaseStore.updateItemParticularPurchase(
         {
-          description: toProductShortName(newProduct),
+          description: toProductShortName(sparePartStore, newProduct),
           unit: newProduct.unit,
           purchase_price:
             Math.round(
@@ -184,29 +189,6 @@ export const PurchaseDeliveredCard = observer(
             onPress: () => setVisible2(true),
           },
         ].filter((s) => (item.is_valid ? s.id !== 1 : s.id !== 2));
-
-    const toProductShortName = (t?: Product, noBrand?: boolean) => {
-      return !t
-        ? ""
-        : `${sparePartStore.sparePartName(t.part)}${
-            t.description !== "" ? " " + t.description : ""
-          }${
-            t.motors !== "" &&
-            sparePartStore.spareParts.find((s) => s.id === t.part)
-              ?.is_motor_shown
-              ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
-              : ""
-          }${!noBrand && t.brand !== "" ? " " + t.brand : ""}${
-            !noBrand
-              ? t.is_orig
-                ? " ORIG."
-                : sparePartStore.spareParts.find((s) => s.id === t.part)
-                    ?.is_semi_shown
-                ? " SEMI."
-                : ""
-              : ""
-          }`.toUpperCase();
-    };
 
     useEffect(() => {
       if (!product) return;

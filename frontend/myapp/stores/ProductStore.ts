@@ -360,13 +360,6 @@ export class ProductStore extends Model({
     id: number,
     details: ProductInterface
   ) {
-    let product = this.getItem(id);
-
-    if (!product)
-      return { details: "Product not Found", ok: false, data: null };
-
-    product.update(details);
-
     let url: string;
 
     url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
@@ -408,6 +401,13 @@ export class ProductStore extends Model({
       console.error("Parsing Error", error);
       return { details: "Parsing Error", ok: false, data: null };
     }
+
+    let product = this.getItem(id);
+
+    if (!product)
+      return { details: "Product not Found", ok: false, data: null };
+
+    product.update(details);
 
     return { details: "", ok: true, data: json };
   });

@@ -535,7 +535,12 @@ export const SalesStatusBar = observer(
             selected: sale?.to_print,
           }}
           action3={
-            sale?.status === "1"
+            sale?.sales_item?.length === 0 && sale?.labor_item?.length === 0
+              ? {
+                  name: "close",
+                  onPress: onPressClose,
+                }
+              : sale?.status === "1"
               ? {
                   name: "payments",
                   onPress: onPressPayment,

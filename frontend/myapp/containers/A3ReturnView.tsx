@@ -6,7 +6,7 @@ import { MyList } from "../blueprints/MyList";
 import { SearchBar } from "../blueprints/SearchBar";
 import { SearchResultList } from "../blueprints/SearchResultList";
 import { ReturnCard } from "../components/ReturnCard";
-import { addDays } from "../constants/helpers";
+import { addDays, toProductShortName } from "../constants/helpers";
 import { Product } from "../stores/ProductStore";
 import { useStore } from "../stores/Store";
 
@@ -22,26 +22,6 @@ export const A3ReturnView = observer((props: { isVisible?: boolean }) => {
   const [focus, setFocus] = useState(false);
   const [item, setItem] = useState<Product>();
   const [matches, setMatches] = useState<number[]>([]);
-
-  const toProductShortName = (t?: Product) => {
-    return !t
-      ? ""
-      : `${sparePartStore.sparePartName(t.part)}${
-          t.description !== "" ? " " + t.description : ""
-        }${
-          t.motors !== "" &&
-          sparePartStore.spareParts.find((s) => s.id === t.part)?.is_motor_shown
-            ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
-            : ""
-        }${t.brand !== "" ? " " + t.brand : ""}${
-          t.is_orig
-            ? " ORIG."
-            : sparePartStore.spareParts.find((s) => s.id === t.part)
-                ?.is_semi_shown
-            ? " SEMI."
-            : ""
-        }`.toUpperCase();
-  };
 
   const onPressResult = (t: Product) => {
     setItem(t);
@@ -59,6 +39,10 @@ export const A3ReturnView = observer((props: { isVisible?: boolean }) => {
   );
 
   const getMatches = async () => {
+    if (query[0] === "@") {
+      setMatches([parseInt(query.replace("@", ""))]);
+      return;
+    }
     const resp = await productStore.fetchMatches(query);
     if (resp.data) {
       setMatches(resp.data.ids);
@@ -111,12 +95,13 @@ export const A3ReturnView = observer((props: { isVisible?: boolean }) => {
         <View style={styles.body}>
           <MyList
             hidden={showSearchBar || !item}
-            headNote={`Results for ${toProductShortName(item)}`}
+            headNote={`Results for ${toProductShortName(sparePartStore, item)}`}
           >
             <FlatList
               data={returnableItems}
               renderItem={({ item }) => <ReturnCard item={item} />}
               keyboardShouldPersistTaps="always"
+              removeClippedSubviews={false}
             />
           </MyList>
         </View>

@@ -16,6 +16,7 @@ export const SalesList = (props: {
           <SalesCard item={item} locked={sale?.status !== "1"} />
         )}
         keyboardShouldPersistTaps="always"
+        removeClippedSubviews={false}
       />
     </MyList>
   );

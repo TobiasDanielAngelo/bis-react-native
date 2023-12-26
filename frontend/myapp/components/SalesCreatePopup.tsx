@@ -1,9 +1,7 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MyOverlay } from "../blueprints/MyOverlay";
 import { MyTextInput } from "../blueprints/MyTextInput";
-import { randomNameGen } from "../constants/helpers";
 import { useStore } from "../stores/Store";
-import moment from "moment";
 
 export const SalesCreatePopup = (props: {
   isVisible: boolean;

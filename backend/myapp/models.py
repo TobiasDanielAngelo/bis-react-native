@@ -43,6 +43,9 @@ class SparePart(models.Model):
     name = models.CharField(max_length=30, default="")
     is_motor_shown = models.BooleanField(default=True)
     is_semi_shown = models.BooleanField(default=False)
+    label_format = models.CharField(
+        max_length=50, default="P8, D16, B10, T8", blank=True
+    )
 
     def __str__(self):
         return f"{self.name}"

@@ -7,6 +7,7 @@ import { MyDropdownPicker } from "../blueprints/MyDropdownPicker";
 import { MyDropdownPickers } from "../blueprints/MyDropdownPickers";
 import { CheckCard } from "../components/CheckCard";
 import { useStore } from "../stores/Store";
+import { toProductShortName } from "../constants/helpers";
 
 const removeDuplicates = (data: any[]) => {
   return [...new Set(data)];
@@ -24,6 +25,7 @@ export const C4CheckView = observer((props: { isVisible?: boolean }) => {
   const [location, setLocation] = useState("");
   const [part, setPart] = useState(-1);
   const [motors, setMotors] = useState<number[]>([]);
+  const [item, setItem] = useState(-1);
   const [index, setIndex] = useState(0);
 
   const allLocations = removeDuplicates(
@@ -38,13 +40,7 @@ export const C4CheckView = observer((props: { isVisible?: boolean }) => {
         ? 1
         : -1
     )
-    .sort((a, b) => (a.part > b.part ? 1 : a.part === b.part ? 0 : -1))
-    .sort((a, b) =>
-      (a.purchased - a.sold + a.returned + a.counted) / (a.min_quantity + 1) <
-      (b.purchased - b.sold + b.returned + b.counted) / (b.min_quantity + 1)
-        ? 1
-        : -1
-    );
+    .sort((a, b) => (a.part > b.part ? 1 : a.part === b.part ? 0 : -1));
 
   const allPartsByLocation = removeDuplicates(
     productsByLocation.map((s) => s.part)
@@ -99,15 +95,34 @@ export const C4CheckView = observer((props: { isVisible?: boolean }) => {
           setValues={setMotors}
           label="Filter by Motor(s)"
         />
+        <MyDropdownPicker
+          items={[
+            { value: -1, label: "ALL MATCHES" },
+            ...currentProducts.map((s) => ({
+              value: s.id,
+              label: toProductShortName(sparePartStore, s),
+            })),
+          ]}
+          value={item}
+          setValue={setItem}
+          label="Select Item"
+        />
         <MyDotPager
           length={Math.ceil(currentProducts.length / 4)}
           index={index}
           setIndex={setIndex}
-          hidden={currentProducts.length <= 4}
+          hidden={
+            currentProducts.filter((s) => (item === -1 ? true : item === s.id))
+              .length <= 4
+          }
         />
         <View style={styles.body}>
           <FlatList
-            data={currentProducts.slice(4 * index, 4 * (index + 1))}
+            data={
+              item === -1
+                ? currentProducts.slice(4 * index, 4 * (index + 1))
+                : currentProducts.filter((s) => s.id === item)
+            }
             renderItem={({ item }) => <CheckCard item={item} />}
             keyboardShouldPersistTaps="always"
             removeClippedSubviews={false}

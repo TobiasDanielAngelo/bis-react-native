@@ -360,8 +360,6 @@ export class SaleStore extends Model({
     saleId: number,
     details: SaleInterface
   ) {
-    this.sales.find((s) => saleId === s.id ?? -1)?.update(details);
-
     let url: string;
 
     url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
@@ -403,6 +401,8 @@ export class SaleStore extends Model({
       console.error("Parsing Error", error);
       return { details: "Parsing Error", ok: false, data: null };
     }
+
+    this.getItem(saleId)?.update(details);
 
     return { details: "", ok: true, data: json };
   });
@@ -586,12 +586,6 @@ export class SaleStore extends Model({
     salesId: number,
     salesItemId: number
   ) {
-    let sale = this.sales.find((s) => s.id === salesId);
-
-    if (sale) {
-      sale.updateParticularSale(details, salesItemId);
-    }
-
     let url: string;
 
     url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
@@ -634,6 +628,12 @@ export class SaleStore extends Model({
       return { details: "Parsing Error", ok: false, data: null };
     }
 
+    let sale = this.sales.find((s) => s.id === salesId);
+
+    if (sale) {
+      sale.updateParticularSale(details, salesItemId);
+    }
+
     return { details: "", ok: true, data: json };
   });
 
@@ -644,11 +644,6 @@ export class SaleStore extends Model({
     salesId: number,
     laborItemId: number
   ) {
-    let sale = this.sales.find((s) => s.id === salesId);
-
-    if (sale) {
-      sale.updateParticularLabor(details, laborItemId);
-    }
     let url: string;
 
     url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
@@ -691,6 +686,12 @@ export class SaleStore extends Model({
       return { details: "Parsing Error", ok: false, data: null };
     }
 
+    let sale = this.sales.find((s) => s.id === salesId);
+
+    if (sale) {
+      sale.updateParticularLabor(details, laborItemId);
+    }
+
     return { details: "", ok: true, data: json };
   });
 
@@ -700,12 +701,6 @@ export class SaleStore extends Model({
     salesId: number,
     salesItemId: number
   ) {
-    let sale = this.sales.find((s) => s.id === salesId);
-
-    if (sale) {
-      sale.deleteParticularSale(salesItemId);
-    }
-
     let url: string;
 
     url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
@@ -738,6 +733,12 @@ export class SaleStore extends Model({
       return { details: `${msg.error}`, ok: false, data: null };
     }
 
+    let sale = this.sales.find((s) => s.id === salesId);
+
+    if (sale) {
+      sale.deleteParticularSale(salesItemId);
+    }
+
     return { details: "", ok: true, data: null };
   });
 
@@ -747,12 +748,6 @@ export class SaleStore extends Model({
     salesId: number,
     laborItemId: number
   ) {
-    let sale = this.sales.find((s) => s.id === salesId);
-
-    if (sale) {
-      sale.deleteParticularLabor(laborItemId);
-    }
-
     let url: string;
 
     url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
@@ -783,6 +778,12 @@ export class SaleStore extends Model({
         };
       }
       return { details: `${msg.error}`, ok: false, data: null };
+    }
+
+    let sale = this.sales.find((s) => s.id === salesId);
+
+    if (sale) {
+      sale.deleteParticularLabor(laborItemId);
     }
 
     return { details: "", ok: true, data: null };

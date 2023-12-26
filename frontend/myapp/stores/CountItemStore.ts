@@ -84,7 +84,7 @@ export class CountItemStore extends Model({
       return { details: "Parsing Error", ok: false, data: null };
     }
 
-    return { details: "", ok: true, data: "" };
+    return { details: "", ok: true, data: json };
   });
 
   @modelFlow

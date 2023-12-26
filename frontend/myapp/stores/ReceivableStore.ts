@@ -298,7 +298,7 @@ export class ReceivableStore extends Model({
       return { details: "Parsing Error", ok: false, data: null };
     }
 
-    this.receivables.find((s) => receivableId === s.id ?? -1)?.update(details);
+    this.getItem(receivableId)?.update(details);
 
     return { details: "", ok: true, data: json };
   });

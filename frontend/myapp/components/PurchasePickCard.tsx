@@ -6,7 +6,7 @@ import { purchaseStore } from "../stores/PurchaseStore";
 import { useStore } from "../stores/Store";
 import { MyOverlay } from "../blueprints/MyOverlay";
 import { MyTextInput } from "../blueprints/MyTextInput";
-import { toNumString } from "../constants/helpers";
+import { toNumString, toProductShortName } from "../constants/helpers";
 
 export const PurchasePickCard = observer(
   (props: {
@@ -23,27 +23,9 @@ export const PurchasePickCard = observer(
 
     const { sparePartStore, purchaseItemStore, productStore } = useStore();
 
-    const toProductShortName = (t: Product) => {
-      return `${sparePartStore.sparePartName(t.part)}${
-        t.description !== "" ? " " + t.description : ""
-      }${
-        t.motors !== "" &&
-        sparePartStore.spareParts.find((s) => s.id === t.part)?.is_motor_shown
-          ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
-          : ""
-      }${t.brand !== "" ? " " + t.brand : ""}${
-        t.is_orig
-          ? " ORIG."
-          : sparePartStore.spareParts.find((s) => s.id === t.part)
-              ?.is_semi_shown
-          ? " SEMI."
-          : ""
-      }`.toUpperCase();
-    };
-
     const onPressAdd = () => {
       purchaseStore.addItemParticularPurchase({
-        description: toProductShortName(item),
+        description: toProductShortName(sparePartStore, item),
         unit: item.unit,
         purchase_price:
           Math.round(100 * (item.purchase_price / item.piece_count)) / 100,
@@ -104,7 +86,7 @@ export const PurchasePickCard = observer(
           details={[
             {
               id: 1,
-              text: toProductShortName(item),
+              text: toProductShortName(sparePartStore, item),
               type: "main",
             },
             {

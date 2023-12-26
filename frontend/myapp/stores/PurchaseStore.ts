@@ -276,8 +276,6 @@ export class PurchaseStore extends Model({
     purchaseId: number,
     details: PurchaseInterface
   ) {
-    this.purchases.find((s) => purchaseId === s.id ?? -1)?.update(details);
-
     let url: string;
 
     url = (yield* _await(AsyncStorage.getItem("@apiUrl"))) ?? "";
@@ -319,6 +317,8 @@ export class PurchaseStore extends Model({
       console.error("Parsing Error", error);
       return { details: "Parsing Error", ok: false, data: null };
     }
+
+    this.getItem(purchaseId)?.update(details);
 
     return { details: "", ok: true, data: json };
   });

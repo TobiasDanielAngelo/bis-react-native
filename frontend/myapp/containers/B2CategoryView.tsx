@@ -128,18 +128,21 @@ export const B2CategoryView = observer((props: { isVisible?: boolean }) => {
                   }
                 />
               )}
+              removeClippedSubviews={false}
             />
           </MyList>
           <MyList headNote="Payables" hidden={category !== 50}>
             <FlatList
               data={payables.slice(10 * index, 10 * (index + 1))}
               renderItem={({ item }) => <PayableCard item={item} />}
+              removeClippedSubviews={false}
             />
           </MyList>
           <MyList headNote="Receivables" hidden={category !== 51}>
             <FlatList
               data={receivables.slice(10 * index, 10 * (index + 1))}
               renderItem={({ item }) => <ReceivableCard item={item} />}
+              removeClippedSubviews={false}
             />
           </MyList>
           <TransactionsList

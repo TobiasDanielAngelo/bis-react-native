@@ -7,7 +7,11 @@ import { MyTextInput } from "../blueprints/MyTextInput";
 import { SearchBar } from "../blueprints/SearchBar";
 import { SearchResultList } from "../blueprints/SearchResultList";
 import { SelectionBar } from "../blueprints/SelectionBar";
-import { toNumString, toNumber } from "../constants/helpers";
+import {
+  toNumString,
+  toNumber,
+  toProductShortName,
+} from "../constants/helpers";
 import { SalesAndLaborList } from "../components/SalesAndLaborList";
 import { SalesCreatePopup } from "../components/SalesCreatePopup";
 import { SalesStatusBar } from "../components/SalesStatusBar";
@@ -117,23 +121,6 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
     });
   };
 
-  const toProductShortName = (t: Product) => {
-    return `${sparePartStore.sparePartName(t.part)}${
-      t.description !== "" ? " " + t.description : ""
-    }${
-      t.motors !== "" &&
-      sparePartStore.spareParts.find((s) => s.id === t.part)?.is_motor_shown
-        ? " " + t.motors.split(", ")[0].replaceAll("_", " ")
-        : ""
-    }${t.brand !== "" ? " " + t.brand : ""}${
-      t.is_orig
-        ? " ORIG."
-        : sparePartStore.spareParts.find((s) => s.id === t.part)?.is_semi_shown
-        ? " SEMI."
-        : ""
-    }`.toUpperCase();
-  };
-
   const onChangeLaborCost = (qty: string) => {
     let quantity = toNumString(qty);
     setLaborCost(quantity);
@@ -142,7 +129,7 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
   const onPressResult = (t: Product) => {
     if (!sale?.id) return;
     saleStore.addItemParticularSale({
-      description: toProductShortName(t),
+      description: toProductShortName(sparePartStore, t),
       unit: t.unit,
       selling_price: Math.round(t.sell_price / t.piece_count),
       product: t.id,
@@ -160,6 +147,10 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
   );
 
   const getMatches = async () => {
+    if (query[0] === "@") {
+      setMatches([parseInt(query.replace("@", ""))]);
+      return;
+    }
     const resp = await productStore.fetchMatches(query);
     let missingProdIds = [];
     if (resp.data) {
@@ -170,9 +161,7 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
       );
       setMatches(resp.data.ids);
     }
-    for (let i = 0; i < missingProdIds.length; i++) {
-      await productStore.fetchProduct(missingProdIds[i]);
-    }
+    await productStore.fetchProducts({ ids: missingProdIds });
   };
 
   useEffect(() => {

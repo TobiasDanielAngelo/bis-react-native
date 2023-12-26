@@ -1,21 +1,11 @@
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { HView } from "../blueprints/HView";
 import { ModesBar } from "../blueprints/ModesBar";
-import { MyDatePicker } from "../blueprints/MyDatePicker";
-import { MyDropdownPicker } from "../blueprints/MyDropdownPicker";
-import { MyForm } from "../blueprints/MyForm";
-import { MyIcon } from "../blueprints/MyIcon";
-import { MyText } from "../blueprints/MyText";
-import { MyTextInput } from "../blueprints/MyTextInput";
-import { toNumString, totalValue } from "../constants/helpers";
-import { accountStore } from "../stores/AccountStore";
-import { useStore } from "../stores/Store";
 import { ExpenseForm } from "../components/ExpenseForm";
 import { IncomeForm } from "../components/IncomeForm";
-import { ReceivableForm } from "../components/ReceivableForm";
 import { PayableForm } from "../components/PayableForm";
+import { ReceivableForm } from "../components/ReceivableForm";
 
 export const B1QuickView = observer((props: { isVisible?: boolean }) => {
   const { isVisible } = props;
