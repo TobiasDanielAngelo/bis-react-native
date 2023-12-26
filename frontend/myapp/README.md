@@ -71,7 +71,7 @@ December 14, 2023
 
 December 18, 2023
 
-1. Create a network error flagging to notify user of unsucessful fetching. Also, fix UI bug where the frontend is updating before the actual backend change.
+1. Create a network error flagging to notify user of unsucessful fetching. Also, fix UI bug where the frontend is updating before the actual backend change. (OK)
 2. Do modify the json data received for the analytics.
 3. Redefine numbers (ids) to enums.
 4. For 'toProductShortName', do a DRY (send sparePartStore as arg). (OK)
