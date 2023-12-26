@@ -18,7 +18,7 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-native-community/datetimepicker": "7.2.0",
-    "@react-native-community/netinfo": "^11.2.1",
+    "@react-native-community/netinfo": "9.3.10",
     "@react-navigation/drawer": "^6.6.3",
     "@react-navigation/native": "^6.1.7",
     "@shopify/flash-list": "1.4.3",
@@ -29,7 +29,7 @@
     "eslint-plugin-react-native": "^4.1.0",
     "expo": "~49.0.5",
     "expo-status-bar": "~1.6.0",
-    "expo-updates": "~0.18.17",
+    "expo-updates": "~0.18.18",
     "mobx": "^6.10.0",
     "mobx-keystone": "^1.6.4",
     "mobx-react-lite": "^4.0.3",
