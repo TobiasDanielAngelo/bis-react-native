@@ -220,29 +220,33 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
             onPress={() => setVisible1(true)}
           />
         </HView>
-        <MyDropdownPicker
-          items={[
-            { value: -1, label: "ALL PARTS" },
-            ...sparePartStore.spareParts.map((s) => ({
+        <HView>
+          <MyDropdownPicker
+            items={[
+              { value: -1, label: "ALL PARTS" },
+              ...sparePartStore.spareParts.map((s) => ({
+                value: s.id,
+                label: s.name,
+              })),
+            ]}
+            value={part}
+            setValue={setPart}
+            label="Part Category"
+            hidden={showOrders}
+            flex
+          />
+          <MyDropdownPickers
+            items={motorStore.motors.map((s) => ({
               value: s.id,
-              label: s.name,
-            })),
-          ]}
-          value={part}
-          setValue={setPart}
-          label="Part Category"
-          hidden={showOrders}
-        />
-        <MyDropdownPickers
-          items={motorStore.motors.map((s) => ({
-            value: s.id,
-            label: s.name.replaceAll("_", " "),
-          }))}
-          values={motors}
-          setValues={setMotors}
-          hidden={showOrders}
-          label="Filter by Motor(s)"
-        />
+              label: s.name.replaceAll("_", " "),
+            }))}
+            values={motors}
+            setValues={setMotors}
+            hidden={showOrders}
+            label="Filter by Motor(s)"
+            flex
+          />
+        </HView>
         <View style={styles.body}>
           <MyList
             headNote={`Products (${
@@ -260,7 +264,7 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
                   ? productMatches.slice(10 * index, 10 * (index + 1))
                   : productMatches.filter((s) => s.id === item)
               }
-              // removeClippedSubviews={false}
+              removeClippedSubviews={false}
               renderItem={({ item }) => (
                 <PurchasePickCard
                   item={item}
@@ -288,6 +292,7 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
                 purchaseItems &&
                 purchaseItems.slice(10 * index2, 10 * (index2 + 1))
               }
+              removeClippedSubviews={false}
               renderItem={({ item }) => (
                 <PurchaseChosenCard
                   item={item}

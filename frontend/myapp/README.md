@@ -78,3 +78,7 @@ December 18, 2023
 5. The "motors" field in products should have been a ManyToManyField.
 6. Documentation on how to use the app.
 7. Preempt closing of customer (delete sale) if no items inline. (OK)
+
+December 27, 2023
+
+1. Show server error.
