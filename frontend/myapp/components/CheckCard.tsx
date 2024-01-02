@@ -134,7 +134,7 @@ export const CheckCard = observer(
     };
 
     const onPressRefresh = () => {
-      productStore.fetchProducts({ ids: [item.id] });
+      productStore.fetchProduct(item.id);
       setDetails({ ...details, quantity: "" });
     };
     const onChangeExpectedQty = () => {

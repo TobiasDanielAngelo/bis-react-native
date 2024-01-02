@@ -82,3 +82,7 @@ December 18, 2023
 December 27, 2023
 
 1. Show server error.
+
+January 1, 2024
+
+1. Fixed error when tallying cash box.

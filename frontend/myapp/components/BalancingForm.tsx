@@ -92,15 +92,15 @@ export const BalancingForm = observer(
         transactionStore.addItem({
           description: "Cash Box - Bills Adjustments (+)",
           category: 54,
-          amount: Math.abs(totalBillAmt(bills) - expectedCash),
+          amount: Math.abs(totalBillAmt(bills) - expectedCashBox),
           transmitter: 11,
           receiver: 9,
         });
-      } else if (totalBillAmt(bills) - expectedCash < 0) {
+      } else if (totalBillAmt(bills) - expectedCashBox < 0) {
         transactionStore.addItem({
           description: "Cash Box - Bills Adjustments (-)",
           category: 54,
-          amount: Math.abs(totalBillAmt(bills) - expectedCash),
+          amount: Math.abs(totalBillAmt(bills) - expectedCashBox),
           transmitter: 9,
           receiver: 11,
         });
