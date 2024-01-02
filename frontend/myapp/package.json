@@ -8,7 +8,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "eas login": "eas login",
-    "eas prebuild": "expo prebuild --clean",
+    "eas-prebuild": "expo prebuild --clean",
     "eas update:configure": "eas update:configure",
     "eas build:configure": "eas build:configure",
     "build": "eas build --profile preview --platform android",
@@ -48,7 +48,8 @@
     "react-native-safe-area-context": "4.6.3",
     "react-native-select-dropdown": "^3.4.0",
     "react-native-svg": "13.9.0",
-    "react-router-native": "^6.15.0"
+    "react-router-native": "^6.15.0",
+    "expo-splash-screen": "~0.20.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
