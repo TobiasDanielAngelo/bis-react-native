@@ -11,8 +11,6 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-from datetime import timedelta
-from rest_framework.settings import api_settings
 import environ
 import os
 
@@ -173,8 +171,3 @@ REST_FRAMEWORK = {
 REST_KNOX = {
     "TOKEN_TTL": None,
 }
-
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
