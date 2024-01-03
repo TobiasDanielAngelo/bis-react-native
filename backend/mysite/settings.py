@@ -60,6 +60,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "django_extensions",
+    "werkzeug",
     "knox",
     "corsheaders",
     "myapp",
@@ -171,3 +173,8 @@ REST_FRAMEWORK = {
 REST_KNOX = {
     "TOKEN_TTL": None,
 }
+
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
