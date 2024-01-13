@@ -29,7 +29,7 @@
     "eslint-plugin-react-native": "^4.1.0",
     "expo": "~49.0.5",
     "expo-status-bar": "~1.6.0",
-    "expo-updates": "~0.18.18",
+    "expo-updates": "~0.18.19",
     "mobx": "^6.10.0",
     "mobx-keystone": "^1.6.4",
     "mobx-react-lite": "^4.0.3",
