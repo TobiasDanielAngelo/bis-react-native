@@ -15,7 +15,11 @@ import { MyTextInput } from "../blueprints/MyTextInput";
 import { PurchaseChosenCard } from "../components/PurchaseChosenCard";
 import { PurchasePickCard } from "../components/PurchasePickCard";
 import { doNothing, suppliers } from "../constants/constants";
-import { toProductShortName, totalValue } from "../constants/helpers";
+import {
+  toNumString,
+  toProductShortName,
+  totalValue,
+} from "../constants/helpers";
 import { purchaseStore } from "../stores/PurchaseStore";
 import { useStore } from "../stores/Store";
 
@@ -36,7 +40,10 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
   const [index3, setIndex3] = useState(0);
   const [isVisible1, setVisible1] = useState(false);
   const [isVisible2, setVisible2] = useState(false);
+  const [isVisible3, setVisible3] = useState(false);
   const [motors, setMotors] = useState<number[]>([]);
+  const [description, setDescription] = useState("");
+  const [purchasePrice, setPurchasePrice] = useState("");
   const [value, setValue] = useState("");
   const [value2, setValue2] = useState("");
 
@@ -58,6 +65,10 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
 
   const purchaseItems = currentOrder?.purchase_item;
 
+  const onChangePP = (t: string) => {
+    setPurchasePrice(toNumString(t, true));
+  };
+
   const onPressCheck = async () => {
     if (value === "") return;
     const resp = await purchaseStore.addItem(value);
@@ -68,6 +79,16 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
     if (value2 !== `DATS00${order}`) return;
     purchaseStore.deleteItem(order);
     setOrder(-1);
+  };
+
+  const onPressCheck3 = () => {
+    if (description === "" || isNaN(parseFloat(purchasePrice))) return;
+    purchaseStore.addItemParticularPurchase({
+      purchase: order,
+      description: description.toUpperCase(),
+      is_valid: false,
+      purchase_price: parseFloat(purchasePrice),
+    });
   };
 
   const onPressPrint = () => {
@@ -148,6 +169,27 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
             onChangeValue={setValue2}
             label="Code"
             centered
+          />
+        </MyOverlay>
+        <MyOverlay
+          title={`Add a new item`}
+          isVisible={isVisible3}
+          setVisible={setVisible3}
+          onPressCheck={onPressCheck3}
+          onPressAction1={doNothing}
+        >
+          <MyTextInput
+            value={description}
+            onChangeValue={setDescription}
+            label="Description/Unit"
+            centered
+          />
+          <MyTextInput
+            value={purchasePrice}
+            onChangeValue={onChangePP}
+            label="Purchase Price (Est.)"
+            centered
+            numeric
           />
         </MyOverlay>
         <HView hidden={!showOrders}>
@@ -286,10 +328,20 @@ export const C1OrderView = observer((props: { isVisible?: boolean }) => {
           setIndex={setIndex2}
           hidden={!showOrders || !purchaseItems || purchaseItems.length <= 10}
         />
-        <MyButton
-          label={!showOrders ? "View Order" : "View Products"}
-          onPress={toggleShow}
-        />
+        <HView>
+          <MyButton
+            label={!showOrders ? "View Order" : "View Products"}
+            onPress={toggleShow}
+            flex
+          />
+          <MyIcon
+            name="add"
+            onPress={() => setVisible3(true)}
+            noLabel
+            size="small"
+            hidden={order === -1}
+          />
+        </HView>
         <MyStatusBar
           action1={{ name: "refresh", onPress: () => setRefresh((t) => t + 1) }}
           action2={{
