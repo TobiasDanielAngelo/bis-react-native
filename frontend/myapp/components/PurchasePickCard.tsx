@@ -36,7 +36,7 @@ export const PurchasePickCard = observer(
     };
 
     const onPressRefresh = () => {
-      productStore.fetchProducts({ ids: [item.id] });
+      productStore.fetchProduct(item.id);
     };
 
     const onChangeMinQuantity = (t: string) => {

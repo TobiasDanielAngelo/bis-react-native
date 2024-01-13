@@ -19,7 +19,7 @@ from django.db.models.functions import Concat
 from knox.auth import TokenAuthentication
 from rest_framework import response, viewsets
 from rest_framework.permissions import IsAuthenticated
-from .helpers import get_dates_start
+from .helpers import get_dates_start, get_date_end
 
 from .models import (
     Account,
@@ -576,7 +576,8 @@ class TransactionViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(category=params["category"])
         if params.get("range"):
             queryset = queryset.filter(
-                datetime_transacted__gte=get_dates_start(params["range"])
+                datetime_transacted__gte=get_dates_start(params["range"]),
+                datetime_transacted__lte=get_date_end(),
             )
         if params.get("analytics"):
             analytics = queryset.aggregate(

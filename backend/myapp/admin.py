@@ -115,7 +115,13 @@ class MotorAdmin(admin.ModelAdmin):
 
 class ReceivableAdmin(admin.ModelAdmin):
     model = Receivable
-    list_display = ("pk", "borrower_name", "description", "lent_amount")
+    list_display = (
+        "pk",
+        "borrower_name",
+        "description",
+        "lent_amount",
+        "is_active",
+    )
 
 
 class PayableAdmin(admin.ModelAdmin):

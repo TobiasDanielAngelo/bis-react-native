@@ -41,11 +41,10 @@ export const PurchaseChosenCard = observer(
     };
 
     const onPressCheck = () => {
-      if (isNaN(parseFloat(value)) || parseFloat(value) === 0 || !product)
-        return;
+      if (isNaN(parseFloat(value)) || parseFloat(value) === 0) return;
       purchaseStore.updateItemParticularPurchase(
         {
-          quantity: parseFloat(value) * product.piece_count,
+          quantity: parseFloat(value) * (product?.piece_count ?? 1),
         },
         item.purchase,
         item.id

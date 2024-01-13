@@ -5,7 +5,6 @@ import math
 
 def get_dates_start(range):
     now = timezone.localtime(timezone.now())
-    print(now)
     mytz = timezone.get_current_timezone()
     if range == "5Y":
         return datetime(now.year - 4, 1, 1, tzinfo=mytz)
@@ -31,3 +30,9 @@ def get_dates_start(range):
         )
     elif range == "1D":
         return datetime(now.year, now.month, now.day, tzinfo=mytz)
+
+
+def get_date_end():
+    now = timezone.localtime(timezone.now())
+    mytz = timezone.get_current_timezone()
+    return datetime(now.year, now.month, now.day, tzinfo=mytz) + timedelta(1)

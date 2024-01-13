@@ -161,7 +161,10 @@ export const A1TransactView = observer((props: { isVisible?: boolean }) => {
       );
       setMatches(resp.data.ids);
     }
-    await productStore.fetchProducts({ ids: missingProdIds });
+
+    for (let i = 0; i < missingProdIds.length; i++) {
+      await productStore.fetchProduct(missingProdIds[i]);
+    }
   };
 
   useEffect(() => {
