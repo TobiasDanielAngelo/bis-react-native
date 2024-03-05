@@ -65,13 +65,13 @@ December 8, 2023
 
 December 14, 2023
 
-1. Create a placeholder for new item for order.
-2. Add a Search functionality for order.
+1. Create a placeholder for new item for order. (OK)
+2. Add a Search functionality for order. (Partial)
 3. Fix subview clipping. (OK)
 
 December 18, 2023
 
-1. Create a network error flagging to notify user of unsucessful fetching. Also, fix UI bug where the frontend is updating before the actual backend change.
+1. Create a network error flagging to notify user of unsucessful fetching. (Partial) | Also, fix UI bug where the frontend is updating before the actual backend change. (OK)
 2. Do modify the json data received for the analytics.
 3. Redefine numbers (ids) to enums.
 4. For 'toProductShortName', do a DRY (send sparePartStore as arg). (OK)
@@ -81,8 +81,13 @@ December 18, 2023
 
 December 27, 2023
 
-1. Show server error.
+1. Show server error. Fix this by using async.
 
 January 1, 2024
 
 1. Fixed error when tallying cash box.
+
+January 14, 2024
+
+1. Add close button for transactions for amount=0.
+2. Closing a POS should result to deletion.

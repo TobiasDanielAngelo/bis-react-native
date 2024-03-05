@@ -126,7 +126,13 @@ class ReceivableAdmin(admin.ModelAdmin):
 
 class PayableAdmin(admin.ModelAdmin):
     model = Payable
-    list_display = ("pk", "lender_name", "description", "borrowed_amount")
+    list_display = (
+        "pk",
+        "lender_name",
+        "description",
+        "borrowed_amount",
+        "datetime_due",
+    )
 
 
 class MyUserAdmin(admin.ModelAdmin):

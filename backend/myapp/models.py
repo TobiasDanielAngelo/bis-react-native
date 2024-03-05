@@ -176,9 +176,9 @@ class Receivable(models.Model):
     )
     borrower_name = models.CharField(max_length=30, default="", blank=True)
     lent_amount = models.DecimalField(
-        max_digits=7, decimal_places=2, validators=[MinValueValidator(0)], default=0
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], default=0
     )
-    description = models.CharField(max_length=30, default="", blank=True)
+    description = models.CharField(max_length=100, default="", blank=True)
     datetime_opened = models.DateTimeField(default=timezone.now)
     datetime_due = models.DateTimeField(blank=True, null=True)
     datetime_closed = models.DateTimeField(blank=True, null=True)
@@ -211,10 +211,10 @@ class Payable(models.Model):
     lender_name = models.CharField(max_length=30, default="", blank=True)
     datetime_opened = models.DateTimeField(default=timezone.now)
     datetime_due = models.DateTimeField(blank=True, null=True)
-    description = models.CharField(max_length=30, default="", blank=True)
+    description = models.CharField(max_length=100, default="", blank=True)
     datetime_closed = models.DateTimeField(blank=True, null=True)
     borrowed_amount = models.DecimalField(
-        max_digits=7, decimal_places=2, validators=[MinValueValidator(0)], default=0
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], default=0
     )
     is_active = models.BooleanField(default=True)
     user_opener = models.ForeignKey(
@@ -292,7 +292,7 @@ class SalesItem(models.Model):
     )
     is_claimed = models.BooleanField(default=False)
     selling_price = models.DecimalField(
-        max_digits=7, decimal_places=2, validators=[MinValueValidator(0)], default=0
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], default=0
     )
     user_adder = models.ForeignKey(
         MyUser,
@@ -325,7 +325,7 @@ class ReturnedItem(models.Model):
     description = models.CharField(max_length=200, default="", blank=True)
     unit = models.CharField(max_length=30, default="", blank=True)
     selling_price = models.DecimalField(
-        max_digits=7, decimal_places=2, validators=[MinValueValidator(0)], default=0
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], default=0
     )
     user = models.ForeignKey(
         MyUser,
@@ -385,7 +385,7 @@ class PurchaseItem(models.Model):
     )
     is_valid = models.BooleanField(default=True)
     purchase_price = models.DecimalField(
-        max_digits=7, decimal_places=2, validators=[MinValueValidator(0)], default=0
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], default=0
     )
     user_adder = models.ForeignKey(
         MyUser,

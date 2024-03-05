@@ -1,6 +1,5 @@
 import operator
 import re
-from datetime import date, datetime
 from functools import reduce
 
 from django.db.models import (
@@ -145,7 +144,6 @@ class ProductViewSet(viewsets.ModelViewSet):
                 ids = list(queryset.values_list("id", flat=True))
                 print(ids)
             return response.Response({"ids": ids})
-
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
 
@@ -565,6 +563,14 @@ class TransactionViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         params = self.request.query_params
+        if params.get("ids"):
+            list_to_include = params["ids"].split(" ")
+            queryset = queryset.filter(
+                reduce(
+                    operator.or_,
+                    (Q(id=x) for x in list_to_include),
+                )
+            )
         if params.get("start_date"):
             queryset = queryset.filter(datetime_transacted__gte=params["start_date"])
         if params.get("end_date"):
