@@ -132,6 +132,7 @@ class PayableAdmin(admin.ModelAdmin):
         "description",
         "borrowed_amount",
         "datetime_due",
+        "is_active",
     )
 
 
