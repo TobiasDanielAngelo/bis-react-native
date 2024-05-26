@@ -17,6 +17,7 @@ psycopg2 = "^2.9.9"
 django-extensions = "^3.2.3"
 werkzeug = "^3.0.1"
 pyopenssl = "^23.3.0"
+pillow = "^10.3.0"
 
 
 [build-system]
